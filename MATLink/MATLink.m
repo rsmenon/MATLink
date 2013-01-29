@@ -14,6 +14,8 @@ InstallMATLAB::usage = "Establish connection with the MATLAB engine"
 UninstallMATLAB::usage = "Close connection with the MATLAB engine"
 OpenMATLAB::usage = "Open MATLAB workspace"
 CloseMATLAB::usage = "Close MATLAB workspace"
+MEvaluate::usage = "Evaluates a valid MATLAB expression"
+MCell::usage = "Creates a MATLAB cell"
 
 Begin["`Developer`"]
 $mEngineSourceDirectory = FileNameJoin[{DirectoryName@$InputFileName, "mEngine","src"}];
@@ -44,6 +46,7 @@ AppendTo[$ContextPath, "mEngine`"];
 engineOpenQ = mEngine`engIsOpen;
 openEngine = mEngine`engOpen;
 closeEngine = mEngine`engClose;
+cmd = mEngine`engCmd;
 
 (* Directories and helper functions/variables *)
 $MATLABInstalledQ[] = False;
@@ -88,6 +91,30 @@ CloseMATLAB::conn = "Not connected to MATLAB engine";
 CloseMATLAB[] /; $MATLABInstalledQ[] := closeEngine[] /; engineOpenQ[] ;
 CloseMATLAB[] /; $MATLABInstalledQ[] := Message[CloseMATLAB::wksp] /; !engineOpenQ[];
 CloseMATLAB[] /; !$MATLABInstalledQ[] := Message[CloseMATLAB::conn];
+
+(*  High-level commands *)
+MEvaluate::wksp = "MATLAB workspace is closed. Open a session using OpenMATLAB[] first before evaluating.";
+MEvaluate::conn = "Not connected to MATLAB engine. Create a connection using InstallMATLAB[].";
+
+SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
+
+MEvaluate[cmd_String] /; $MATLABInstalledQ[] := engCmd[cmd] /; engineOpenQ[]
+MEvaluate[cmd_String] /; $MATLABInstalledQ[] := Message[MEvaluate::wksp] /; !engineOpenQ[]
+MEvaluate[cmd_String] /; !$MATLABInstalledQ[] := Message[MEvaluate::conn]
+
+MCell[] :=
+	Module[{},
+		CellPrint@Cell[
+			TextData[""],
+			"Program",
+			Evaluatable->True,
+			CellEvaluationFunction -> (MEvaluate[ToString@#]&),
+			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
+		];
+		SelectionMove[EvaluationNotebook[], All, EvaluationCell];
+		NotebookDelete[];
+		SelectionMove[EvaluationNotebook[], Next, CellContents]
+	]
 
 End[]
 
