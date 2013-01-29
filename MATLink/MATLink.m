@@ -10,8 +10,8 @@
 BeginPackage["MATLink`"]
 ClearAll@"`*`*"
 
-InstallMATLAB::usage = "Establish connection with the MATLAB engine"
-UninstallMATLAB::usage = "Close connection with the MATLAB engine"
+ConnectMATLAB::usage = "Establish connection with the MATLAB engine"
+DisconnectMATLAB::usage = "Close connection with the MATLAB engine"
 OpenMATLAB::usage = "Open MATLAB workspace"
 CloseMATLAB::usage = "Close MATLAB workspace"
 MEvaluate::usage = "Evaluates a valid MATLAB expression"
@@ -49,58 +49,58 @@ closeEngine = mEngine`engClose;
 cmd = mEngine`engCmd;
 
 (* Directories and helper functions/variables *)
-$MATLABInstalledQ[] = False;
-$mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine"}];
+MATLABInstalledQ[] = False;
+mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine"}];
 $openLink = {};
 
-(* Install/Uninstall MATLAB engine *)
-InstallMATLAB::conn = "Already connected to MATLAB engine"
-InstallMATLAB[] /; $mEngineBinaryExistsQ[] && !$MATLABInstalledQ[] :=
+(* Connect/Disconnect MATLAB engine *)
+ConnectMATLAB::conn = "Already connected to MATLAB engine"
+ConnectMATLAB[] /; mEngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		$openLink = Install@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine.sh"}];
-		$MATLABInstalledQ[] = True;
+		MATLABInstalledQ[] = True;
 	]
-InstallMATLAB[] /; $mEngineBinaryExistsQ[] && $MATLABInstalledQ[] := Message[InstallMATLAB::conn]
-InstallMATLAB[] /; !$mEngineBinaryExistsQ[] :=
+ConnectMATLAB[] /; mEngineBinaryExistsQ[] && MATLABInstalledQ[] := Message[ConnectMATLAB::conn]
+ConnectMATLAB[] /; !mEngineBinaryExistsQ[] :=
 	Module[{},
 		CompileMEngine[];
-		InstallMATLAB[];
+		ConnectMATLAB[];
 	]
 
-UninstallMATLAB::conn = "Not connected to MATLAB engine"
-UninstallMATLAB[] /; $MATLABInstalledQ[] :=
+DisconnectMATLAB::conn = "Not connected to MATLAB engine"
+DisconnectMATLAB[] /; MATLABInstalledQ[] :=
 	Module[{},
 		LinkClose@$openLink;
 		$openLink = {};
-		$MATLABInstalledQ[] = False;
+		MATLABInstalledQ[] = False;
 	]
-UninstallMATLAB[] /; !$MATLABInstalledQ[] := Message[UninstallMATLAB::conn]
+DisconnectMATLAB[] /; !MATLABInstalledQ[] := Message[DisconnectMATLAB::conn]
 
 (* Open/Close MATLAB Workspace *)
 OpenMATLAB::wksp = "MATLAB workspace is open";
-OpenMATLAB[] /; $MATLABInstalledQ[] := openEngine[] /; !engineOpenQ[];
-OpenMATLAB[] /; $MATLABInstalledQ[] := Message[OpenMATLAB::wksp] /; engineOpenQ[];
-OpenMATLAB[] /; !$MATLABInstalledQ[] :=
+OpenMATLAB[] /; MATLABInstalledQ[] := openEngine[] /; !engineOpenQ[];
+OpenMATLAB[] /; MATLABInstalledQ[] := Message[OpenMATLAB::wksp] /; engineOpenQ[];
+OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
-		InstallMATLAB[];
+		ConnectMATLAB[];
 		OpenMATLAB[];
 	]
 
 CloseMATLAB::wksp = "MATLAB workspace is closed";
 CloseMATLAB::conn = "Not connected to MATLAB engine";
-CloseMATLAB[] /; $MATLABInstalledQ[] := closeEngine[] /; engineOpenQ[] ;
-CloseMATLAB[] /; $MATLABInstalledQ[] := Message[CloseMATLAB::wksp] /; !engineOpenQ[];
-CloseMATLAB[] /; !$MATLABInstalledQ[] := Message[CloseMATLAB::conn];
+CloseMATLAB[] /; MATLABInstalledQ[] := closeEngine[] /; engineOpenQ[] ;
+CloseMATLAB[] /; MATLABInstalledQ[] := Message[CloseMATLAB::wksp] /; !engineOpenQ[];
+CloseMATLAB[] /; !MATLABInstalledQ[] := Message[CloseMATLAB::conn];
 
 (*  High-level commands *)
 MEvaluate::wksp = "MATLAB workspace is closed. Open a session using OpenMATLAB[] first before evaluating.";
-MEvaluate::conn = "Not connected to MATLAB engine. Create a connection using InstallMATLAB[].";
+MEvaluate::conn = "Not connected to MATLAB engine. Create a connection using ConnectMATLAB[].";
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
-MEvaluate[cmd_String] /; $MATLABInstalledQ[] := engCmd[cmd] /; engineOpenQ[]
-MEvaluate[cmd_String] /; $MATLABInstalledQ[] := Message[MEvaluate::wksp] /; !engineOpenQ[]
-MEvaluate[cmd_String] /; !$MATLABInstalledQ[] := Message[MEvaluate::conn]
+MEvaluate[cmd_String] /; MATLABInstalledQ[] := engCmd[cmd] /; engineOpenQ[]
+MEvaluate[cmd_String] /; MATLABInstalledQ[] := Message[MEvaluate::wksp] /; !engineOpenQ[]
+MEvaluate[cmd_String] /; !MATLABInstalledQ[] := Message[MEvaluate::conn]
 
 MCell[] :=
 	Module[{},

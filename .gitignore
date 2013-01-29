@@ -1,0 +1,6 @@
+.DS_Store
+.project
+*.o
+*.nb
+*.mscrapbook
+MATLink/mEngine/mEngine
