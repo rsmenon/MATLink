@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-void engsetReal(char *name) {
+void engsetRealArray(char *name) {
 	double *data;
 	int    *dims;
 	char  **heads;
@@ -44,7 +44,7 @@ void engsetReal(char *name) {
 }
 
 
-void engsetComplex(char *name) {
+void engsetComplexArray(char *name) {
 	// Need to keep separate vars for Real and Imag
 	// so memory can be freed for both
 	double *dataReal;
