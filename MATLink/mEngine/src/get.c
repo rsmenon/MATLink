@@ -46,6 +46,7 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 		Pr = mxGetPr(matlabVar);
 		Pi = mxGetPi(matlabVar);
 
+		MLPutFunction(link, "Transpose", 2);
 		if (mxIsComplex(matlabVar)) {
 			//output re+im*I
 			MLPutFunction(link, "Plus", 2);
@@ -56,6 +57,15 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 		}
 		else {
 			MLPutReal64Array(link, Pr, mmaDims, NULL, depth);
+		}
+		MLPutFunction(link, "PermutationList",1);
+		MLPutFunction(link, "Cycles", 1);
+		MLPutFunction(link, "List", 1);
+		{
+			int tr[2];
+			tr[0] = depth;
+			tr[1] = depth-1;
+			MLPutInteger32List(link, tr, 2);
 		}
 	}
 	// char array (string); TODO handle multidimensional char arrays
