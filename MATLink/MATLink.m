@@ -52,12 +52,27 @@ cmd = mEngine`engCmd;
 MATLABInstalledQ[] = False;
 mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine"}];
 $openLink = {};
+$sessionID = {};
+$sessionTemporaryDirectory = {};
+
+mEngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mEngine.sh"];
+cleanupOldLinks[] :=
+	Module[{},
+		LinkClose /@ Select[Links[], mEngineLinkQ];
+		MATLABInstalledQ[] = False;
+	]
 
 (* Connect/Disconnect MATLAB engine *)
 ConnectMATLAB::conn = "Already connected to MATLAB engine"
 ConnectMATLAB[] /; mEngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
+		cleanupOldLinks[];
 		$openLink = Install@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine.sh"}];
+		$sessionID = StringJoin[
+			 IntegerString[{Most@DateList[]}, 10, 2],
+			 IntegerString[List @@ Rest@$openLink]
+		];
+		$sessionTemporaryDirectory = FileNameJoin[{$TemporaryDirectory, "MATLink" <> $sessionID}];
 		MATLABInstalledQ[] = True;
 	]
 ConnectMATLAB[] /; mEngineBinaryExistsQ[] && MATLABInstalledQ[] := Message[ConnectMATLAB::conn]
