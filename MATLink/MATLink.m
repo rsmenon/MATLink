@@ -15,6 +15,7 @@ DisconnectMATLAB::usage = "Close connection with the MATLAB engine"
 OpenMATLAB::usage = "Open MATLAB workspace"
 CloseMATLAB::usage = "Close MATLAB workspace"
 MEvaluate::usage = "Evaluates a valid MATLAB expression"
+MScript::usage = "Create a MATLAB script file"
 MCell::usage = "Creates a MATLAB cell"
 
 Begin["`Developer`"]
@@ -52,12 +53,28 @@ cmd = mEngine`engCmd;
 MATLABInstalledQ[] = False;
 mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine"}];
 $openLink = {};
+$sessionID = {};
+$sessionTemporaryDirectory = {};
+
+mEngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mEngine.sh"];
+cleanupOldLinks[] :=
+	Module[{},
+		LinkClose /@ Select[Links[], mEngineLinkQ];
+		MATLABInstalledQ[] = False;
+	]
 
 (* Connect/Disconnect MATLAB engine *)
 ConnectMATLAB::conn = "Already connected to MATLAB engine"
 ConnectMATLAB[] /; mEngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
+		cleanupOldLinks[];
 		$openLink = Install@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine.sh"}];
+		$sessionID = StringJoin[
+			 IntegerString[{Most@DateList[]}, 10, 2],
+			 IntegerString[List @@ Rest@$openLink]
+		];
+		$sessionTemporaryDirectory = FileNameJoin[{$TemporaryDirectory, "MATLink" <> $sessionID}];
+		CreateDirectory@$sessionTemporaryDirectory;
 		MATLABInstalledQ[] = True;
 	]
 ConnectMATLAB[] /; mEngineBinaryExistsQ[] && MATLABInstalledQ[] := Message[ConnectMATLAB::conn]
@@ -84,6 +101,7 @@ OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
 		ConnectMATLAB[];
 		OpenMATLAB[];
+		MEvaluate["addpath('" <> $sessionTemporaryDirectory <> "')"];
 	]
 
 CloseMATLAB::wksp = "MATLAB workspace is closed";
@@ -101,6 +119,26 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 MEvaluate[cmd_String] /; MATLABInstalledQ[] := engCmd[cmd] /; engineOpenQ[]
 MEvaluate[cmd_String] /; MATLABInstalledQ[] := Message[MEvaluate::wksp] /; !engineOpenQ[]
 MEvaluate[cmd_String] /; !MATLABInstalledQ[] := Message[MEvaluate::conn]
+MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
+	engCmd[name] /; engineOpenQ[]
+MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
+	Message[MScript::file]
+MEvaluate[___] /; MATLABInstalledQ[] := Message[MEvaluate::wksp] /; !engineOpenQ[]
+MEvaluate[___] /; !MATLABInstalledQ[] := Message[MEvaluate::conn]
+
+MScript::wksp = "MATLAB workspace is closed. Open a session using OpenMATLAB[] first before evaluating.";
+MScript::conn = "Not connected to MATLAB engine. Create a connection using ConnectMATLAB[].";
+MScript::file = "No valid script by that name found";
+MScript[name_String, cmd_String] /; MATLABInstalledQ[] :=
+	Module[{file},
+		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]];
+		WriteString[file, cmd];
+		Close[file];
+	]
+MScript[name_String, cmd_String] /; !MATLABInstalledQ[] := Message[MScript::conn]
+
+MScriptQ[name_String] /; MATLABInstalledQ[] :=
+	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
 MCell[] :=
 	Module[{},
