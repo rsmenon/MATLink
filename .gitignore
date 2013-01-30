@@ -4,3 +4,5 @@
 *.nb
 *.mscrapbook
 MATLink/mEngine/mEngine
+MATLink/mEngine/src/template.c
+MATLink/mEngine/src/mEngine

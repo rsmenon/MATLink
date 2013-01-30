@@ -24,8 +24,8 @@ all: mEngine
 template.c: template.tm
 	$(MPREP) template.tm > template.c
 
-mEngine: open.o close.o cmd.o get.o put.o isopen.o mengine.o vis.o main.o template.o
-	$(CC) open.o close.o cmd.o get.o put.o isopen.o mengine.o vis.o main.o template.o $(LIBDIRS) -lMLi3 -lmx -leng ${EXTRA_LIBS} -o mEngine
+mEngine: open.o close.o cmd.o get.o put.o isopen.o mengine.o vis.o set.o main.o template.o
+	$(CC) open.o close.o cmd.o get.o put.o isopen.o mengine.o vis.o main.o set.o template.o $(LIBDIRS) -lMLi3 -lmx -leng ${EXTRA_LIBS} -o mEngine
 
 clean:
 	rm -rf *.o mEngine template.c

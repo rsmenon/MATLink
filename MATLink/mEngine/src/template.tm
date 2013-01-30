@@ -85,12 +85,47 @@
 	engGet::ertp = 
 	"Cannot get MATLAB array other than double precision numeric."
 
+
+:Evaluate:
+	engSet::usage =
+	"Set variable in the MATLAB workspace"
+
+:Evaluate:
+	engSetArray[name_String, arg_ /; !FreeQ[arg, Complex]] := engSetArray[name, Re[arg], Im[arg]]
+
+:Evaluate:
+	engSet[name_String, num_?NumberQ] := engSetArray[name, {num}]
+
+:Evaluate:
+	engSet[name_String, arr_?ArrayQ] := 
+	  Module[{tr},
+	    tr = Range@ArrayDepth[arr];
+	    If[Length[tr] > 1, {tr[[-1]], tr[[-2]]} = {tr[[-2]], tr[[-1]]}];
+	    engSetArray[name, Transpose[arr, tr]]
+	  ]
+
 :Evaluate:
 	EndPackage[]
 
 /***************************************************************/
 
 :Evaluate:  Begin["mEngine`Private`"]
+
+:Begin:
+:Function:		engsetRealArray
+:Pattern:		engSetArray[name_String, arr_]
+:Arguments:		{name, arr}
+:ArgumentTypes:	{String, Manual}
+:ReturnType:	Manual
+:End:
+
+:Begin:
+:Function:		engsetComplexArray
+:Pattern:		engSetArray[name_String, arrRe_, arrIm_]
+:Arguments:		{name, arrRe, arrIm}
+:ArgumentTypes:	{String, Manual}
+:ReturnType:	Manual
+:End:
 
 :Begin:			
 :Function:		engopen

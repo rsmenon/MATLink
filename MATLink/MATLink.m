@@ -117,6 +117,8 @@ MEvaluate::conn = "Not connected to MATLAB engine. Create a connection using Con
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 MEvaluate[cmd_String] /; MATLABInstalledQ[] := engCmd[cmd] /; engineOpenQ[]
+MEvaluate[cmd_String] /; MATLABInstalledQ[] := Message[MEvaluate::wksp] /; !engineOpenQ[]
+MEvaluate[cmd_String] /; !MATLABInstalledQ[] := Message[MEvaluate::conn]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
 	engCmd[name] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
