@@ -86,11 +86,40 @@
 	"Cannot get MATLAB array other than double precision numeric."
 
 :Evaluate:
+	engSet::usage =
+	"Set variable in the MATLAB workspace"
+
+:Evaluate:
+	engSet[name_String, arg_ /; !FreeQ[arg, Complex]] := engSet[name, Re[arg], Im[arg]]
+
+:Evaluate:
+	engSet[name_String, num_?NumberQ] := engSet[name, {num}]
+
+:Evaluate:
+	engSet[name_String, numRe_?NumberQ, numIm_?NumberQ] := engSet[name, {numRe}, {numIm}]
+
+:Evaluate:
 	EndPackage[]
 
 /***************************************************************/
 
 :Evaluate:  Begin["mEngine`Private`"]
+
+:Begin:
+:Function:		engsetReal
+:Pattern:		engSet[name_String, arr_]
+:Arguments:		{name, arr}
+:ArgumentTypes:	{String, Manual}
+:ReturnType:	Manual
+:End:
+
+:Begin:
+:Function:		engsetComplex
+:Pattern:		engSet[name_String, arrRe_, arrIm_]
+:Arguments:		{name, arrRe, arrIm}
+:ArgumentTypes:	{String, Manual}
+:ReturnType:	Manual
+:End:
 
 :Begin:			
 :Function:		engopen

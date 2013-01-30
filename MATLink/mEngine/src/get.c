@@ -20,9 +20,7 @@
 // To be used with loopback links
 // Returns 0 on success
 // Returns 1 on failure and may leave the link with a half-built expression
-int toMma(const mxArray *matlabVar, MLINK link) {
-	int err = 0; // default success
-
+void toMma(const mxArray *matlabVar, MLINK link) {
 	mwSize        depth;
 	const mwSize *matlabDims;
 	int          *mmaDims;
@@ -39,6 +37,7 @@ int toMma(const mxArray *matlabVar, MLINK link) {
 		mmaDims[i] = matlabDims[depth - 1 - i];
 
 
+	// numerical; TODO handle single precision and other types
 	if (mxIsDouble(matlabVar)) {
 		double *Pr = NULL;	//pointer to real
 		double *Pi = NULL;	//pointer to imaginary
@@ -59,6 +58,7 @@ int toMma(const mxArray *matlabVar, MLINK link) {
 			MLPutReal64Array(link, Pr, mmaDims, NULL, depth);
 		}
 	}
+	// char array (string); TODO handle multidimensional char arrays
 	else if (mxIsChar(matlabVar)) {
 		char *str;
 
@@ -66,14 +66,13 @@ int toMma(const mxArray *matlabVar, MLINK link) {
 		MLPutUTF8String(link, (unsigned char *) str, strlen(str));
 		mxFree(str);
 	}
+	// unknown or failure; TODO distinguish between unknown and failure
 	else
 	{
-		err = 1; // failure
+		MLPutSymbol(link, "$Failed");
 	}
 
 	free(mmaDims);
-
-	return err; // failure
 }
 
 
@@ -96,11 +95,13 @@ void engget(const char* VarName)
 		goto epilog;
 	}
 
+	/*
 	if ( toMma(MxVar, stdlink) ) { // failure
 		msg("engGet::ertp");
 		SUCCESS = false;
 		goto epilog;
-	}
+	}*/
+	toMma(MxVar, stdlink);
 
 epilog:
 	// cleanup
