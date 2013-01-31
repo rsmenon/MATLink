@@ -18,6 +18,7 @@ MGet::usage = "Import MATLAB variable into Mathematica."
 MSet::usage = "Define variable in MATLAB workspace."
 MEvaluate::usage = "Evaluates a valid MATLAB expression"
 MScript::usage = "Create a MATLAB script file"
+MFunction::usage = "Create a link to a MATLAB function for use from Mathematica."
 MCell::usage = "Creates a MATLAB cell"
 
 Begin["`Developer`"]
@@ -61,8 +62,9 @@ set = mEngine`engSet;
 MATLABInstalledQ[] = False;
 mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine"}];
 $openLink = {};
-$sessionID = {};
-$sessionTemporaryDirectory = {};
+$sessionID = "";
+$temporaryVariablePrefix = "";
+$sessionTemporaryDirectory = "";
 
 mEngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mEngine.sh"];
 
@@ -107,6 +109,7 @@ ConnectMATLAB[] /; mEngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 			 IntegerString[{Most@DateList[]}, 10, 2],
 			 IntegerString[List @@ Rest@$openLink]
 		];
+		$temporaryVariablePrefix = "MATLink" <> $sessionID;
 		$sessionTemporaryDirectory = FileNameJoin[{$TemporaryDirectory, "MATLink" <> $sessionID}];
 		CreateDirectory@$sessionTemporaryDirectory;
 		MATLABInstalledQ[] = True;
@@ -173,6 +176,15 @@ MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Message[MScript::owrt, "MScript"] /; MScriptQ[name] && !OptionValue[OverWrite]
 MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := Message[MScript::engc]
+
+MFunction[name_String][args___] /; MATLABInstalledQ[] :=
+	With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
+		Thread[MSet[vars, {args}]];
+		MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ")"]];
+		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
+	]
+MFunction[name_String][args___] /; MATLABInstalledQ[] := Message[MFunction::wspc] /; !engineOpenQ[]
+MFunction[name_String][args___] /; !MATLABInstalledQ[] := Message[MFunction::engc]
 
 MCell[] :=
 	Module[{},
