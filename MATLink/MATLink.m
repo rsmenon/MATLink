@@ -83,6 +83,13 @@ convertToMathematica[expr_] :=
 		True, expr
 	]
 
+convertToMATLAB[expr_] :=
+	Which[
+		ArrayQ[expr, _, NumericQ], Transpose[
+			expr, Range@ArrayDepth@expr /. {k___, i_, j_} :> {i, j}~Join~Reverse@{k}],
+		True, expr
+	]
+
 (* Common error messages *)
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
@@ -143,10 +150,9 @@ MGet[_String] /; !MATLABInstalledQ[] := Message[MGet::engc]
 
 SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
 MSet[var_String, expr_] /; MATLABInstalledQ[] :=
-	set[var, expr] /; engineOpenQ[]
+	set[var, convertToMATLAB@expr] /; engineOpenQ[]
 MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
-
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 MEvaluate[cmd_String] /; MATLABInstalledQ[] := engCmd[cmd] /; engineOpenQ[]
