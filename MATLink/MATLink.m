@@ -58,19 +58,24 @@ engGet::unimpl = "Translating the MATAB type \"`1`\" is not supported"
    Note that structs and cells may contain subxpressions of other types.
 *)
 
-matUnknown[s_] := (Message[engGet::unimpl, s]; $Failed)
-
+(* standardize[arr, dims] takes an array with elements of arbitrary types,
+	as returned by MATLAB, and transposes them to a Mathematica format.
+	It also converts 1 by 1 arrays to scalars and one-row matrices to vectors. *)
 standardize[arr_, {1, 1}]  := arr[[1,1 ]] 
 standardize[arr_, {_, 1}] := arr[[All, 1]]
 standardize[arr_, dims_] := Transpose[arr, PermutationList@Cycles[{Length[dims] - {1,0}}]]
 
+listToArray[lst_, dims_] := First@Fold[Partition, lst, Reverse[dims]]
+
 matArray[arr_, dims_] := standardize[arr, dims]
 
-matCell[lst_, dims_] := standardize[First@Fold[Partition, lst, Reverse[dims]], dims]
+matCell[lst_, dims_] := standardize[listToArray[lst, dims], dims]
 
 matString[s_] := s
 
-matStruct[s_] := s (* TODO implement multielement structs *)
+matStruct[lst_, dims_] := standardize[listToArray[lst, dims], dims]
+
+matUnknown[s_] := (Message[engGet::unimpl, s]; $Failed)
 
 End[]
 

@@ -25,7 +25,7 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 	const mwSize *matlabDims;
 	int          *mmaDims;
 
-	int i;
+	int i, j;
 
 	//retrive size information
 	depth = mxGetNumberOfDimensions(matlabVar);
@@ -77,19 +77,25 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 	}
 	// struct
 	else if (mxIsStruct(matlabVar)) {
+		int len;
 		int nfields;
 
+		len = mxGetNumberOfElements(matlabVar);
 		nfields = mxGetNumberOfFields(matlabVar);
-		MLPutFunction(link, "matStruct", 1);
-		MLPutFunction(link, "List", nfields);
-		for (i=0; i < nfields; ++i) {
-			const char *fieldname;
+		MLPutFunction(link, "matStruct", 2);
+		MLPutFunction(link, "List", len);
+		for (j = 0; j < len; ++j) {
+			MLPutFunction(link, "List", nfields);
+			for (i=0; i < nfields; ++i) {
+				const char *fieldname;
 
-			fieldname = mxGetFieldNameByNumber(matlabVar, i);
-			MLPutFunction(link, "Rule", 2);
-			MLPutString(link, fieldname);
-			toMma(mxGetFieldByNumber(matlabVar, 0, i), link); // TODO support multielement fields
+				fieldname = mxGetFieldNameByNumber(matlabVar, i);
+				MLPutFunction(link, "Rule", 2);
+				MLPutString(link, fieldname);
+				toMma(mxGetFieldByNumber(matlabVar, j, i), link); // TODO support multielement fields
+			}
 		}
+		MLPutInteger32List(link, mmaDims, depth);
 	}
 	// cell
 	else if (mxIsCell(matlabVar)) {
