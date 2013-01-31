@@ -50,7 +50,7 @@ End[]
 	are part of this context *)
 Begin["`mEngine`"]
 
-engGet::unimpl = "Translating the \"`1`\" MATAB type is not supported"
+engGet::unimpl = "Translating the MATAB type \"`1`\" is not supported"
 
 (* The following mat* functions translate the semi-raw MATLAB data returned
    by mEngine into their final Mathematica form.  engGet[] will always return
@@ -60,9 +60,13 @@ engGet::unimpl = "Translating the \"`1`\" MATAB type is not supported"
 
 matUnknown[s_] := (Message[engGet::unimpl, s]; $Failed)
 
-matArray[{{number_}}] := number
-matArray[arr_ /; MatchQ[Dimensions[arr], {_, 1}] ] := arr[[All, 1]]
-matArray[arr_] := Transpose[arr, PermutationList@Cycles[{ArrayDepth[arr] - {1,0}}]]
+standardize[arr_, {1, 1}]  := arr[[1,1 ]] 
+standardize[arr_, {_, 1}] := arr[[All, 1]]
+standardize[arr_, dims_] := Transpose[arr, PermutationList@Cycles[{Length[dims] - {1,0}}]]
+
+matArray[arr_, dims_] := standardize[arr, dims]
+
+matCell[lst_, dims_] := standardize[First@Fold[Partition, lst, Reverse[dims]], dims]
 
 matString[s_] := s
 
