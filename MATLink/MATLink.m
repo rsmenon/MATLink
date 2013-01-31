@@ -46,17 +46,24 @@ SupportedMATLABTypeQ[expr_] :=
 
 End[]
 
+(* Low level functions strongly tied with the C code
+	are part of this context *)
+Begin["`mEngine`"]
+
+End[]
+
+
 Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
-AppendTo[$ContextPath, "mEngine`"];
+AppendTo[$ContextPath, "MATLink`mEngine`"];
 
 (* Lowlevel mEngine functions *)
-engineOpenQ = mEngine`engIsOpen;
-openEngine = mEngine`engOpen;
-closeEngine = mEngine`engClose;
-cmd = mEngine`engCmd;
-get = mEngine`engGet;
-set = mEngine`engSet;
+engineOpenQ = MATLink`mEngine`engIsOpen;
+openEngine = MATLink`mEngine`engOpen;
+closeEngine = MATLink`mEngine`engClose;
+cmd = MATLink`mEngine`engCmd;
+get = MATLink`mEngine`engGet;
+set = MATLink`mEngine`engSet;
 
 (* Directories and helper functions/variables *)
 MATLABInstalledQ[] = False;

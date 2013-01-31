@@ -10,7 +10,7 @@
 *******************************************************/
 
 :Evaluate:
-	BeginPackage["mEngine`"]
+	BeginPackage["MATLink`mEngine`"]
 
 :Evaluate:
 	eng::arg = 
@@ -109,7 +109,7 @@
 
 /***************************************************************/
 
-:Evaluate:  Begin["mEngine`Private`"]
+:Evaluate:  Begin["MATLink`mEngine`Private`"]
 
 :Begin:
 :Function:		engsetRealArray
