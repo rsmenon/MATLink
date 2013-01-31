@@ -50,6 +50,24 @@ End[]
 	are part of this context *)
 Begin["`mEngine`"]
 
+engGet::unimpl = "Translating the \"`1`\" MATAB type is not supported"
+
+(* The following mat* functions translate the semi-raw MATLAB data returned
+   by mEngine into their final Mathematica form.  engGet[] will always return
+   either $Failed, or an expression wrapped in one of the below heads.
+   Note that structs and cells may contain subxpressions of other types.
+*)
+
+matUnknown[s_] := (Message[engGet::unimpl, s]; $Failed)
+
+matArray[{{number_}}] := number
+matArray[arr_ /; MatchQ[Dimensions[arr], {_, 1}] ] := arr[[All, 1]]
+matArray[arr_] := Transpose[arr, PermutationList@Cycles[{ArrayDepth[arr] - {1,0}}]]
+
+matString[s_] := s
+
+matStruct[s_] := s (* TODO implement multielement structs *)
+
 End[]
 
 

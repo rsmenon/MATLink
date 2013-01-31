@@ -46,7 +46,7 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 		Pr = mxGetPr(matlabVar);
 		Pi = mxGetPi(matlabVar);
 
-		MLPutFunction(link, "Transpose", 2);
+		MLPutFunction(link, "matArray", 1);
 		if (mxIsComplex(matlabVar)) {
 			//output re+im*I
 			MLPutFunction(link, "Plus", 2);
@@ -58,28 +58,39 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 		else {
 			MLPutReal64Array(link, Pr, mmaDims, NULL, depth);
 		}
-		MLPutFunction(link, "PermutationList",1);
-		MLPutFunction(link, "Cycles", 1);
-		MLPutFunction(link, "List", 1);
-		{
-			int tr[2];
-			tr[0] = depth;
-			tr[1] = depth-1;
-			MLPutInteger32List(link, tr, 2);
-		}
 	}
 	// char array (string); TODO handle multidimensional char arrays
 	else if (mxIsChar(matlabVar)) {
 		char *str;
 
 		str = mxArrayToString(matlabVar);
+		MLPutFunction(link, "matString", 1);
 		MLPutUTF8String(link, (unsigned char *) str, strlen(str));
 		mxFree(str);
+	}
+	else if (mxIsStruct(matlabVar)) {
+		int nfields;
+
+		nfields = mxGetNumberOfFields(matlabVar);
+		MLPutFunction(link, "matStruct", 1);
+		MLPutFunction(link, "List", nfields);
+		for (i=0; i < nfields; ++i) {
+			const char *fieldname;
+
+			fieldname = mxGetFieldNameByNumber(matlabVar, i);
+			MLPutFunction(link, "Rule", 2);
+			MLPutString(link, fieldname);
+			toMma(mxGetFieldByNumber(matlabVar, 0, i), link); // TODO support multielement fields
+		}
 	}
 	// unknown or failure; TODO distinguish between unknown and failure
 	else
 	{
-		MLPutSymbol(link, "$Failed");
+		const char *classname;
+
+		classname = mxGetClassName(matlabVar);
+		MLPutFunction(link, "matUnknown", 1);
+		MLPutString(link, classname);
 	}
 
 	free(mmaDims);
