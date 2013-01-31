@@ -14,6 +14,8 @@ ConnectMATLAB::usage = "Establish connection with the MATLAB engine"
 DisconnectMATLAB::usage = "Close connection with the MATLAB engine"
 OpenMATLAB::usage = "Open MATLAB workspace"
 CloseMATLAB::usage = "Close MATLAB workspace"
+MGet::usage = "Import MATLAB variable into Mathematica."
+MSet::usage = "Define variable in MATLAB workspace."
 MEvaluate::usage = "Evaluates a valid MATLAB expression"
 MScript::usage = "Create a MATLAB script file"
 MCell::usage = "Creates a MATLAB cell"
@@ -52,6 +54,8 @@ engineOpenQ = mEngine`engIsOpen;
 openEngine = mEngine`engOpen;
 closeEngine = mEngine`engClose;
 cmd = mEngine`engCmd;
+get = mEngine`engGet;
+set = mEngine`engSet;
 
 (* Directories and helper functions/variables *)
 MATLABInstalledQ[] = False;
@@ -61,10 +65,29 @@ $sessionID = {};
 $sessionTemporaryDirectory = {};
 
 mEngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mEngine.sh"];
+
 cleanupOldLinks[] :=
 	Module[{},
 		LinkClose /@ Select[Links[], mEngineLinkQ];
 		MATLABInstalledQ[] = False;
+	]
+
+MScriptQ[name_String] /; MATLABInstalledQ[] :=
+	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
+
+convertToMathematica[expr_] :=
+	Which[
+		ArrayQ[expr, _, NumericQ], Transpose[
+			expr, Range@ArrayDepth@expr /. {i_, j_, k___} :> Reverse@{k}~Join~{i, j}],
+		StringQ, expr,
+		True, expr
+	]
+
+convertToMATLAB[expr_] :=
+	Which[
+		ArrayQ[expr, _, NumericQ], Transpose[
+			expr, Range@ArrayDepth@expr /. {k___, i_, j_} :> {i, j}~Join~Reverse@{k}],
+		True, expr
 	]
 
 (* Common error messages *)
@@ -119,8 +142,19 @@ CloseMATLAB[] /; MATLABInstalledQ[] := Message[CloseMATLAB::wspc] /; !engineOpen
 CloseMATLAB[] /; !MATLABInstalledQ[] := Message[CloseMATLAB::engc];
 
 (*  High-level commands *)
-SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
+SyntaxInformation[MGet] = {"ArgumentsPattern" -> {_}};
+MGet[var_String] /; MATLABInstalledQ[] :=
+	convertToMathematica@get[var] /; engineOpenQ[]
+MGet[_String] /; MATLABInstalledQ[] := Message[MGet::wspc] /; !engineOpenQ[]
+MGet[_String] /; !MATLABInstalledQ[] := Message[MGet::engc]
 
+SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
+MSet[var_String, expr_] /; MATLABInstalledQ[] :=
+	set[var, convertToMATLAB@expr] /; engineOpenQ[]
+MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
+MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
+
+SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 MEvaluate[cmd_String] /; MATLABInstalledQ[] := engCmd[cmd] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
 	engCmd[name] /; engineOpenQ[]
@@ -139,9 +173,6 @@ MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Message[MScript::owrt, "MScript"] /; MScriptQ[name] && !OptionValue[OverWrite]
 MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := Message[MScript::engc]
-
-MScriptQ[name_String] /; MATLABInstalledQ[] :=
-	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
 MCell[] :=
 	Module[{},
