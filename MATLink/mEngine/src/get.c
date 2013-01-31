@@ -31,11 +31,17 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 	depth = mxGetNumberOfDimensions(matlabVar);
 	matlabDims = mxGetDimensions(matlabVar);
 
+	for (i = 0; i < depth; ++i) {
+		if (matlabDims[i] == 0) {
+			MLPutFunction(link, "List", 0);	// temporary workaround for empty array, just return {};  TODO fix
+			return;
+		}
+	}
+
 	//translate dimension information to Mathematica
 	mmaDims = malloc(depth * sizeof(int));
 	for(i = 0; i < depth; ++i)
 		mmaDims[i] = matlabDims[depth - 1 - i];
-
 
 	// numerical; TODO handle single precision and other types
 	if (mxIsDouble(matlabVar)) {
