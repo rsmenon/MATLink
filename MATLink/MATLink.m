@@ -31,13 +31,17 @@ CompileMEngine[] :=
 		Run["mv mEngine ../"];
 		SetDirectory@dir
 	]
-End[]
+
+CleanupTemporaryDirectories[] :=
+	DeleteDirectory[#, DeleteContents -> True] & /@ FileNames@FileNameJoin[{$TemporaryDirectory,"MATLink*"}];
 
 SupportedMATLABTypeQ[expr_] :=
 	Or[
 		VectorQ[expr, NumericQ], (* 1D lists/row vectors *)
 		MatrixQ[expr, NumericQ] (* Matrices *)
 	]
+
+End[]
 
 Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
@@ -68,6 +72,8 @@ General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
 General::engc = "Not connected to the MATLAB engine."
+General::nofn = "The `1` \"`2`\" does not exist."
+General::owrt = "An `1` by that name already exists. Use OverWrite \[Rule] True to overwrite."
 
 (* Connect/Disconnect MATLAB engine *)
 ConnectMATLAB[] /; mEngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
@@ -119,18 +125,20 @@ MEvaluate[cmd_String] /; MATLABInstalledQ[] := engCmd[cmd] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
 	engCmd[name] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
-	Message[MScript::file]
+	Message[MEvaluate::nofn,"MScript", name]
 MEvaluate[___] /; MATLABInstalledQ[] := Message[MEvaluate::wspc] /; !engineOpenQ[]
 MEvaluate[___] /; !MATLABInstalledQ[] := Message[MEvaluate::engc]
 
-MScript::file = "No valid script by that name found";
-MScript[name_String, cmd_String] /; MATLABInstalledQ[] :=
+Options[MScript] = {OverWrite -> False};
+MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Module[{file},
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]];
 		WriteString[file, cmd];
 		Close[file];
-	]
-MScript[name_String, cmd_String] /; !MATLABInstalledQ[] := Message[MScript::engc]
+	] /; (!MScriptQ[name] || OptionValue[OverWrite])
+MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
+	Message[MScript::owrt, "MScript"] /; MScriptQ[name] && !OptionValue[OverWrite]
+MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := Message[MScript::engc]
 
 MScriptQ[name_String] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
