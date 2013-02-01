@@ -61,23 +61,24 @@ engGet::unimpl = "Translating the MATAB type \"`1`\" is not supported"
 (* standardize[arr, dims] takes an array with elements of arbitrary types,
 	as returned by MATLAB, and transposes them to a Mathematica format.
 	It also converts 1 by 1 arrays to scalars and one-row matrices to vectors. *)
-standardize[arr_, {1, 1}]  := arr[[1,1 ]] 
+(*standardize[arr_, {1, 1}]  := arr[[1,1 ]]
 standardize[arr_, {_, 1}] := arr[[All, 1]]
 standardize[arr_, dims_] := Transpose[arr, PermutationList@Cycles[{Length[dims] - {1,0}}]]
-
-(* Partition a flat list of to have dims dimensions 
+*)
+(* Partition a flat list of to have dims dimensions
    Much like ArrayReshape but works for lists with elements of any type *)
 listToArray[lst_, dims_] := First@Fold[Partition, lst, Reverse[dims]]
+(*matCell[lst_, dims_] := standardize[listToArray[lst, dims], dims]*)
 
-matArray[arr_, dims_] := standardize[arr, dims]
+(*matStruct[lst_, dims_] := standardize[listToArray[lst, dims], dims]*)
 
-matCell[lst_, dims_] := standardize[listToArray[lst, dims], dims]
-
-matString[s_] := s
-
-matStruct[lst_, dims_] := standardize[listToArray[lst, dims], dims]
-
-matUnknown[s_] := (Message[engGet::unimpl, s]; $Failed)
+convertToMathematica[] :=
+	{
+		matArray[expr_, dim_] :> Transpose[expr, Range@ArrayDepth@expr /. {i_, j_, k___} :> Reverse@{k} ~Join~ {i, j}],
+		{{expr_?NumericQ}} :> expr,
+		matString[expr_] :> expr,
+		matUnknown[expr_] :> (Message[engGet::unimpl, expr]; $Failed)
+	}
 
 End[]
 
@@ -113,13 +114,6 @@ cleanupOldLinks[] :=
 MScriptQ[name_String] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
-convertToMathematica[expr_] :=
-	Which[
-		ArrayQ[expr, _, NumericQ], Transpose[
-			expr, Range@ArrayDepth@expr /. {i_, j_, k___} :> Reverse@{k}~Join~{i, j}],
-		StringQ, expr,
-		True, expr
-	]
 
 convertToMATLAB[expr_] :=
 	Which[
@@ -183,7 +177,7 @@ CloseMATLAB[] /; !MATLABInstalledQ[] := Message[CloseMATLAB::engc];
 (*  High-level commands *)
 SyntaxInformation[MGet] = {"ArgumentsPattern" -> {_}};
 MGet[var_String] /; MATLABInstalledQ[] :=
-	convertToMathematica@get[var] /; engineOpenQ[]
+	(get[var] /. convertToMathematica[]) /; engineOpenQ[]
 MGet[_String] /; MATLABInstalledQ[] := Message[MGet::wspc] /; !engineOpenQ[]
 MGet[_String] /; !MATLABInstalledQ[] := Message[MGet::engc]
 
