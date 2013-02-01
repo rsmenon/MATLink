@@ -73,6 +73,9 @@ matArray[arr_, dims_] := standardize[arr, dims]
 
 matCell[lst_, dims_] := standardize[listToArray[lst, dims], dims]
 
+matSparseArray[jc_, ir_, vals_, dims_] := 
+  Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}]
+
 matString[s_] := s
 
 matStruct[lst_, dims_] := standardize[listToArray[lst, dims], dims]
