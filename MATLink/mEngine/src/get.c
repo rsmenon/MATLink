@@ -38,12 +38,6 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 		}
 
 
-	if (mxIsSparse(matlabVar)) {
-		MLPutFunction(link, "matUnknown", 1);
-		MLPutString(link, "sparse");
-		return;
-	}
-
 	//translate dimension information to Mathematica
 	mmaDims = malloc(depth * sizeof(int));
 	for(i = 0; i < depth; ++i)
@@ -51,40 +45,78 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 
 	// numerical; TODO handle single precision and other types
 	if (mxIsDouble(matlabVar)) {
-		double *Pr = NULL;	//pointer to real
-		double *Pi = NULL;	//pointer to imaginary
+		if (mxIsSparse(matlabVar)){
+			int ncols; // number of columns
+			int nzmax; // maximum number of nonzeros
+			int nnz;   // actual numbe of nonzeros
 
-		//data pointer
-		Pr = mxGetPr(matlabVar);
-		Pi = mxGetPi(matlabVar);
+			double *Pr;
+			double *Pi;
+			mwIndex *Jc;
+			mwIndex *Ir;
 
-		if (Pr == NULL) {
-			free(mmaDims);
-			MLPutSymbol(link, "$Failed"); // TODO report error
-			return;
-		}
+			ncols = mxGetN(matlabVar);
+			nzmax = mxGetNzmax(matlabVar);
 
-		if (mxIsComplex(matlabVar) && Pi == NULL) {
-			free(mmaDims);
-			MLPutSymbol(link, "$Failed"); // TODO report error
-			return;
-		}
+			Pr = mxGetPr(matlabVar);
+			Pi = mxGetPi(matlabVar);
 
-		MLPutFunction(link, "matArray", 2);
-		if (mxIsComplex(matlabVar)) {
-			//output re+im*I
-			MLPutFunction(link, "Plus", 2);
-			MLPutReal64Array(link, Pr, mmaDims, NULL, depth);
-			MLPutFunction(link, "Times", 2);
-			MLPutReal64Array(link, Pi, mmaDims, NULL, depth);
-			MLPutSymbol(link, "I");
+			Jc = mxGetJc(matlabVar);
+			Ir = mxGetIr(matlabVar);
+
+			nnz = Jc[ncols];
+
+			MLPutFunction(link, "matSparseArray", 4);
+			MLPutInteger64List(link, Jc, ncols + 1); // TODO probably not 32-bit compatible
+			MLPutInteger64List(link, Ir, nnz);     // TODO probably not 32-bit compatible
+			if (mxIsComplex(matlabVar)) {
+				MLPutFunction(link, "Plus", 2);
+				MLPutReal64List(link, Pr, nnz); // TODO must verify size is actually nzmax
+				MLPutFunction(link, "Times", 2);
+				MLPutReal64List(link, Pi, nnz); // TODO must verify size is actually nzmax
+				MLPutSymbol(link, "I");				
+			}
+			else { // real only
+				MLPutReal64List(link, Pr, nzmax);
+			}
+			MLPutInteger32List(link, mmaDims, depth);
 		}
-		else {
-			MLPutReal64Array(link, Pr, mmaDims, NULL, depth);
+		else // not sparse
+		{
+			double *Pr = NULL;	//pointer to real
+			double *Pi = NULL;	//pointer to imaginary
+
+			//data pointer
+			Pr = mxGetPr(matlabVar);
+			Pi = mxGetPi(matlabVar);
+
+			if (Pr == NULL) {
+				free(mmaDims);
+				MLPutSymbol(link, "$Failed"); // TODO report error
+				return;
+			}
+
+			if (mxIsComplex(matlabVar) && Pi == NULL) {
+				free(mmaDims);
+				MLPutSymbol(link, "$Failed"); // TODO report error
+				return;
+			}
+
+			MLPutFunction(link, "matArray", 2);
+			if (mxIsComplex(matlabVar)) {
+				//output re+im*I
+				MLPutFunction(link, "Plus", 2);
+				MLPutReal64Array(link, Pr, mmaDims, NULL, depth);
+				MLPutFunction(link, "Times", 2);
+				MLPutReal64Array(link, Pi, mmaDims, NULL, depth);
+				MLPutSymbol(link, "I");
+			}
+			else {
+				MLPutReal64Array(link, Pr, mmaDims, NULL, depth);
+			}
+			MLPutInteger32List(link, mmaDims, depth);
 		}
-		MLPutInteger32List(link, mmaDims, depth);
-	}
-	// char array (string); TODO handle multidimensional char arrays
+	}// char array (string); TODO handle multidimensional char arrays
 	else if (mxIsChar(matlabVar)) {
 		char *str;
 
