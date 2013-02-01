@@ -65,6 +65,8 @@ standardize[arr_, {1, 1}]  := arr[[1,1 ]]
 standardize[arr_, {_, 1}] := arr[[All, 1]]
 standardize[arr_, dims_] := Transpose[arr, PermutationList@Cycles[{Length[dims] - {1,0}}]]
 
+(* Partition a flat list of to have dims dimensions 
+   Much like ArrayReshape but works for lists with elements of any type *)
 listToArray[lst_, dims_] := First@Fold[Partition, lst, Reverse[dims]]
 
 matArray[arr_, dims_] := standardize[arr, dims]

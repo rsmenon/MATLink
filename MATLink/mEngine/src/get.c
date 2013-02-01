@@ -31,11 +31,17 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 	depth = mxGetNumberOfDimensions(matlabVar);
 	matlabDims = mxGetDimensions(matlabVar);
 
-	for (i = 0; i < depth; ++i) {
+	for (i = 0; i < depth; ++i)
 		if (matlabDims[i] == 0) {
 			MLPutFunction(link, "List", 0);	// temporary workaround for empty array, just return {};  TODO fix
 			return;
 		}
+
+
+	if (mxIsSparse(matlabVar)) {
+		MLPutFunction(link, "matUnknown", 1);
+		MLPutString(link, "sparse");
+		return;
 	}
 
 	//translate dimension information to Mathematica
@@ -51,6 +57,18 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 		//data pointer
 		Pr = mxGetPr(matlabVar);
 		Pi = mxGetPi(matlabVar);
+
+		if (Pr == NULL) {
+			free(mmaDims);
+			MLPutSymbol(link, "$Failed"); // TODO report error
+			return;
+		}
+
+		if (mxIsComplex(matlabVar) && Pi == NULL) {
+			free(mmaDims);
+			MLPutSymbol(link, "$Failed"); // TODO report error
+			return;
+		}
 
 		MLPutFunction(link, "matArray", 2);
 		if (mxIsComplex(matlabVar)) {
@@ -92,7 +110,7 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 				fieldname = mxGetFieldNameByNumber(matlabVar, i);
 				MLPutFunction(link, "Rule", 2);
 				MLPutString(link, fieldname);
-				toMma(mxGetFieldByNumber(matlabVar, j, i), link); // TODO support multielement fields
+				toMma(mxGetFieldByNumber(matlabVar, j, i), link);
 			}
 		}
 		MLPutInteger32List(link, mmaDims, depth);
