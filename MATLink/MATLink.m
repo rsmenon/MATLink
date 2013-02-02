@@ -8,7 +8,6 @@
 (* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
-ClearAll@"`*`*"
 
 ConnectMATLAB::usage = "Establish connection with the MATLAB engine"
 DisconnectMATLAB::usage = "Close connection with the MATLAB engine"
@@ -52,12 +51,18 @@ Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
 
 (* Directories and helper functions/variables *)
-MATLABInstalledQ[] = False;
 mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine"}];
-$openLink = {};
-$sessionID = "";
-$temporaryVariablePrefix = "";
-$sessionTemporaryDirectory = "";
+
+If[!TrueQ[MATLABInstalledQ[]],
+	MATLABInstalledQ[] = False;
+	$openLink = {};
+	$sessionID = "";
+	$temporaryVariablePrefix = "";
+	$sessionTemporaryDirectory = "";,
+
+	General::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
+	Message[General::needs]
+]
 
 mEngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mEngine.sh"];
 
@@ -196,7 +201,7 @@ AppendTo[$ContextPath, "MATLink`Private`"]
 
 (* Assign to symbols defined in `Private` *)
 engineOpenQ[] /; MATLABInstalledQ[] := engIsOpen[]
-engineOpenQ[] /; !MATLABInstalledQ[] := Message[engineOpenQ::engc]
+engineOpenQ[] /; !MATLABInstalledQ[] := (Message[engineOpenQ::engc];False)
 openEngine = engOpen;
 closeEngine = engClose;
 eval = engCmd;
