@@ -20,6 +20,8 @@ MEvaluate::usage = "Evaluates a valid MATLAB expression"
 MScript::usage = "Create a MATLAB script file"
 MFunction::usage = "Create a link to a MATLAB function for use from Mathematica."
 MCell::usage = "Creates a MATLAB cell"
+$ReturnLogicalsAs0And1::usage = "If set to True, MATLAB logicals will be returned as 0 or 1, and True or False otherwise."
+$OutputIsCell::usage = "Returns True if the last output was a MATLAB cell and False otherwise."
 
 Begin["`Developer`"]
 $mEngineSourceDirectory = FileNameJoin[{DirectoryName@$InputFileName, "mEngine","src"}];
@@ -46,56 +48,8 @@ SupportedMATLABTypeQ[expr_] :=
 
 End[]
 
-(* Low level functions strongly tied with the C code
-	are part of this context *)
-Begin["`mEngine`"]
-
-engGet::unimpl = "Translating the MATAB type \"`1`\" is not supported"
-
-(* The following mat* functions translate the semi-raw MATLAB data returned
-   by mEngine into their final Mathematica form.  engGet[] will always return
-   either $Failed, or an expression wrapped in one of the below heads.
-   Note that structs and cells may contain subxpressions of other types.
-*)
-
-(* standardize[arr, dims] takes an array with elements of arbitrary types,
-	as returned by MATLAB, and transposes them to a Mathematica format.
-	It also converts 1 by 1 arrays to scalars and one-row matrices to vectors. *)
-standardize[arr_, {1, 1}]  := arr[[1,1 ]] 
-standardize[arr_, {_, 1}] := arr[[All, 1]]
-standardize[arr_, dims_] := Transpose[arr, PermutationList@Cycles[{Length[dims] - {1,0}}]]
-
-(* Partition a flat list of to have dims dimensions 
-   Much like ArrayReshape but works for lists with elements of any type *)
-listToArray[lst_, dims_] := First@Fold[Partition, lst, Reverse[dims]]
-
-matArray[arr_, dims_] := standardize[arr, dims]
-
-matCell[lst_, dims_] := standardize[listToArray[lst, dims], dims]
-
-matSparseArray[jc_, ir_, vals_, dims_] := 
-  Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}]
-
-matString[s_] := s
-
-matStruct[lst_, dims_] := standardize[listToArray[lst, dims], dims]
-
-matUnknown[s_] := (Message[engGet::unimpl, s]; $Failed)
-
-End[]
-
-
 Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
-AppendTo[$ContextPath, "MATLink`mEngine`"];
-
-(* Lowlevel mEngine functions *)
-engineOpenQ = MATLink`mEngine`engIsOpen;
-openEngine = MATLink`mEngine`engOpen;
-closeEngine = MATLink`mEngine`engClose;
-cmd = MATLink`mEngine`engCmd;
-get = MATLink`mEngine`engGet;
-set = MATLink`mEngine`engSet;
 
 (* Directories and helper functions/variables *)
 MATLABInstalledQ[] = False;
@@ -115,14 +69,6 @@ cleanupOldLinks[] :=
 
 MScriptQ[name_String] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
-
-convertToMathematica[expr_] :=
-	Which[
-		ArrayQ[expr, _, NumericQ], Transpose[
-			expr, Range@ArrayDepth@expr /. {i_, j_, k___} :> Reverse@{k}~Join~{i, j}],
-		StringQ, expr,
-		True, expr
-	]
 
 convertToMATLAB[expr_] :=
 	Which[
@@ -184,6 +130,9 @@ CloseMATLAB[] /; MATLABInstalledQ[] := Message[CloseMATLAB::wspc] /; !engineOpen
 CloseMATLAB[] /; !MATLABInstalledQ[] := Message[CloseMATLAB::engc];
 
 (*  High-level commands *)
+$ReturnLogicalsAs0And1 = False;
+$OutputIsCell = False;
+
 SyntaxInformation[MGet] = {"ArgumentsPattern" -> {_}};
 MGet[var_String] /; MATLABInstalledQ[] :=
 	convertToMathematica@get[var] /; engineOpenQ[]
@@ -197,9 +146,9 @@ MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
-MEvaluate[cmd_String] /; MATLABInstalledQ[] := engCmd[cmd] /; engineOpenQ[]
+MEvaluate[cmd_String] /; MATLABInstalledQ[] := eval[cmd] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
-	engCmd[name] /; engineOpenQ[]
+	eval[name] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
 	Message[MEvaluate::nofn,"MScript", name]
 MEvaluate[___] /; MATLABInstalledQ[] := Message[MEvaluate::wspc] /; !engineOpenQ[]
@@ -237,6 +186,55 @@ MCell[] :=
 		SelectionMove[EvaluationNotebook[], All, EvaluationCell];
 		NotebookDelete[];
 		SelectionMove[EvaluationNotebook[], Next, CellContents]
+	]
+
+End[]
+
+(* Low level functions strongly tied with the C code are part of this context *)
+Begin["`mEngine`"]
+AppendTo[$ContextPath, "MATLink`Private`"]
+
+(* Assign to symbols defined in `Private` *)
+engineOpenQ[] /; MATLABInstalledQ[] := engIsOpen[]
+engineOpenQ[] /; !MATLABInstalledQ[] := Message[engineOpenQ::engc]
+openEngine = engOpen;
+closeEngine = engClose;
+eval = engCmd;
+get = engGet;
+set = engSet;
+
+engGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
+
+(* The following mat* heads are inert and indicate the type of the MATLAB data returned
+   by mEngine. Evaluation is only allowed inside the convertToMathematica
+   function, which converts it to their final Mathematica form.  engGet[] will always return
+   either $Failed, or an expression wrapped in one of the below heads.
+   Note that structs and cells may contain subxpressions of other types.
+*)
+
+convertToMathematica[expr_] :=
+	With[
+		{
+			reshape = Transpose[#, Reverse@Range@ArrayDepth@#]&,
+			listToArray = First@Fold[Partition, #, Reverse[#2]]&
+		},
+		Block[{matCell,matArray,matStruct,matSparseArray,matLogicalArray,matString,matUnknown},
+			$OutputIsCell = !FreeQ[expr, matCell];
+
+			matCell[list_, dim_] := listToArray[list,dim];
+			matStruct[list_, dim_] := listToArray[list,dim];
+			matSparseArray[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}];
+
+			matLogicalArray[list_, dim_] := matLogicalArray[reshape@list];
+			matLogicalArray[list_] /; $ReturnLogicalsAs0And1 := list;
+			matLogicalArray[list_] /; !$ReturnLogicalsAs0And1 := list /. {1|1. -> True, 0|0. -> False};
+
+			matArray[list_, dim_] := reshape@list;
+			matString[str_] := str;
+			matUnknown[u_] := (Message[engGet::unimpl, u]; $Failed);
+
+			expr /. {{x_?NumericQ}} :> x
+		]
 	]
 
 End[]
