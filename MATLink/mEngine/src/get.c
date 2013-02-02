@@ -18,14 +18,17 @@
 
 // Takes a MATLAB variable and writes in in Mathematica form to link
 // To be used with loopback links
-// Returns 0 on success
-// Returns 1 on failure and may leave the link with a half-built expression
 void toMma(const mxArray *matlabVar, MLINK link) {
 	mwSize        depth;
 	const mwSize *matlabDims;
 	int          *mmaDims;
 
 	int i, j;
+    
+    if (matlabVar == NULL) { // non existent variable, will show up as [] in MATLAB
+        MLPutFunction(link, "matNull", 0);
+        return;
+    }
 
 	//retrive size information
 	depth = mxGetNumberOfDimensions(matlabVar);
