@@ -26,7 +26,7 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 	int i, j;
     
     if (matlabVar == NULL) { // non existent variable, will show up as [] in MATLAB
-        MLPutFunction(link, "matNull", 0);
+        MLPutFunction(link, "List", 0);
         return;
     }
 
@@ -119,7 +119,28 @@ void toMma(const mxArray *matlabVar, MLINK link) {
 			}
 			MLPutInteger32List(link, mmaDims, depth);
 		}
-	}// char array (string); TODO handle multidimensional char arrays
+	}
+    else if (mxIsLogical(matlabVar)) {
+        mxLogical *logarr;
+        int       *intarr;
+        int        len;
+        
+        logarr = mxGetLogicals(matlabVar);
+        len = mxGetNumberOfElements(matlabVar);
+        
+        intarr = malloc(len*sizeof(int));
+        for (i = 0; i < len; ++i)
+            if (logarr[i])
+                intarr[i] = 1;
+            else
+                intarr[i] = 0;
+            
+        
+        MLPutFunction(link, "matLogical", 2);
+        MLPutInteger32Array(link, intarr, mmaDims, NULL, depth);
+        MLPutInteger32List(link, mmaDims, depth);
+    }
+    // char array (string); TODO handle multidimensional char arrays
 	else if (mxIsChar(matlabVar)) {
 		char *str;
 

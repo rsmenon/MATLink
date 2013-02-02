@@ -218,16 +218,16 @@ convertToMathematica[expr_] :=
 			reshape = Transpose[#, Reverse@Range@ArrayDepth@#]&,
 			listToArray = First@Fold[Partition, #, Reverse[#2]]&
 		},
-		Block[{matCell,matArray,matStruct,matSparseArray,matLogicalArray,matString,matUnknown},
+		Block[{matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
 			$OutputIsCell = !FreeQ[expr, matCell];
 
 			matCell[list_, dim_] := listToArray[list,dim];
 			matStruct[list_, dim_] := listToArray[list,dim];
 			matSparseArray[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}];
 
-			matLogicalArray[list_, dim_] := matLogicalArray[reshape@list];
-			matLogicalArray[list_] /; $ReturnLogicalsAs0And1 := list;
-			matLogicalArray[list_] /; !$ReturnLogicalsAs0And1 := list /. {1|1. -> True, 0|0. -> False};
+			matLogical[list_, dim_] := matLogical[reshape@list];
+			matLogical[list_] /; $ReturnLogicalsAs0And1 := list;
+			matLogical[list_] /; !$ReturnLogicalsAs0And1 := list /. {1 -> True, 0 -> False};
 
 			matArray[list_, dim_] := reshape@list;
 			matString[str_] := str;
