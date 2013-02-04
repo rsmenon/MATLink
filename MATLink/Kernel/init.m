@@ -1,3 +1,3 @@
 (* Mathematica Init File *)
-
-Get[ "MATLink`MATLink`"]
+Get["MATLink`Kernel`DataTypes`"]
+Get["MATLink`MATLink`"]

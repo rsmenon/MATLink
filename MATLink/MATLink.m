@@ -18,7 +18,6 @@ MSet::usage = "Define variable in MATLAB workspace."
 MEvaluate::usage = "Evaluates a valid MATLAB expression"
 MScript::usage = "Create a MATLAB script file"
 MFunction::usage = "Create a link to a MATLAB function for use from Mathematica."
-MCell::usage = "Creates a MATLAB cell"
 $ReturnLogicalsAs0And1::usage = "If set to True, MATLAB logicals will be returned as 0 or 1, and True or False otherwise."
 $OutputIsCell::usage = "Returns True if the last output was a MATLAB cell and False otherwise."
 
@@ -86,7 +85,8 @@ convertToMATLAB[expr_] :=
 randomFileName[] :=
 	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], 50]
 
-mLintErrorCheck[cmd_String] :=
+showError[str_String] := Style[str, Darker@Red, FontWeight -> Bold]
+mLintErrorFreeQ[cmd_String] :=
 	Module[
 		{
 			file = MScript[randomFileName[], cmd],
@@ -97,10 +97,11 @@ mLintErrorCheck[cmd_String] :=
 			"`1` = checkcode('`2`','-id','-config=`3`')",
 			First@file, file["AbsolutePath"],config
 		];
-		result = MGet@First@file;
+		result = List@@MGet@First@file;
 		DeleteFile@file["AbsolutePath"];
-		result
+		If[result =!= {}, showError["message" /. Flatten@result], True]
 	]
+
 (* Common error messages *)
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
@@ -171,9 +172,12 @@ MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
-	Module[{file = MScript[randomFileName[],cmd]},
-		(* Check if input contains syntax errors, as otherwise, the engine hangs *)
-		eval[cmd]
+	Module[{error},
+		If[
+			TrueQ[error = mLintErrorFreeQ@cmd],
+			eval[cmd],
+			error
+		]
 	] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
 	eval[name] /; engineOpenQ[]
@@ -205,7 +209,7 @@ MFunction[name_String][args___] /; MATLABInstalledQ[] :=
 MFunction[name_String][args___] /; MATLABInstalledQ[] := Message[MFunction::wspc] /; !engineOpenQ[]
 MFunction[name_String][args___] /; !MATLABInstalledQ[] := Message[MFunction::engc]
 
-MCell[] :=
+mcell[] :=
 	Module[{},
 		CellPrint@Cell[
 			TextData[""],
@@ -224,6 +228,7 @@ End[]
 (* Low level functions strongly tied with the C code are part of this context *)
 Begin["`mEngine`"]
 AppendTo[$ContextPath, "MATLink`Private`"]
+Needs["MATLink`DataTypes`"]
 
 (* Assign to symbols defined in `Private` *)
 engineOpenQ[] /; MATLABInstalledQ[] := engIsOpen[]
@@ -246,25 +251,28 @@ engGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
 convertToMathematica[expr_] :=
 	With[
 		{
-			reshape = Transpose[#, Reverse@Range@ArrayDepth@#]&,
+			reshape = Switch[#2,
+				{_,1}, #[[All, 1]],
+				_, Transpose[#, Reverse@Range@ArrayDepth@#]
+			]&,
 			listToArray = First@Fold[Partition, #, Reverse[#2]]&
 		},
-		Block[{matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
+		Block[{cell,matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
 			$OutputIsCell = !FreeQ[expr, matCell];
 
-			matCell[list_, dim_] := listToArray[list,dim];
-			matStruct[list_, dim_] := listToArray[list,dim];
+			matCell[list_, dim_] := MCell@@ listToArray[list,dim] ~reshape~ dim;
+			matStruct[list_, dim_] := MStruct@@ listToArray[list,dim] ~reshape~ dim;
 			matSparseArray[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}];
 
-			matLogical[list_, dim_] := matLogical[reshape@list];
+			matLogical[list_, dim_] := matLogical[list ~reshape~ dim];
 			matLogical[list_] /; $ReturnLogicalsAs0And1 := list;
 			matLogical[list_] /; !$ReturnLogicalsAs0And1 := list /. {1 -> True, 0 -> False};
 
-			matArray[list_, dim_] := reshape@list;
+			matArray[list_, dim_] := list ~reshape~ dim;
 			matString[str_] := str;
 			matUnknown[u_] := (Message[engGet::unimpl, u]; $Failed);
 
-			expr /. {{x_?NumericQ}} :> x
+			expr /. {x_?NumericQ} :> x
 		]
 	]
 
