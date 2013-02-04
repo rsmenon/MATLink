@@ -51,6 +51,7 @@ Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
 
 (* Directories and helper functions/variables *)
+$ApplicationDirectory = DirectoryName@$InputFileName;
 mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine"}];
 
 If[!TrueQ[MATLABInstalledQ[]],
@@ -82,6 +83,24 @@ convertToMATLAB[expr_] :=
 		True, expr
 	]
 
+randomFileName[] :=
+	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], 50]
+
+mLintErrorCheck[cmd_String] :=
+	Module[
+		{
+			file = MScript[randomFileName[], cmd],
+			config = FileNameJoin[{$ApplicationDirectory, "Kernel","MLintErrors.txt"}],
+			result
+		},
+		eval@ToString@StringForm[
+			"`1` = checkcode('`2`','-id','-config=`3`')",
+			First@file, file["AbsolutePath"],config
+		];
+		result = MGet@First@file;
+		DeleteFile@file["AbsolutePath"];
+		result
+	]
 (* Common error messages *)
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
@@ -151,7 +170,11 @@ MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
-MEvaluate[cmd_String] /; MATLABInstalledQ[] := eval[cmd] /; engineOpenQ[]
+MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
+	Module[{file = MScript[randomFileName[],cmd]},
+		(* Check if input contains syntax errors, as otherwise, the engine hangs *)
+		eval[cmd]
+	] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
 	eval[name] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
@@ -165,10 +188,13 @@ MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]];
 		WriteString[file, cmd];
 		Close[file];
+		MScript[name]
 	] /; (!MScriptQ[name] || OptionValue[OverWrite])
 MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Message[MScript::owrt, "MScript"] /; MScriptQ[name] && !OptionValue[OverWrite]
 MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := Message[MScript::engc]
+MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
+	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
 
 MFunction[name_String][args___] /; MATLABInstalledQ[] :=
 	With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
