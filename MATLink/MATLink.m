@@ -19,7 +19,6 @@ MEvaluate::usage = "Evaluates a valid MATLAB expression"
 MScript::usage = "Create a MATLAB script file"
 MFunction::usage = "Create a link to a MATLAB function for use from Mathematica."
 $ReturnLogicalsAs0And1::usage = "If set to True, MATLAB logicals will be returned as 0 or 1, and True or False otherwise."
-$OutputIsCell::usage = "Returns True if the last output was a MATLAB cell and False otherwise."
 
 mcell::usage = ""
 
@@ -159,7 +158,6 @@ CloseMATLAB[] /; !MATLABInstalledQ[] := Message[CloseMATLAB::engc];
 
 (*  High-level commands *)
 $ReturnLogicalsAs0And1 = False;
-$OutputIsCell = False;
 
 SyntaxInformation[MGet] = {"ArgumentsPattern" -> {_}};
 MGet[var_String] /; MATLABInstalledQ[] :=
@@ -260,8 +258,7 @@ convertToMathematica[expr_] :=
 			]&,
 			listToArray = First@Fold[Partition, #, Reverse[#2]]&
 		},
-		Block[{cell,matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
-			$OutputIsCell = !FreeQ[expr, matCell];
+		Block[{matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
 
 			matCell[list_, dim_] := MCell@@ listToArray[list,dim] ~reshape~ dim;
 			matStruct[list_, dim_] := MStruct@@ listToArray[list,dim] ~reshape~ dim;
@@ -271,11 +268,12 @@ convertToMathematica[expr_] :=
 			matLogical[list_] /; $ReturnLogicalsAs0And1 := list;
 			matLogical[list_] /; !$ReturnLogicalsAs0And1 := list /. {1 -> True, 0 -> False};
 
+			matArray[list_, {1,1}] := list[[1,1]];
 			matArray[list_, dim_] := list ~reshape~ dim;
 			matString[str_] := str;
 			matUnknown[u_] := (Message[engGet::unimpl, u]; $Failed);
 
-			expr /. {x_?NumericQ} :> x
+			expr
 		]
 	]
 
