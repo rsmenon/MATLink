@@ -21,6 +21,8 @@ MFunction::usage = "Create a link to a MATLAB function for use from Mathematica.
 $ReturnLogicalsAs0And1::usage = "If set to True, MATLAB logicals will be returned as 0 or 1, and True or False otherwise."
 $OutputIsCell::usage = "Returns True if the last output was a MATLAB cell and False otherwise."
 
+mcell::usage = ""
+
 Begin["`Developer`"]
 $mEngineSourceDirectory = FileNameJoin[{DirectoryName@$InputFileName, "mEngine","src"}];
 $defaultMATLABDirectory = "/Applications/MATLAB_R2012b.app/";
@@ -98,6 +100,7 @@ mLintErrorFreeQ[cmd_String] :=
 			First@file, file["AbsolutePath"],config
 		];
 		result = List@@MGet@First@file;
+		eval@ToString@StringForm["clear `1`", First@file];
 		DeleteFile@file["AbsolutePath"];
 		If[result =!= {}, showError["message" /. Flatten@result], True]
 	]
