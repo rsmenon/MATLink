@@ -110,7 +110,7 @@ General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
 General::engc = "Not connected to the MATLAB engine."
 General::nofn = "The `1` \"`2`\" does not exist."
-General::owrt = "An `1` by that name already exists. Use OverWrite \[Rule] True to overwrite."
+General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
 
 (* Connect/Disconnect MATLAB engine *)
 ConnectMATLAB[] /; mEngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
@@ -187,28 +187,39 @@ MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
 MEvaluate[___] /; MATLABInstalledQ[] := Message[MEvaluate::wspc] /; !engineOpenQ[]
 MEvaluate[___] /; !MATLABInstalledQ[] := Message[MEvaluate::engc]
 
-Options[MScript] = {OverWrite -> False};
+Options[MScript] = {"Overwrite" -> False};
 MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Module[{file},
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]];
 		WriteString[file, cmd];
 		Close[file];
 		MScript[name]
-	] /; (!MScriptQ[name] || OptionValue[OverWrite])
+	] /; (!MScriptQ[name] || OptionValue["Overwrite"])
 MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
-	Message[MScript::owrt, "MScript"] /; MScriptQ[name] && !OptionValue[OverWrite]
+	Message[MScript::owrt, "MScript"] /; MScriptQ[name] && !OptionValue["Overwrite"]
 MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := Message[MScript::engc]
 MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
 	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
 
-MFunction[name_String][args___] /; MATLABInstalledQ[] :=
-	With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
+Options[MFunction] = {"Output" -> False, "OutputArguments" -> 1};
+MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
+	Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output},
+		vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
+		Thread[MSet[vars[[;;nIn]], {args}]];
+		MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ")"]];
+		output = MGet /@ vars[[-nOut;;]];
+		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
+		If[nOut == 1, First@output, output]
+	] /; OptionValue["Output"]
+MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
+	With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}] + OptionValue["OutputArguments"]}]},
 		Thread[MSet[vars, {args}]];
 		MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ")"]];
 		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
-	]
-MFunction[name_String][args___] /; MATLABInstalledQ[] := Message[MFunction::wspc] /; !engineOpenQ[]
-MFunction[name_String][args___] /; !MATLABInstalledQ[] := Message[MFunction::engc]
+	] /; !OptionValue["Output"]
+
+MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := Message[MFunction::wspc] /; !engineOpenQ[]
+MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := Message[MFunction::engc]
 
 mcell[] :=
 	Module[{},
