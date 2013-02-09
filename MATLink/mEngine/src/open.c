@@ -20,7 +20,7 @@ void engopen(void)
 	if (NULL == Eng)	//if not opened yet, open it
 	{
 		msg("eng::stMLB");	//message starting MATLAB
-		if (!(Eng = engOpen(NULL)))	//start failure
+		if (!(Eng = engOpen("matlab -nosplash")))	//start failure
 		{
 			msg("eng::erMLB");
 			SUCCESS = false;
