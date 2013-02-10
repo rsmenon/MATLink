@@ -201,7 +201,7 @@ MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := Mes
 MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
 	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
 
-Options[MFunction] = {"Output" -> False, "OutputArguments" -> 1};
+Options[MFunction] = {"Output" -> True, "OutputArguments" -> 1};
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 	Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output},
 		vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
@@ -212,7 +212,7 @@ MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 		If[nOut == 1, First@output, output]
 	] /; OptionValue["Output"]
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
-	With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}] + OptionValue["OutputArguments"]}]},
+	With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
 		Thread[MSet[vars, {args}]];
 		MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ")"]];
 		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
