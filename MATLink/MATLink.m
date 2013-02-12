@@ -23,7 +23,8 @@ $ReturnLogicalsAs0And1::usage = "If set to True, MATLAB logicals will be returne
 mcell::usage = ""
 
 Begin["`Developer`"]
-$mEngineSourceDirectory = FileNameJoin[{DirectoryName@$InputFileName, "mEngine","src"}];
+$ApplicationDirectory = DirectoryName@$InputFileName;
+$mEngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "mEngine","src"}];
 $defaultMATLABDirectory = "/Applications/MATLAB_R2012b.app/";
 
 CompileMEngine[] :=
@@ -37,7 +38,9 @@ CompileMEngine[] :=
 	]
 
 CleanupTemporaryDirectories[] :=
-	DeleteDirectory[#, DeleteContents -> True] & /@ FileNames@FileNameJoin[{$TemporaryDirectory,"MATLink*"}];
+	Module[{},
+		DeleteDirectory[#, DeleteContents -> True] & /@ FileNames@FileNameJoin[{$TemporaryDirectory,"MATLink*"}];
+	]
 
 SupportedMATLABTypeQ[expr_] :=
 	Or[
@@ -51,8 +54,7 @@ Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
 
 (* Directories and helper functions/variables *)
-$ApplicationDirectory = DirectoryName@$InputFileName;
-mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine"}];
+mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{$ApplicationDirectory, "mEngine", "mEngine"}];
 
 If[!TrueQ[MATLABInstalledQ[]],
 	MATLABInstalledQ[] = False;
@@ -116,7 +118,7 @@ General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] T
 ConnectMATLAB[] /; mEngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
-		$openLink = Install@FileNameJoin[{ParentDirectory@$mEngineSourceDirectory, "mEngine.sh"}];
+		$openLink = Install@FileNameJoin[{$ApplicationDirectory, "mEngine", "mEngine.sh"}];
 		$sessionID = StringJoin[
 			 IntegerString[{Most@DateList[]}, 10, 2],
 			 IntegerString[List @@ Rest@$openLink]
