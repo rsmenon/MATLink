@@ -85,14 +85,14 @@ convertToMATLAB[expr_] :=
 		True, expr
 	]
 
-randomFileName[] :=
-	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], 50]
+randomString[n_Integer:50] :=
+	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
 
-showError[str_String] := Style[str, Darker@Red, FontWeight -> Bold]
+showError[str_String] := Style[str, RGBColor[4/5, 0, 0], Bold]
 mLintErrorFreeQ[cmd_String] :=
 	Module[
 		{
-			file = MScript[randomFileName[], cmd],
+			file = MScript[randomString[], cmd],
 			config = FileNameJoin[{$ApplicationDirectory, "Kernel","MLintErrors.txt"}],
 			result
 		},
@@ -175,11 +175,21 @@ MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
-	Module[{error},
+	Module[{result, error, id = randomString[]},
 		If[
 			TrueQ[error = mLintErrorFreeQ@cmd],
-			eval[cmd],
+			result = eval@StringJoin["
+				try
+					", cmd, "
+				catch ex
+					sprintf('%s%s%s', '", id, "', ex.getReport,'", id, "')
+				end
+			"],
 			error
+		];
+		If[StringFreeQ[result,id],
+			StringReplace[result, StartOfString~~">> " -> ""],
+			First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> showError@x]
 		]
 	] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
