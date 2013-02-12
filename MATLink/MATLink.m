@@ -162,6 +162,7 @@ CloseMATLAB[] /; !MATLABInstalledQ[] := Message[CloseMATLAB::engc];
 $ReturnLogicalsAs0And1 = False;
 
 SyntaxInformation[MGet] = {"ArgumentsPattern" -> {_}};
+SetAttributes[MGet,Listable]
 MGet[var_String] /; MATLABInstalledQ[] :=
 	convertToMathematica@get[var] /; engineOpenQ[]
 MGet[_String] /; MATLABInstalledQ[] := Message[MGet::wspc] /; !engineOpenQ[]
