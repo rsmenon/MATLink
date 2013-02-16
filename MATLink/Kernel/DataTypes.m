@@ -5,12 +5,12 @@ MStruct::usage = ""
 MCellPart::usage = ""
 MGetFields::usage = ""
 MSetFields::usage = ""
+MException::usage = ""
 
 $ShowStructAsTable::usage = "";
 
 Begin["`Private`"]
-MakeBoxes[MCell[c___], form : StandardForm | TraditionalForm] :=
-	MakeBoxes[AngleBracket@c, form];
+MakeBoxes[MCell[c___], form : StandardForm | TraditionalForm] := MakeBoxes[AngleBracket@c, form];
 MCell /: MCell[c___][[i_Integer]] := MCell[{c}[[i]]];
 MCell /: MCell[c___][[i_]] := MCell[Sequence @@ {c}[[i]]];
 
@@ -29,6 +29,8 @@ MakeBoxes[s_MStruct, form: StandardForm | TraditionalForm] /; TrueQ[$ShowStructA
 MakeBoxes[s_MStruct, form] /; !TrueQ[$ShowStructAsTable] := MakeBoxes[s, form]
 
 MStruct /: MStruct[s___]["FieldNames"] := MGetFields@MStruct@s
+
+MakeBoxes[MException[str_String], form : StandardForm | TraditionalForm] := MakeBoxes[Style[str, RGBColor[4/5, 0, 0], Bold], form]
 End[]
 
 Begin["`FunctionsOnDataTypes`"]

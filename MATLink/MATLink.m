@@ -19,13 +19,13 @@ MEvaluate::usage = "Evaluates a valid MATLAB expression"
 MScript::usage = "Create a MATLAB script file"
 MFunction::usage = "Create a link to a MATLAB function for use from Mathematica."
 $ReturnLogicalsAs0And1::usage = "If set to True, MATLAB logicals will be returned as 0 or 1, and True or False otherwise."
-
+$DefaultMATLABDirectory::usage = ""
 mcell::usage = ""
 
 Begin["`Developer`"]
 $ApplicationDirectory = DirectoryName@$InputFileName;
 $mEngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "mEngine","src"}];
-$defaultMATLABDirectory = "/Applications/MATLAB_R2012b.app/";
+$DefaultMATLABDirectory = "/Applications/MATLAB_R2012b.app/";
 
 CompileMEngine[] :=
 	Block[{dir = Directory[]},
@@ -40,12 +40,6 @@ CompileMEngine[] :=
 CleanupTemporaryDirectories[] :=
 	Module[{},
 		DeleteDirectory[#, DeleteContents -> True] & /@ FileNames@FileNameJoin[{$TemporaryDirectory,"MATLink*"}];
-	]
-
-SupportedMATLABTypeQ[expr_] :=
-	Or[
-		VectorQ[expr, NumericQ], (* 1D lists/row vectors *)
-		MatrixQ[expr, NumericQ] (* Matrices *)
 	]
 
 End[]
@@ -88,7 +82,6 @@ convertToMATLAB[expr_] :=
 randomString[n_Integer:50] :=
 	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
 
-showError[str_String] := Style[str, RGBColor[4/5, 0, 0], Bold]
 mLintErrorFreeQ[cmd_String] :=
 	Module[
 		{
@@ -103,7 +96,7 @@ mLintErrorFreeQ[cmd_String] :=
 		result = List@@MGet@First@file;
 		eval@ToString@StringForm["clear `1`", First@file];
 		DeleteFile@file["AbsolutePath"];
-		If[result =!= {}, showError["message" /. Flatten@result], True]
+		If[result =!= {}, MATLink`DataTypes`MException["message" /. Flatten@result], True]
 	]
 
 (* Common error messages *)
@@ -190,7 +183,7 @@ MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
 		];
 		If[StringFreeQ[result,id],
 			StringReplace[result, StartOfString~~">> " -> ""],
-			First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> showError@x]
+			First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> MATLink`DataTypes`MException@x]
 		]
 	] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
