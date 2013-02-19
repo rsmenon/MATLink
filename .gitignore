@@ -6,3 +6,8 @@
 MATLink/mEngine/mEngine
 MATLink/mEngine/src/template.c
 MATLink/mEngine/src/mEngine
+MATLink/mEngine/src/mEngine.creator.user
+MATLink/mEngine/src/mEngine.files
+MATLink/mEngine/src/mEngine.includes
+MATLink/mEngine/src/mEngine.config
+MATLink/mEngine/src/mEngine.creator

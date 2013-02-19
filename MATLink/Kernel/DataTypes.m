@@ -1,7 +1,16 @@
 BeginPackage["MATLink`DataTypes`"]
 
+(* type wrappers; can also be used as 'casting' operators *)
+
 MCell::usage = ""
 MStruct::usage = ""
+
+MArray (* TODO decide if all of these really need to be public. They're here now to ensure a common context. *)
+MLogical
+MSparseArray
+MSparseLogical
+MString
+
 MCellPart::usage = ""
 MGetFields::usage = ""
 MSetFields::usage = ""

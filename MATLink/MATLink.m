@@ -24,16 +24,16 @@ mcell::usage = ""
 
 Begin["`Developer`"]
 $ApplicationDirectory = DirectoryName@$InputFileName;
-$mEngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "mEngine","src"}];
+$EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
 $DefaultMATLABDirectory = "/Applications/MATLAB_R2012b.app/";
 
 CompileMEngine[] :=
 	Block[{dir = Directory[]},
-		SetDirectory[$mEngineSourceDirectory];
-		PrintTemporary["Compiling mEngine from source...\n"];
+		SetDirectory[$EngineSourceDirectory];
+		PrintTemporary["Compiling the MATLink Engine from source...\n"];
 		Run["make"];
 		DeleteFile@FileNames@"*.o";
-		Run["mv mEngine ../"];
+		Run["mv mengine ../"];
 		SetDirectory@dir
 	]
 
@@ -48,7 +48,7 @@ Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
 
 (* Directories and helper functions/variables *)
-mEngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{$ApplicationDirectory, "mEngine", "mEngine"}];
+EngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{$ApplicationDirectory, "Engine", "mengine"}];
 
 If[!TrueQ[MATLABInstalledQ[]],
 	MATLABInstalledQ[] = False;
@@ -61,23 +61,16 @@ If[!TrueQ[MATLABInstalledQ[]],
 	Message[General::needs]
 ]
 
-mEngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mEngine.sh"];
+EngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mengine.sh"];
 
 cleanupOldLinks[] :=
 	Module[{},
-		LinkClose /@ Select[Links[], mEngineLinkQ];
+		LinkClose /@ Select[Links[], EngineLinkQ];
 		MATLABInstalledQ[] = False;
 	]
 
 MScriptQ[name_String] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
-
-convertToMATLAB[expr_] :=
-	Which[
-		ArrayQ[expr, _, NumericQ], Transpose[
-			expr, Range@ArrayDepth@expr /. {k___, i_, j_} :> {i, j}~Join~Reverse@{k}],
-		True, expr
-	]
 
 randomString[n_Integer:50] :=
 	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
@@ -108,10 +101,10 @@ General::nofn = "The `1` \"`2`\" does not exist."
 General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
 
 (* Connect/Disconnect MATLAB engine *)
-ConnectMATLAB[] /; mEngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
+ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
-		$openLink = Install@FileNameJoin[{$ApplicationDirectory, "mEngine", "mEngine.sh"}];
+		$openLink = Install@FileNameJoin[{$ApplicationDirectory, "Engine", "mengine.sh"}];
 		$sessionID = StringJoin[
 			 IntegerString[{Most@DateList[]}, 10, 2],
 			 IntegerString[List @@ Rest@$openLink]
@@ -121,8 +114,8 @@ ConnectMATLAB[] /; mEngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 		CreateDirectory@$sessionTemporaryDirectory;
 		MATLABInstalledQ[] = True;
 	]
-ConnectMATLAB[] /; mEngineBinaryExistsQ[] && MATLABInstalledQ[] := Message[ConnectMATLAB::engo]
-ConnectMATLAB[] /; !mEngineBinaryExistsQ[] :=
+ConnectMATLAB[] /; EngineBinaryExistsQ[] && MATLABInstalledQ[] := Message[ConnectMATLAB::engo]
+ConnectMATLAB[] /; !EngineBinaryExistsQ[] :=
 	Module[{},
 		CompileMEngine[];
 		ConnectMATLAB[];
@@ -163,7 +156,7 @@ MGet[_String] /; !MATLABInstalledQ[] := Message[MGet::engc]
 
 SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
 MSet[var_String, expr_] /; MATLABInstalledQ[] :=
-	set[var, convertToMATLAB@expr] /; engineOpenQ[]
+	mset[var, convertToMATLAB[expr]] /; engineOpenQ[]
 MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
 
@@ -196,7 +189,7 @@ MEvaluate[___] /; !MATLABInstalledQ[] := Message[MEvaluate::engc]
 Options[MScript] = {"Overwrite" -> False};
 MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Module[{file},
-		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]];
+		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
 		WriteString[file, cmd];
 		Close[file];
 		MScript[name]
@@ -233,7 +226,7 @@ mcell[] :=
 			TextData[""],
 			"Program",
 			Evaluatable->True,
-			CellEvaluationFunction -> (MEvaluate[ToString@#]&),
+			CellEvaluationFunction -> (MEvaluate[ToString[#, CharacterEncoding -> "UTF-8"]]&), (* TODO figure out how to avoid conversion to \[AAcute], \[UDoubleAcute], etc. forms *)
 			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
 		];
 		SelectionMove[EvaluationNotebook[], All, EvaluationCell];
@@ -241,27 +234,31 @@ mcell[] :=
 		SelectionMove[EvaluationNotebook[], Next, CellContents]
 	]
 
+
 End[]
 
 (* Low level functions strongly tied with the C code are part of this context *)
-Begin["`mEngine`"]
+Begin["`Engine`"]
 AppendTo[$ContextPath, "MATLink`Private`"]
 Needs["MATLink`DataTypes`"]
 
 (* Assign to symbols defined in `Private` *)
-engineOpenQ[] /; MATLABInstalledQ[] := engIsOpen[]
+engineOpenQ[] /; MATLABInstalledQ[] := engOpenQ[]
 engineOpenQ[] /; !MATLABInstalledQ[] := (Message[engineOpenQ::engc];False)
 openEngine = engOpen;
 closeEngine = engClose;
-eval = engCmd;
+eval = engEvaluate;
 get = engGet;
 set = engSet;
 
 engGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
 
+(***** Convert data types to Mathematica *****)
+
 (* The following mat* heads are inert and indicate the type of the MATLAB data returned
-   by mEngine. Evaluation is only allowed inside the convertToMathematica
-   function, which converts it to their final Mathematica form.  engGet[] will always return
+   by the engine.  They must be part of the MATLink`Engine` context.
+   Evaluation is only allowed inside the convertToMathematica function, 
+   which converts it to their final Mathematica form.  engGet[] will always return
    either $Failed, or an expression wrapped in one of the below heads.
    Note that structs and cells may contain subxpressions of other types.
 *)
@@ -293,6 +290,113 @@ convertToMathematica[expr_] :=
 			expr
 		]
 	]
+
+
+(***** Convet data types to MATLAB *****)
+
+AppendTo[$ContextPath, "MATLink`DataTypes`"]
+
+complexArrayQ[arr_] := Developer`PackedArrayQ[arr, Complex] || (Not@Developer`PackedArrayQ[arr] && Not@FreeQ[arr, Complex])
+
+mset[name_String, handle[h_Integer]] := engSet[name, h]
+mset[name_, _] := $Failed
+
+convertToMATLAB[expr_] := 
+	Module[{structured},
+		structured = restructure[expr];
+
+		Block[{MArray, MSparseArray, MLogical, MSparseLogical, MString, MCell, MStruct},
+			MArray[arr_] := 
+				With[{list = Flatten@Developer`ToPackedArray@N[arr]}, 
+					If[ complexArrayQ[list],
+						engMakeComplexArray[Re[list], Im[list], Dimensions[arr]],
+						engMakeRealArray[list, Dimensions[arr]]
+					]
+				];
+
+			MString[str_String] := engMakeString[str];
+
+			structured (* $Failed falls through *)
+		]
+	]
+
+restructure[expr_] := Catch[dispatcher[expr], $dispTag]
+
+dispatcher[expr_] :=
+ Switch[
+  expr,
+  
+  (* packed arrays are always numeric *)
+  _?Developer`PackedArrayQ,
+  MArray[expr],
+  
+  (* catch sparse arrays early *)
+  _SparseArray,
+  handleSparse[expr],
+  
+  (* emtpy *)
+  Null | {},
+  MArray[{}],
+  
+  (* scalar *)
+  _?NumericQ,
+  MArray[{expr}],
+  
+  (* non-packed numerical array *)
+  _?(ArrayQ[#, _, NumericQ] &),
+  MArray[expr],
+  
+  (* logical scalar *)
+  True | False,
+  MLogical[{expr}],
+  
+  (* logical array *)
+  _?(ArrayQ[#, _, 
+      MatchQ[#, True | False] &] &),
+  MLogical[expr],
+  
+  (* string *)
+  _String,
+  MString[expr],
+  
+  (* string array *)
+  (* _?(ArrayQ[#, _, StringQ] &),
+  MString[expr], *)
+  
+  (* struct -- may need recursion *)
+  MStruct[_],
+  MStruct[handleStruct@First[expr]],
+  
+  (* struct *)
+  _?(VectorQ[#, Head[#] === Rule &] &),
+  MStruct[handleStruct[expr]],
+  
+  (* cell -- may need recursion *)
+  MCell[_],
+  MCell[handleCell@First[expr]],
+  
+  (* cell *)
+  _List,
+  MCell[handleCell[expr]],
+  
+  (* assumed already handled, no recursion needed 
+    only MCell and MStruct may need recursion *)
+  _MArray | \
+_MLogical | _MSparseArray | _MSparseLogical | _MString,
+  expr,
+  
+  _,
+  Throw[$Failed, $dispTag]
+]
+
+handleSparse[arr_SparseArray ? (VectorQ[#, NumericQ]&) ] := MSparseArray[SparseArray[{arr}]] (* convert to matrix *)
+handleSparse[arr_SparseArray ? (MatrixQ[#, NumericQ]&) ] := MSparseArray[arr]
+handleSparse[_] := Throw[$Failed, $dispTag] (* higher dim sparse arrays or non-numerical ones are not supported *)
+
+handleStruct[_] := Throw[$Failed, $dispTag] (* not YET supported *)
+
+handleCell[list_List] := dispatcher /@ list
+handleCell[expr_] := dispatcher[expr]
 
 End[]
 
