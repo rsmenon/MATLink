@@ -278,7 +278,7 @@ convertToMathematica[expr_] :=
 		},
 		Block[{matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
 
-			matCell[list_, dim_] := MCell@@ listToArray[list,dim] ~reshape~ dim;
+			matCell[list_, dim_] := MCell[ listToArray[list,dim] ~reshape~ dim ];
 			matStruct[list_, dim_] := MStruct@@ listToArray[list,dim] ~reshape~ dim;
 			matSparseArray[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}];
 
@@ -322,6 +322,10 @@ convertToMATLAB[expr_] :=
 				];
 
 			MString[str_String] := engMakeString[str];
+
+			MCell[vec_?VectorQ] := MCell[{vec}];
+			MCell[arr_?(ArrayQ[#, _, MatchQ[#, _handle]&]&)] := 
+				engMakeCell[Flatten@Transpose[arr] /. handle -> Identity, Reverse@Dimensions[arr]];
 
 			structured (* $Failed falls through *)
 		]
