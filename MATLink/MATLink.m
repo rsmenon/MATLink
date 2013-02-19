@@ -306,11 +306,12 @@ convertToMATLAB[expr_] :=
 		structured = restructure[expr];
 
 		Block[{MArray, MSparseArray, MLogical, MSparseLogical, MString, MCell, MStruct},
+		    MArray[vec_?VectorQ] := MArray[{vec}];
 			MArray[arr_] := 
-				With[{list = Flatten@Developer`ToPackedArray@N[arr]}, 
+				With[{list = Flatten@Transpose@Developer`ToPackedArray@N[arr]},  (* TODO proper transposition! *)
 					If[ complexArrayQ[list],
-						engMakeComplexArray[Re[list], Im[list], Dimensions[arr]],
-						engMakeRealArray[list, Dimensions[arr]]
+						engMakeComplexArray[Re[list], Im[list], Reverse@Dimensions[arr]],
+						engMakeRealArray[list, Reverse@Dimensions[arr]]
 					]
 				];
 
