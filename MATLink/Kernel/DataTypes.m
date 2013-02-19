@@ -5,11 +5,12 @@ BeginPackage["MATLink`DataTypes`"]
 MCell::usage = ""
 MStruct::usage = ""
 
-MArray (* TODO decide if all of these really need to be public. They're here now to ensure a common context. *)
-MLogical
-MSparseArray
-MSparseLogical
-MString
+(* not making these public for now spares some checks *)
+Private`MArray
+Private`MLogical
+Private`MSparseArray
+Private`MSparseLogical
+Private`MString
 
 MCellPart::usage = ""
 MGetFields::usage = ""

@@ -156,7 +156,11 @@ MGet[_String] /; !MATLABInstalledQ[] := Message[MGet::engc]
 
 SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
 MSet[var_String, expr_] /; MATLABInstalledQ[] :=
-	mset[var, convertToMATLAB[expr]] /; engineOpenQ[]
+	Internal`WithLocalSettings[
+		Null,
+		mset[var, convertToMATLAB[expr]],
+		MATLink`Engine`engCleanHandles[]	(* prevent memory leaks *)
+	] /; engineOpenQ[]
 MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
 
@@ -295,9 +299,11 @@ convertToMathematica[expr_] :=
 (***** Convet data types to MATLAB *****)
 
 AppendTo[$ContextPath, "MATLink`DataTypes`"]
+AppendTo[$ContextPath, "MATLink`DataTypes`Private`"]
 
 complexArrayQ[arr_] := Developer`PackedArrayQ[arr, Complex] || (Not@Developer`PackedArrayQ[arr] && Not@FreeQ[arr, Complex])
 
+(* the convertToMATLAB function will always end up with a handle[] if it was successful *)
 mset[name_String, handle[h_Integer]] := engSet[name, h]
 mset[name_, _] := $Failed
 

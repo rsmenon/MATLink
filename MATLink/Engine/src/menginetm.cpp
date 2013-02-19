@@ -524,12 +524,52 @@ L0:	return res;
 } /* _tr9 */
 
 
-void eng_set P(( const char * _tp1, int _tp2));
+void eng_clean_handles P(( void));
 
 #if MLPROTOTYPES
 static int _tr10( MLINK mlp)
 #else
 static int _tr10(mlp) MLINK mlp;
+#endif
+{
+	int	res = 0;
+	if ( ! MLNewPacket(mlp) ) goto L0;
+	if( !mlp) return res; /* avoid unused parameter warning */
+
+	eng_clean_handles();
+
+	res = 1;
+
+L0:	return res;
+} /* _tr10 */
+
+
+void eng_get_handles P(( void));
+
+#if MLPROTOTYPES
+static int _tr11( MLINK mlp)
+#else
+static int _tr11(mlp) MLINK mlp;
+#endif
+{
+	int	res = 0;
+	if ( ! MLNewPacket(mlp) ) goto L0;
+	if( !mlp) return res; /* avoid unused parameter warning */
+
+	eng_get_handles();
+
+	res = 1;
+
+L0:	return res;
+} /* _tr11 */
+
+
+void eng_set P(( const char * _tp1, int _tp2));
+
+#if MLPROTOTYPES
+static int _tr12( MLINK mlp)
+#else
+static int _tr12(mlp) MLINK mlp;
 #endif
 {
 	int	res = 0;
@@ -545,7 +585,7 @@ static int _tr10(mlp) MLINK mlp;
 L2: L1:	MLDisownString(mlp, _tp1);
 
 L0:	return res;
-} /* _tr10 */
+} /* _tr12 */
 
 
 static struct func {
@@ -553,7 +593,7 @@ static struct func {
 	int   manual;
 	int   (*f_func)P((MLINK));
 	const char  *f_name;
-	} _tramps[11] = {
+	} _tramps[13] = {
 		{ 0, 0, _tr0, "eng_open" },
 		{ 0, 0, _tr1, "eng_open_q" },
 		{ 0, 0, _tr2, "eng_close" },
@@ -564,7 +604,9 @@ static struct func {
 		{ 3, 0, _tr7, "eng_make_ComplexArray" },
 		{ 1, 0, _tr8, "eng_make_String" },
 		{ 2, 0, _tr9, "eng_make_Cell" },
-		{ 2, 0, _tr10, "eng_set" }
+		{ 0, 0, _tr10, "eng_clean_handles" },
+		{ 0, 0, _tr11, "eng_get_handles" },
+		{ 2, 0, _tr12, "eng_set" }
 		};
 
 static const char* evalstrs[] = {
@@ -602,7 +644,9 @@ int MLInstall(mlp) MLINK mlp;
 	if (_res) _res = _definepattern(mlp, (char *)"engMakeComplexArray[real_, imag_, dims_]", (char *)"{real, imag, dims}", 7);
 	if (_res) _res = _definepattern(mlp, (char *)"engMakeString[string_]", (char *)"{string}", 8);
 	if (_res) _res = _definepattern(mlp, (char *)"engMakeCell[handles_, dims_]", (char *)"{handles, dims}", 9);
-	if (_res) _res = _definepattern(mlp, (char *)"engSet[name_, handle_]", (char *)"{name, handle}", 10);
+	if (_res) _res = _definepattern(mlp, (char *)"engCleanHandles[]", (char *)"{}", 10);
+	if (_res) _res = _definepattern(mlp, (char *)"engGetHandles[]", (char *)"{}", 11);
+	if (_res) _res = _definepattern(mlp, (char *)"engSet[name_, handle_]", (char *)"{name, handle}", 12);
 	if (_res) _res = _doevalstr( mlp, 1);
 	if (_res) _res = MLPutSymbol( mlp, "End");
 	if (_res) _res = MLFlush( mlp);
@@ -616,7 +660,7 @@ int MLDoCallPacket( MLINK mlp)
 int MLDoCallPacket( mlp) MLINK mlp;
 #endif
 {
-	return _MLDoCallPacket( mlp, _tramps, 11);
+	return _MLDoCallPacket( mlp, _tramps, 13);
 } /* MLDoCallPacket */
 
 /******************************* begin trailer ********************************/

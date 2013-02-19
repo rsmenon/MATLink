@@ -93,6 +93,24 @@
 
 
 :Begin:
+:Function:		eng_clean_handles
+:Pattern:		engCleanHandles[]
+:Arguments:		{}
+:ArgumentTypes:	{}
+:ReturnType:	Manual
+:End:
+
+
+:Begin:
+:Function:		eng_get_handles
+:Pattern:		engGetHandles[]
+:Arguments:		{}
+:ArgumentTypes:	{}
+:ReturnType:	Manual
+:End:
+
+
+:Begin:
 :Function:		eng_set
 :Pattern:		engSet[name_, handle_]
 :Arguments:		{name, handle}
