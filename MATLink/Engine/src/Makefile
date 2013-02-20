@@ -1,0 +1,30 @@
+
+# Set path to MATLAB and MathLink here:
+MATLABDIR   = /Applications/MATLAB_R2012b.app
+MATHLINKDIR = /Applications/Mathematica\ 9.app/SystemFiles/Links/MathLink/DeveloperKit
+
+SYS = MacOSX-x86-64
+CADDSDIR = $(MATHLINKDIR)/$(SYS)/CompilerAdditions
+
+INCDIRS = -I$(CADDSDIR) -I$(MATLABDIR)/extern/include/
+LIBDIRS = -L$(CADDSDIR) -L$(MATLABDIR)/bin/maci64/
+
+MPREP = $(CADDSDIR)/mprep
+
+CFLAGS = -mmacosx-version-min=10.6 -O -Wall
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCDIRS) -c $<
+
+
+all: mengine
+
+menginetm.cpp: mengine.tm
+	$(MPREP) mengine.tm > menginetm.cpp
+
+mengine: main.cpp get.cpp set.cpp mengine.cpp mengine.h mlp.h menginetm.cpp
+	$(CXX) $(CFLAGS) $(INCDIRS) $(LIBDIRS) menginetm.cpp mengine.cpp set.cpp get.cpp main.cpp -lMLi3 -lmx -leng -framework Foundation -o mengine
+
+clean:
+	@ rm -rf *.o mengine menginetm.cpp
+

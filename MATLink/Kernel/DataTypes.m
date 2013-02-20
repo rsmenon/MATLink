@@ -1,7 +1,17 @@
 BeginPackage["MATLink`DataTypes`"]
 
+(* type wrappers; can also be used as 'casting' operators *)
+
 MCell::usage = ""
 MStruct::usage = ""
+
+(* not making these public for now spares some checks *)
+Private`MArray
+Private`MLogical
+Private`MSparseArray
+Private`MSparseLogical
+Private`MString
+
 MCellPart::usage = ""
 MGetFields::usage = ""
 MSetFields::usage = ""
