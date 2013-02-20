@@ -169,7 +169,7 @@ MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
-	Module[{result, error, id = randomString[]},
+	Catch@Module[{result, error, id = randomString[]},
 		If[
 			TrueQ[error = mLintErrorFreeQ@cmd],
 			result = eval@StringJoin["
@@ -179,11 +179,11 @@ MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
 					sprintf('%s%s%s', '", id, "', ex.getReport,'", id, "')
 				end
 			"],
-			error
+			Throw@error
 		];
 		If[StringFreeQ[result,id],
 			StringReplace[result, StartOfString~~">> " -> ""],
-			First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> MATLink`DataTypes`MException@x]
+			First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> Throw@MATLink`DataTypes`MException@x]
 		]
 	] /; engineOpenQ[]
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
