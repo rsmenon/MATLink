@@ -26,6 +26,7 @@ Begin["`Developer`"]
 $ApplicationDirectory = DirectoryName@$InputFileName;
 $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
 $DefaultMATLABDirectory = "/Applications/MATLAB_R2012b.app/";
+$MATLABPathFile = FileNameJoin[{$ApplicationDirectory, "Engine", "matlab_path"}];
 
 CompileMEngine[] :=
 	Block[{dir = Directory[]},
@@ -49,6 +50,20 @@ AppendTo[$ContextPath, "MATLink`Developer`"];
 
 (* Directories and helper functions/variables *)
 EngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{$ApplicationDirectory, "Engine", "mengine"}];
+
+MATLABPathKnownQ[] /; ($OperatingSystem === "Windows") := True
+MATLABPathKnownQ[] :=
+	FileExistsQ[$MATLABPathFile] &&
+		FileExistsQ@FileNameJoin[{StringTrim@Import[$MATLABPathFile, "String"], "bin", "matlab"}]
+
+FindMATLAB["MacOSX"] := 
+	With[{matlabPath = SystemDialogInput["Directory", "/Applications", WindowTitle -> "Please select the MATLAB app bundle"]},
+		If[matlabPath =!= $Canceled, Export[$MATLABPathFile, matlabPath, "String"]]
+	]
+FindMATLAB["Windows"] := Null
+ConnectMATLAB::unsupp = "MATLink does not support ``"
+FindMATLAB[os_] := (Message[ConnectMATLAB::unsupp, os]; Abort[])
+
 
 If[!TrueQ[MATLABInstalledQ[]],
 	MATLABInstalledQ[] = False;
@@ -101,7 +116,7 @@ General::nofn = "The `1` \"`2`\" does not exist."
 General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
 
 (* Connect/Disconnect MATLAB engine *)
-ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
+ConnectMATLAB[] /; MATLABPathKnownQ[] && EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
 		$openLink = Install@FileNameJoin[{$ApplicationDirectory, "Engine", "mengine.sh"}];
@@ -114,12 +129,9 @@ ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 		CreateDirectory@$sessionTemporaryDirectory;
 		MATLABInstalledQ[] = True;
 	]
-ConnectMATLAB[] /; EngineBinaryExistsQ[] && MATLABInstalledQ[] := Message[ConnectMATLAB::engo]
-ConnectMATLAB[] /; !EngineBinaryExistsQ[] :=
-	Module[{},
-		CompileMEngine[];
-		ConnectMATLAB[];
-	]
+ConnectMATLAB[] /; MATLABPathKnownQ[] && EngineBinaryExistsQ[] && MATLABInstalledQ[] := Message[ConnectMATLAB::engo]
+ConnectMATLAB[] /; MATLABPathKnownQ[] && !EngineBinaryExistsQ[] := (CompileMEngine[]; Update[ConnectMATLAB]; ConnectMATLAB[])
+ConnectMATLAB[] /; !MATLABPathKnownQ[] := (FindMATLAB[$OperatingSystem]; Update[ConnectMATLAB]; ConnectMATLAB[])
 
 DisconnectMATLAB[] /; MATLABInstalledQ[] :=
 	Module[{},
