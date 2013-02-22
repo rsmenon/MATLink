@@ -303,17 +303,23 @@ AppendTo[$ContextPath, "MATLink`DataTypes`Private`"]
 
 complexArrayQ[arr_] := Developer`PackedArrayQ[arr, Complex] || (Not@Developer`PackedArrayQ[arr] && Not@FreeQ[arr, Complex])
 
+booleanQ[True | False] = True
+booleanQ[_] = False
+
+ruleQ[_Rule] = True
+ruleQ[_] = False
+
 (* the convertToMATLAB function will always end up with a handle[] if it was successful *)
 mset[name_String, handle[h_Integer]] := engSet[name, h]
 mset[name_, _] := $Failed
 
-convertToMATLAB[expr_] := 
+convertToMATLAB[expr_] :=
 	Module[{structured},
 		structured = restructure[expr];
 
 		Block[{MArray, MSparseArray, MLogical, MSparseLogical, MString, MCell, MStruct},
 		    MArray[vec_?VectorQ] := MArray[{vec}];
-			MArray[arr_] := 
+			MArray[arr_] :=
 				With[{list = Flatten@Transpose@Developer`ToPackedArray@N[arr]},  (* TODO proper transposition! *)
 					If[ complexArrayQ[list],
 						engMakeComplexArray[Re[list], Im[list], Reverse@Dimensions[arr]],
@@ -330,71 +336,69 @@ convertToMATLAB[expr_] :=
 restructure[expr_] := Catch[dispatcher[expr], $dispTag]
 
 dispatcher[expr_] :=
- Switch[
-  expr,
-  
-  (* packed arrays are always numeric *)
-  _?Developer`PackedArrayQ,
-  MArray[expr],
-  
-  (* catch sparse arrays early *)
-  _SparseArray,
-  handleSparse[expr],
-  
-  (* emtpy *)
-  Null | {},
-  MArray[{}],
-  
-  (* scalar *)
-  _?NumericQ,
-  MArray[{expr}],
-  
-  (* non-packed numerical array *)
-  _?(ArrayQ[#, _, NumericQ] &),
-  MArray[expr],
-  
-  (* logical scalar *)
-  True | False,
-  MLogical[{expr}],
-  
-  (* logical array *)
-  _?(ArrayQ[#, _, 
-      MatchQ[#, True | False] &] &),
-  MLogical[expr],
-  
-  (* string *)
-  _String,
-  MString[expr],
-  
-  (* string array *)
-  (* _?(ArrayQ[#, _, StringQ] &),
-  MString[expr], *)
-  
-  (* struct -- may need recursion *)
-  MStruct[_],
-  MStruct[handleStruct@First[expr]],
-  
-  (* struct *)
-  _?(VectorQ[#, Head[#] === Rule &] &),
-  MStruct[handleStruct[expr]],
-  
-  (* cell -- may need recursion *)
-  MCell[_],
-  MCell[handleCell@First[expr]],
-  
-  (* cell *)
-  _List,
-  MCell[handleCell[expr]],
-  
-  (* assumed already handled, no recursion needed 
-    only MCell and MStruct may need recursion *)
-  _MArray | \
-_MLogical | _MSparseArray | _MSparseLogical | _MString,
-  expr,
-  
-  _,
-  Throw[$Failed, $dispTag]
-]
+	Switch[
+		expr,
+
+		(* packed arrays are always numeric *)
+		_?Developer`PackedArrayQ,
+		MArray[expr],
+
+		(* catch sparse arrays early *)
+		_SparseArray,
+		handleSparse[expr],
+
+		(* empty *)
+		Null | {},
+		MArray[{}],
+
+		(* scalar *)
+		_?NumericQ,
+		MArray[{expr}],
+
+		(* non-packed numerical array *)
+		_?(ArrayQ[#, _, NumericQ] &),
+		MArray[expr],
+
+		(* logical scalar *)
+		True | False,
+		MLogical[{expr}],
+
+		(* logical array *)
+		_?(ArrayQ[#, _, booleanQ] &),
+		MLogical[expr],
+
+		(* string *)
+		_String,
+		MString[expr],
+
+		(* string array *)
+		(* _?(ArrayQ[#, _, StringQ] &),
+		MString[expr], *)
+
+		(* struct -- may need recursion *)
+		MStruct[_],
+		MStruct[handleStruct@First[expr]],
+
+		(* struct *)
+		_?(VectorQ[#, ruleQ] &),
+		MStruct[handleStruct[expr]],
+
+		(* cell -- may need recursion *)
+		MCell[_],
+		MCell[handleCell@First[expr]],
+
+		(* cell *)
+		_List,
+		MCell[handleCell[expr]],
+
+		(* assumed already handled, no recursion needed
+		only MCell and MStruct may need recursion *)
+		_MArray | _MLogical | _MSparseArray | _MSparseLogical | _MString,
+		expr,
+
+		_,
+		Throw[$Failed, $dispTag]
+	]
 
 handleSparse[arr_SparseArray ? (VectorQ[#, NumericQ]&) ] := MSparseArray[SparseArray[{arr}]] (* convert to matrix *)
 handleSparse[arr_SparseArray ? (MatrixQ[#, NumericQ]&) ] := MSparseArray[arr]
