@@ -15,7 +15,6 @@ Private`MString
 MCellPart::usage = ""
 MGetFields::usage = ""
 MSetFields::usage = ""
-MException::usage = ""
 
 $ShowStructAsTable::usage = "";
 
@@ -40,7 +39,6 @@ MakeBoxes[s_MStruct, form] /; !TrueQ[$ShowStructAsTable] := MakeBoxes[s, form]
 
 MStruct /: MStruct[s___]["FieldNames"] := MGetFields@MStruct@s
 
-MakeBoxes[MException[str_String], form : StandardForm | TraditionalForm] := MakeBoxes[Style[str, RGBColor[4/5, 0, 0], Bold], form]
 End[]
 
 Begin["`FunctionsOnDataTypes`"]

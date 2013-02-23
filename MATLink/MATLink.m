@@ -113,7 +113,7 @@ errorsInMATLABCode[cmd_String] :=
 		result = List@@MGet@First@file;
 		eval@ToString@StringForm["clear `1`", First@file];
 		DeleteFile@file["AbsolutePath"];
-		If[result =!= {}, MATLink`DataTypes`MException["message" /. Flatten@result], None]
+		If[result =!= {}, "message" /. Flatten@result, None]
 	]
 
 (* Common error messages *)
@@ -188,7 +188,11 @@ MSet[var_String, expr_] /; MATLABInstalledQ[] :=
 MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
 
+(* MEvaluate *)
+MEvaluate::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
+
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
+
 MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
 	Catch@Module[{result, error, id = randomString[]},
 		If[
@@ -200,17 +204,20 @@ MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
 					sprintf('%s%s%s', '", id, "', ex.getReport,'", id, "')
 				end
 			"],
-			Throw@error
+			Message[MEvaluate::errx, error];Throw[$Failed]
 		];
 		If[StringFreeQ[result,id],
 			StringReplace[result, StartOfString~~">> " -> ""],
-			First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> Throw@MATLink`DataTypes`MException@x]
+			First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> (Message[MEvaluate::errx, x];Throw[$Failed])]
 		]
 	] /; engineOpenQ[]
+
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
 	eval[name] /; engineOpenQ[]
+
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
 	Message[MEvaluate::nofn,"MScript", name]
+
 MEvaluate[___] /; MATLABInstalledQ[] := Message[MEvaluate::wspc] /; !engineOpenQ[]
 MEvaluate[___] /; !MATLABInstalledQ[] := Message[MEvaluate::engc]
 
