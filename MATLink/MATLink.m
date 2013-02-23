@@ -364,6 +364,9 @@ booleanQ[_] = False
 ruleQ[_Rule] = True
 ruleQ[_] = False
 
+handleQ[_handle] = True
+handleQ[_] = False
+
 (* the convertToMATLAB function will always end up with a handle[] if it was successful *)
 mset[name_String, handle[h_Integer]] := engSet[name, h]
 mset[name_, _] := $Failed
@@ -385,7 +388,7 @@ convertToMATLAB[expr_] :=
 			MString[str_String] := engMakeString[str];
 
 			MCell[vec_?VectorQ] := MCell[{vec}];
-			MCell[arr_?(ArrayQ[#, _, MatchQ[#, _handle]&]&)] :=
+			MCell[arr_?(ArrayQ[#, _, handleQ]&)] :=
 				engMakeCell[Flatten@Transpose[arr] /. handle -> Identity, Reverse@Dimensions[arr]];
 
 			structured (* $Failed falls through *)
