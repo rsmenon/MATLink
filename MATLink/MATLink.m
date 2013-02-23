@@ -9,18 +9,40 @@
 
 BeginPackage["MATLink`"]
 
-ConnectMATLAB::usage = "Establish connection with the MATLAB engine"
-DisconnectMATLAB::usage = "Close connection with the MATLAB engine"
-OpenMATLAB::usage = "Open MATLAB workspace"
-CloseMATLAB::usage = "Close MATLAB workspace"
-MGet::usage = "Import MATLAB variable into Mathematica."
-MSet::usage = "Define variable in MATLAB workspace."
-MEvaluate::usage = "Evaluates a valid MATLAB expression"
-MScript::usage = "Create a MATLAB script file"
-MFunction::usage = "Create a link to a MATLAB function for use from Mathematica."
-$ReturnLogicalsAs0And1::usage = "If set to True, MATLAB logicals will be returned as 0 or 1, and True or False otherwise."
-$DefaultMATLABDirectory::usage = ""
-mcell::usage = ""
+ConnectMATLAB::usage =
+	"ConnectMATLAB[] establishes a connection with the MATLink engine, but does not open an instance of MATLAB."
+
+DisconnectMATLAB::usage =
+	"DisconnectMATLAB[] closes an existing connection with the MATLink engine."
+
+OpenMATLAB::usage =
+	"OpenMATLAB[] opens an instance of MATLAB and allows you to access its workspace."
+
+CloseMATLAB::usage =
+	"CloseMATLAB[] closes a previously opened instance of MATLAB (opened via MATLink)."
+
+MGet::usage =
+	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica. MGet is Listable."
+
+MSet::usage =
+	"MSet[var, expr] exports the value in expr and saves it in a variable named \"var\" in MATLAB's workspace."
+
+MEvaluate::usage =
+	"MEvaluate[expr] evaluates a valid MATLAB expression (entered as a string) and displays an error otherwise."
+
+MScript::usage =
+	"MScript[filename, expr] creates a MATLAB script named \"filename\" with the contents in expr (string) and stores it on MATLAB's path, but does not evaluate it. These files will be removed when the MATLink engine is closed."
+
+MFunction::usage =
+	"Create a link to a MATLAB function for use from Mathematica."
+
+$ReturnLogicalsAs0And1::usage =
+	"If $ReturnLogicalsAs0And1 is set to True, MATLAB logicals will be returned as 0 or 1, and True or False otherwise."
+
+$DefaultMATLABDirectory::usage =
+	"Path to the default MATLAB directory. The MATLink engine calls the MATLAB executable located in this path."
+
+mcell::usage = "" (* TODO: Make this private before release *)
 
 Begin["`Developer`"]
 $ApplicationDirectory = DirectoryName@$InputFileName;
