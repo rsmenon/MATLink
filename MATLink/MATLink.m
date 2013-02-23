@@ -279,16 +279,21 @@ convertToMathematica[expr_] :=
 		Block[{matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
 
 			matCell[list_, dim_] := MCell@@ listToArray[list,dim] ~reshape~ dim;
+
 			matStruct[list_, dim_] := MStruct@@ listToArray[list,dim] ~reshape~ dim;
+
 			matSparseArray[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}];
 
+			matLogical[list_, {1,1}] := matLogical@list[[1,1]];
 			matLogical[list_, dim_] := matLogical[list ~reshape~ dim];
 			matLogical[list_] /; $ReturnLogicalsAs0And1 := list;
 			matLogical[list_] /; !$ReturnLogicalsAs0And1 := list /. {1 -> True, 0 -> False};
 
 			matArray[list_, {1,1}] := list[[1,1]];
 			matArray[list_, dim_] := list ~reshape~ dim;
+
 			matString[str_] := str;
+
 			matUnknown[u_] := (Message[engGet::unimpl, u]; $Failed);
 
 			expr
@@ -296,7 +301,7 @@ convertToMathematica[expr_] :=
 	]
 
 
-(***** Convet data types to MATLAB *****)
+(***** Convert data types to MATLAB *****)
 
 AppendTo[$ContextPath, "MATLink`DataTypes`"]
 AppendTo[$ContextPath, "MATLink`DataTypes`Private`"]
