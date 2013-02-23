@@ -165,12 +165,22 @@ imagesc[data];
 
 ##Known issues
 
+###Multiple instances of MATLAB
+
 On OS X, if a MATLAB background process has already been started by _MATLink_, it will not be possible to launch another instance of MATLAB by clicking on its icon.  As a workaround, either start MATLAB before you call `OpenMATLAB[]`or start MATLAB from the terminal as
 
 ```bash
-open -n /Applications/MATLAB_R2012b.app/bin/matlab
+open -n /Applications/MATLAB_R2012b.app
 ```
-You can also open it by directly executing the binary from the command line.
+You can also open it by directly executing the binary from the command line:
+
+```bash
+ /Applications/MATLAB_R2012b.app/bin/matlab
+```
+
+###`MGet`ting custom classes
+
+Do not use `MGet` on custom classes, or built-in ones such as `MException`.  This will crash the MATLAB process because of a bug in the MATLAB Engine interface on OS X.
 
 ---
 <sub>_Mathematica_ is a registered trademark of Wolfram Research, Inc. and MATLAB is a registered trademark of The MathWorks, Inc.</sub>

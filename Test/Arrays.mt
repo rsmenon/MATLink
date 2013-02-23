@@ -53,7 +53,7 @@ Test[
 	,
 	True
 	,
-	TestID->"Strings-20130223-O9F5I8"
+	TestID->"Arrays-20130223-O9F5I8"
 ]
 
 (* Check indexing (proper transposition) when receiving a 5-D array from MATLAB *)
@@ -90,5 +90,5 @@ Test[
 	,
 	True
 	,
-	TestID->"Strings-20130223-N8D1Z7"
+	TestID->"Arrays-20130223-N8D1Z7"
 ]

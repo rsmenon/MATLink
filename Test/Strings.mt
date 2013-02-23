@@ -39,7 +39,7 @@ Test[
 (* ISO Latin 1 to MATLAB *)
 Test[
 	MSet["isolatin1Mma", FromCharacterCode@Range[129, 255]];
-	MEvaluate["result = strcmpi(isolatin1Mat, asciisolatin1Mma);"];
+	MEvaluate["result = strcmpi(isolatin1Mat, isolatin1Mma);"];
 	MGet["result"]
 	,
 	True
