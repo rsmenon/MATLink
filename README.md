@@ -101,7 +101,17 @@ magic = MFunction["magic"];
 magic[4] // MatrixForm
 ```
 
-To define a custom function for the current session and use it, use `MScript` to save it to a file (remember to use the same filename as the function) and then use `MFunction["function_name"]`, where `function_name` is the name of your function file.
+To define a custom function for the current session and use it, use `MScript` to save it to a file (remember to use the same filename as the function) and then use `MFunction["function_name"]`, where `function_name` is the name of your function file. As a simple example:
+
+```ruby
+MScript["add2", "
+	function out = add2(x,y)
+  	 	out = x + y;
+  	end
+ "];
+MFunction["add2"][3, 4]
+(* Output: 7. *)
+```
 
 > **Also see:** "Handling functions with multiple outputs (and no outputs)" under the **Advanded usage** section.
 
@@ -163,7 +173,11 @@ imagesc[data];
 
 
 
-##Known issues
+##Known issues and limitations
+
+###Large array support
+
+At the moment, only arrays with less than `2^31-1` elements are supported.  Note that this is true for matrices and multidimensional arrays as well: the _total number_ of matrix elements may not excede `2^31-1` even if the matrix has fewer rows and columns than this.  As an example, the largest supported square matrix can be of size 46341 by 46341.
 
 ###Multiple instances of MATLAB
 
@@ -180,7 +194,7 @@ You can also open it by directly executing the binary from the command line:
 
 ###`MGet`ting custom classes
 
-Do not use `MGet` on custom classes, or built-in ones such as `MException`.  This will crash the MATLAB process because of a bug in the MATLAB Engine interface on OS X.
+Do not use `MGet` on custom classes (things for which `isobject` is true), or data structures that contain custom classes as elements.  On OS X and Unix this will crash the MATLAB process because of a bug in the MATLAB Engine interface.
 
 ---
 <sub>_Mathematica_ is a registered trademark of Wolfram Research, Inc. and MATLAB is a registered trademark of The MathWorks, Inc.</sub>
