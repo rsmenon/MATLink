@@ -372,13 +372,13 @@ mset[name_String, handle[h_Integer]] := engSet[name, h]
 mset[name_, _] := $Failed
 
 convertToMATLAB[expr_] :=
-	Module[{structured},
+	Module[{structured,reshape = Composition[Flatten, Transpose[#, Reverse@Range@ArrayDepth@#]&]},
 		structured = restructure[expr];
 
 		Block[{MArray, MSparseArray, MLogical, MSparseLogical, MString, MCell, MStruct},
 		    MArray[vec_?VectorQ] := MArray[{vec}];
 			MArray[arr_] :=
-				With[{list = Flatten@Transpose@Developer`ToPackedArray@N[arr]},  (* TODO proper transposition! *)
+				With[{list = reshape@Developer`ToPackedArray@N[arr]},
 					If[ complexArrayQ[list],
 						engMakeComplexArray[Re[list], Im[list], Reverse@Dimensions[arr]],
 						engMakeRealArray[list, Reverse@Dimensions[arr]]
@@ -389,7 +389,7 @@ convertToMATLAB[expr_] :=
 
 			MCell[vec_?VectorQ] := MCell[{vec}];
 			MCell[arr_?(ArrayQ[#, _, handleQ]&)] :=
-				engMakeCell[Flatten@Transpose[arr] /. handle -> Identity, Reverse@Dimensions[arr]];
+				engMakeCell[reshape@arr /. handle -> Identity, Reverse@Dimensions[arr]];
 
 			structured (* $Failed falls through *)
 		]
