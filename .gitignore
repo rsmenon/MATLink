@@ -3,7 +3,6 @@
 *.o
 *.nb
 *.mscrapbook
-*.mt
 MATLink/Engine/src/mEngine.creator
 MATLink/Engine/src/mEngine.creator.user
 MATLink/Engine/src/mEngine.files
