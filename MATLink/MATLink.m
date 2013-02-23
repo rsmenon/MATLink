@@ -42,7 +42,7 @@ $ReturnLogicalsAs0And1::usage =
 $DefaultMATLABDirectory::usage =
 	"Path to the default MATLAB directory. The MATLink engine calls the MATLAB executable located in this path."
 
-mcell::usage = "" (* TODO: Make this private before release *)
+mcell::usage = "" (* TODO Make this private before release *)
 
 Begin["`Developer`"]
 $ApplicationDirectory = DirectoryName@$InputFileName;
@@ -72,6 +72,8 @@ AppendTo[$ContextPath, "MATLink`Developer`"];
 (* Directories and helper functions/variables *)
 EngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{$ApplicationDirectory, "Engine", "mengine"}];
 
+(* Set these variables only once per session.
+This is to avoid losing connection/changing temporary directory because the user used Get instead of Needs *)
 If[!TrueQ[MATLABInstalledQ[]],
 	MATLABInstalledQ[] = False;
 	$openLink = {};
@@ -85,6 +87,7 @@ If[!TrueQ[MATLABInstalledQ[]],
 
 EngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mengine.sh"];
 
+(* To close previously opened links that were not terminated properly (possibly from a crash) *)
 cleanupOldLinks[] :=
 	Module[{},
 		LinkClose /@ Select[Links[], EngineLinkQ];
@@ -138,7 +141,9 @@ ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 		CreateDirectory@$sessionTemporaryDirectory;
 		MATLABInstalledQ[] = True;
 	]
+
 ConnectMATLAB[] /; EngineBinaryExistsQ[] && MATLABInstalledQ[] := Message[ConnectMATLAB::engo]
+
 ConnectMATLAB[] /; !EngineBinaryExistsQ[] :=
 	Module[{},
 		CompileMEngine[];
@@ -152,11 +157,13 @@ DisconnectMATLAB[] /; MATLABInstalledQ[] :=
 		DeleteDirectory[$sessionTemporaryDirectory, DeleteContents -> True];
 		MATLABInstalledQ[] = False;
 	]
+
 DisconnectMATLAB[] /; !MATLABInstalledQ[] := Message[DisconnectMATLAB::engc]
 
 (* Open/Close MATLAB Workspace *)
 OpenMATLAB[] /; MATLABInstalledQ[] := openEngine[] /; !engineOpenQ[];
 OpenMATLAB[] /; MATLABInstalledQ[] := Message[OpenMATLAB::wspo] /; engineOpenQ[];
+
 OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
 		ConnectMATLAB[];
@@ -168,23 +175,27 @@ CloseMATLAB[] /; MATLABInstalledQ[] := closeEngine[] /; engineOpenQ[] ;
 CloseMATLAB[] /; MATLABInstalledQ[] := Message[CloseMATLAB::wspc] /; !engineOpenQ[];
 CloseMATLAB[] /; !MATLABInstalledQ[] := Message[CloseMATLAB::engc];
 
-(*  High-level commands *)
 $ReturnLogicalsAs0And1 = False;
 
+(* MGet & MSet *)
 SyntaxInformation[MGet] = {"ArgumentsPattern" -> {_}};
 SetAttributes[MGet,Listable]
+
 MGet[var_String] /; MATLABInstalledQ[] :=
 	convertToMathematica@get[var] /; engineOpenQ[]
+
 MGet[_String] /; MATLABInstalledQ[] := Message[MGet::wspc] /; !engineOpenQ[]
 MGet[_String] /; !MATLABInstalledQ[] := Message[MGet::engc]
 
 SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
+
 MSet[var_String, expr_] /; MATLABInstalledQ[] :=
 	Internal`WithLocalSettings[
 		Null,
 		mset[var, convertToMATLAB[expr]],
 		MATLink`Engine`engCleanHandles[]	(* prevent memory leaks *)
 	] /; engineOpenQ[]
+
 MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
 
@@ -221,7 +232,9 @@ MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
 MEvaluate[___] /; MATLABInstalledQ[] := Message[MEvaluate::wspc] /; !engineOpenQ[]
 MEvaluate[___] /; !MATLABInstalledQ[] := Message[MEvaluate::engc]
 
+(* MScript & MFunction *)
 Options[MScript] = {"Overwrite" -> False};
+
 MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Module[{file},
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
@@ -229,13 +242,18 @@ MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 		Close[file];
 		MScript[name]
 	] /; (!MScriptQ[name] || OptionValue["Overwrite"])
+
 MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Message[MScript::owrt, "MScript"] /; MScriptQ[name] && !OptionValue["Overwrite"]
+
 MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := Message[MScript::engc]
+
 MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
 	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
 
 Options[MFunction] = {"Output" -> True, "OutputArguments" -> 1};
+(* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
+
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 	Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output},
 		vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
@@ -245,6 +263,7 @@ MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
 		If[nOut == 1, First@output, output]
 	] /; OptionValue["Output"]
+
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 	With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
 		Thread[MSet[vars, {args}]];
@@ -272,7 +291,7 @@ mcell[] :=
 
 End[]
 
-(* Low level functions strongly tied with the C code are part of this context *)
+(* Low level functions strongly tied with the C++ code are part of this context *)
 Begin["`Engine`"]
 AppendTo[$ContextPath, "MATLink`Private`"]
 Needs["MATLink`DataTypes`"]
@@ -288,11 +307,11 @@ set = engSet;
 
 engGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
 
-(***** Convert data types to Mathematica *****)
+(* CONVERT DATA TYPES TO MATHEMATICA *)
 
 (* The following mat* heads are inert and indicate the type of the MATLAB data returned
    by the engine.  They must be part of the MATLink`Engine` context.
-   Evaluation is only allowed inside the convertToMathematica function, 
+   Evaluation is only allowed inside the convertToMathematica function,
    which converts it to their final Mathematica form.  engGet[] will always return
    either $Failed, or an expression wrapped in one of the below heads.
    Note that structs and cells may contain subxpressions of other types.
@@ -332,7 +351,7 @@ convertToMathematica[expr_] :=
 	]
 
 
-(***** Convert data types to MATLAB *****)
+(* CONVERT DATA TYPES TO MATLAB *)
 
 AppendTo[$ContextPath, "MATLink`DataTypes`"]
 AppendTo[$ContextPath, "MATLink`DataTypes`Private`"]
