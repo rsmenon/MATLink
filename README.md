@@ -101,7 +101,17 @@ magic = MFunction["magic"];
 magic[4] // MatrixForm
 ```
 
-To define a custom function for the current session and use it, use `MScript` to save it to a file (remember to use the same filename as the function) and then use `MFunction["function_name"]`, where `function_name` is the name of your function file.
+To define a custom function for the current session and use it, use `MScript` to save it to a file (remember to use the same filename as the function) and then use `MFunction["function_name"]`, where `function_name` is the name of your function file. As a simple example:
+
+```ruby
+MScript["add2", "
+	function out = add2(x,y)
+  	 	out = x + y;
+  	end
+ "];
+MFunction["add2"][3, 4]
+(* Output: 7. *)
+```
 
 > **Also see:** "Handling functions with multiple outputs (and no outputs)" under the **Advanded usage** section.
 
