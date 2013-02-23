@@ -66,7 +66,7 @@ void eng_make_ComplexArray(double *real, int rlen, double *imag, int ilen, int *
     mwSize mbDims[depth];
     std::reverse_copy(mmDims, mmDims+depth, mbDims);
 
-    mxArray *var = mxCreateNumericArray(depth, mbDims, mxDOUBLE_CLASS, mxREAL);
+    mxArray *var = mxCreateNumericArray(depth, mbDims, mxDOUBLE_CLASS, mxCOMPLEX);
     std::copy(real, real+rlen, mxGetPr(var));
     std::copy(imag, imag+ilen, mxGetPi(var));
 
