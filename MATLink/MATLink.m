@@ -97,7 +97,9 @@ MScriptQ[name_String] /; MATLABInstalledQ[] :=
 randomString[n_Integer:50] :=
 	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
 
-mLintErrorFreeQ[cmd_String] :=
+(* Check MATLAB code for syntax errors before evaluating.
+This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
+errorsInMATLABCode[cmd_String] :=
 	Module[
 		{
 			file = MScript[randomString[], cmd],
@@ -111,7 +113,7 @@ mLintErrorFreeQ[cmd_String] :=
 		result = List@@MGet@First@file;
 		eval@ToString@StringForm["clear `1`", First@file];
 		DeleteFile@file["AbsolutePath"];
-		If[result =!= {}, MATLink`DataTypes`MException["message" /. Flatten@result], True]
+		If[result =!= {}, MATLink`DataTypes`MException["message" /. Flatten@result], None]
 	]
 
 (* Common error messages *)
@@ -190,7 +192,7 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
 	Catch@Module[{result, error, id = randomString[]},
 		If[
-			TrueQ[error = mLintErrorFreeQ@cmd],
+			TrueQ[(error = errorsInMATLABCode@cmd) === None],
 			result = eval@StringJoin["
 				try
 					", cmd, "
