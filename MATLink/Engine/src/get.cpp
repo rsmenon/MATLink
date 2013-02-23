@@ -1,124 +1,117 @@
 
 #include "mengine.h"
 
-#include <iostream>
-#include <fstream>
-#include <cstring>
-
-using namespace std;
 
 // Takes a MATLAB variable and writes in in Mathematica form to link
-// To be used with loopback links
-void toMma(const mxArray *matlabVar, MLINK link) {
+void toMma(const mxArray *var, MLINK link) {
 
     // the following may occur when retrieving empty struct fields
     // it showsup as [] in MATLAB so we return {}
     // note that non-existent variables are caught and handled in eng_get()
-    if (matlabVar == NULL) {
+    if (var == NULL) {
         MLPutFunction(link, "List", 0);
         return;
     }
 
     // get size information
-    mwSize depth = mxGetNumberOfDimensions(matlabVar);
-    const mwSize *matlabDims = mxGetDimensions(matlabVar);
+    mwSize depth = mxGetNumberOfDimensions(var);
+    const mwSize *mbDims = mxGetDimensions(var);
 
     // handle zero-size arrays
-    for (int i=0; i < depth; ++i)
-        if (matlabDims[i] == 0) {
-            MLPutFunction(link, "List", 0);	// temporary workaround for empty array, just return {};  TODO fix
-            return;
-        }
+    if (mxIsEmpty(var)) {
+        MLPutFunction(link, "List", 0);
+        return;
+    }
 
     //translate dimension information to Mathematica
-    int mmaDims[depth];
+    int mmDims[depth];
     for (int i=0; i < depth; ++i)
-        mmaDims[i] = matlabDims[depth - 1 - i];
+        mmDims[i] = mbDims[depth - 1 - i];
 
     // numerical; TODO handle single precision and other types
-    if (mxIsDouble(matlabVar)) {
-        if (mxIsSparse(matlabVar)) {
+    if (mxIsDouble(var)) {
+        if (mxIsSparse(var)) {
 
-            int ncols = mxGetN(matlabVar); // number of columns
+            int ncols = mxGetN(var); // number of columns
 
-            double *Pr = mxGetPr(matlabVar);
-            double *Pi = mxGetPi(matlabVar);
+            double *real = mxGetPr(var);
+            double *imag = mxGetPi(var);
 
-            mwIndex *Jc = mxGetJc(matlabVar);
-            mwIndex *Ir = mxGetIr(matlabVar);
+            mwIndex *jc = mxGetJc(var);
+            mwIndex *ir = mxGetIr(var);
 
-            int nnz = Jc[ncols]; // number of nonzeros
+            int nnz = jc[ncols]; // number of nonzeros
 
             MLPutFunction(link, CONTEXT "matSparseArray", 4);
-            mlpPutIntegerList(link, Jc, ncols + 1);
-            mlpPutIntegerList(link, Ir, nnz);
-            if (mxIsComplex(matlabVar)) {
+            mlpPutIntegerList(link, jc, ncols + 1);
+            mlpPutIntegerList(link, ir, nnz);
+            if (mxIsComplex(var)) {
                 MLPutFunction(link, "Plus", 2);
-                MLPutReal64List(link, Pr, nnz);
+                MLPutReal64List(link, real, nnz);
                 MLPutFunction(link, "Times", 2);
-                MLPutReal64List(link, Pi, nnz);
+                MLPutReal64List(link, imag, nnz);
                 MLPutSymbol(link, "I");
             }
             else { // real only
-                MLPutReal64List(link, Pr, nnz);
+                MLPutReal64List(link, real, nnz);
             }
-            MLPutInteger32List(link, mmaDims, depth);
+            MLPutInteger32List(link, mmDims, depth);
         }
         else // not sparse
         {
-            double *Pr = mxGetPr(matlabVar);    // pointer to real
-            double *Pi = mxGetPi(matlabVar);    // pointer to imaginary
+            double *real = mxGetPr(var);    // pointer to real
+            double *imag = mxGetPi(var);    // pointer to imaginary
 
-            if (Pr == NULL) {
+            if (real == NULL) {
                 MLPutSymbol(link, "$Failed"); // TODO report error
                 return;
             }
 
-            if (mxIsComplex(matlabVar) && Pi == NULL) {
+            if (mxIsComplex(var) && imag == NULL) {
                 MLPutSymbol(link, "$Failed"); // TODO report error
                 return;
             }
 
             MLPutFunction(link, CONTEXT "matArray", 2);
-            if (mxIsComplex(matlabVar)) {
+            if (mxIsComplex(var)) {
                 //output re+im*I
                 MLPutFunction(link, "Plus", 2);
-                MLPutReal64Array(link, Pr, mmaDims, NULL, depth);
+                MLPutReal64Array(link, real, mmDims, NULL, depth);
                 MLPutFunction(link, "Times", 2);
-                MLPutReal64Array(link, Pi, mmaDims, NULL, depth);
+                MLPutReal64Array(link, imag, mmDims, NULL, depth);
                 MLPutSymbol(link, "I");
             }
             else {
-                MLPutReal64Array(link, Pr, mmaDims, NULL, depth);
+                MLPutReal64Array(link, real, mmDims, NULL, depth);
             }
-            MLPutInteger32List(link, mmaDims, depth);
+            MLPutInteger32List(link, mmDims, depth);
         }
     }
-    else if (mxIsLogical(matlabVar)) {
-        mxLogical *logarr = mxGetLogicals(matlabVar);
-        int len = mxGetNumberOfElements(matlabVar);
+    else if (mxIsLogical(var)) {
+        mxLogical *logicals = mxGetLogicals(var);
+        int len = mxGetNumberOfElements(var);
 
         int intarr[len]; // TODO don't alloc on stack
         for (int i=0; i < len; ++i)
-            if (logarr[i])
+            if (logicals[i])
                 intarr[i] = 1;
             else
                 intarr[i] = 0;
 
         MLPutFunction(link, CONTEXT "matLogical", 2);
-        MLPutInteger32Array(link, intarr, mmaDims, NULL, depth);
-        MLPutInteger32List(link, mmaDims, depth);
+        MLPutInteger32Array(link, intarr, mmDims, NULL, depth);
+        MLPutInteger32List(link, mmDims, depth);
     }
     // char array (string); TODO handle multidimensional char arrays
-    else if (mxIsChar(matlabVar)) {        
-        mxChar *str = mxGetChars(matlabVar);
+    else if (mxIsChar(var)) {
+        mxChar *str = mxGetChars(var);
         MLPutFunction(link, CONTEXT "matString", 1);
-        MLPutUTF16String(link, str, mxGetNumberOfElements(matlabVar)); // cast may be required on other platforms: (mxChar *) str
+        MLPutUTF16String(link, str, mxGetNumberOfElements(var)); // cast may be required on other platforms: (mxChar *) str
     }
     // struct
-    else if (mxIsStruct(matlabVar)) {
-        int len = mxGetNumberOfElements(matlabVar);
-        int nfields = mxGetNumberOfFields(matlabVar);
+    else if (mxIsStruct(var)) {
+        int len = mxGetNumberOfElements(var);
+        int nfields = mxGetNumberOfFields(var);
         MLPutFunction(link, CONTEXT "matStruct", 2);
         MLPutFunction(link, "List", len);
         for (int j=0; j < len; ++j) {
@@ -126,27 +119,27 @@ void toMma(const mxArray *matlabVar, MLINK link) {
             for (int i=0; i < nfields; ++i) {
                 const char *fieldname;
 
-                fieldname = mxGetFieldNameByNumber(matlabVar, i);
+                fieldname = mxGetFieldNameByNumber(var, i);
                 MLPutFunction(link, "Rule", 2);
                 MLPutString(link, fieldname);
-                toMma(mxGetFieldByNumber(matlabVar, j, i), link);
+                toMma(mxGetFieldByNumber(var, j, i), link);
             }
         }
-        MLPutInteger32List(link, mmaDims, depth);
+        MLPutInteger32List(link, mmDims, depth);
     }
     // cell
-    else if (mxIsCell(matlabVar)) {
-        int len = mxGetNumberOfElements(matlabVar);
+    else if (mxIsCell(var)) {
+        int len = mxGetNumberOfElements(var);
         MLPutFunction(link, CONTEXT "matCell", 2);
         MLPutFunction(link, "List", len);
         for (int i=0; i < len; ++i)
-            toMma(mxGetCell(matlabVar, i), link);
-        MLPutInteger32List(link, mmaDims, depth);
+            toMma(mxGetCell(var, i), link);
+        MLPutInteger32List(link, mmDims, depth);
     }
     // unknown or failure; TODO distinguish between unknown and failure
     else
     {
-        const char *classname = mxGetClassName(matlabVar);
+        const char *classname = mxGetClassName(var);
         MLPutFunction(link, CONTEXT "matUnknown", 1);
         MLPutString(link, classname);
     }
