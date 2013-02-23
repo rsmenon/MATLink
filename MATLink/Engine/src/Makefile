@@ -11,7 +11,7 @@ LIBDIRS = -L$(CADDSDIR) -L$(MATLABDIR)/bin/maci64/
 
 MPREP = $(CADDSDIR)/mprep
 
-CFLAGS = -mmacosx-version-min=10.6 -O -Wall
+CFLAGS = -mmacosx-version-min=10.6 -Wall
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCDIRS) -c $<
@@ -23,7 +23,10 @@ menginetm.cpp: mengine.tm
 	$(MPREP) mengine.tm > menginetm.cpp
 
 mengine: main.cpp get.cpp set.cpp mengine.cpp mengine.h mlp.h menginetm.cpp
-	$(CXX) $(CFLAGS) $(INCDIRS) $(LIBDIRS) menginetm.cpp mengine.cpp set.cpp get.cpp main.cpp -lMLi3 -lmx -leng -framework Foundation -o mengine
+	$(CXX) -g $(CFLAGS) $(INCDIRS) $(LIBDIRS) menginetm.cpp mengine.cpp set.cpp get.cpp main.cpp -lMLi3 -lmx -leng -framework Foundation -o mengine
+
+tst: tst.cpp
+	$(CXX) $(INCDIRS) $(LIBDIRS) tst.cpp -lmx -leng -o tst
 
 clean:
 	@ rm -rf *.o mengine menginetm.cpp

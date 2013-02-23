@@ -404,8 +404,7 @@ dispatcher[expr_] :=
   
   (* assumed already handled, no recursion needed 
     only MCell and MStruct may need recursion *)
-  _MArray | \
-_MLogical | _MSparseArray | _MSparseLogical | _MString,
+  _MArray | _MLogical | _MSparseArray | _MSparseLogical | _MString,
   expr,
   
   _,

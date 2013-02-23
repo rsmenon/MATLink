@@ -1,6 +1,7 @@
 
 #include "mengine.h"
 
+#include <algorithm>
 #include <cstring>
 
 MatlabEngine engine; // global variable for engine
@@ -33,7 +34,7 @@ void eng_getbuffer() {
 
 void eng_evaluate(const unsigned char *command, int len, int characters) {
     char *szcommand = new char[len+1];
-    memcpy(szcommand, command, len*sizeof(char));
+    std::copy(command, command+len, (unsigned char *) szcommand);
     szcommand[len] = '\0';
     if (engine.evaluate(szcommand))
         eng_getbuffer();
