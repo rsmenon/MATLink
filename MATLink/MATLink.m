@@ -387,6 +387,8 @@ convertToMATLAB[expr_] :=
 
 			MString[str_String] := engMakeString[str];
 
+			MLogical[arr_] := engMakeLogical[Boole@reshape@arr, Reverse@Dimensions@arr];
+
 			MCell[vec_?VectorQ] := MCell[{vec}];
 			MCell[arr_?(ArrayQ[#, _, handleQ]&)] :=
 				engMakeCell[reshape@arr /. handle -> Identity, Reverse@Dimensions[arr]];
