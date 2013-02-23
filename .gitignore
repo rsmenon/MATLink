@@ -9,5 +9,7 @@ MATLink/Engine/src/mEngine.creator.user
 MATLink/Engine/src/mEngine.files
 MATLink/Engine/src/mEngine.includes
 MATLink/Engine/src/mEngine.config
+MATLink/Engine/src/menginetm.cpp
 MATLink/Engine/mengine
 MATLink/Engine/src/mengine.dSYM
+matlab_path

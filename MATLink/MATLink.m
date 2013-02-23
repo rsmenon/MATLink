@@ -453,8 +453,7 @@ dispatcher[expr_] :=
 		_List,
 		MCell[handleCell[expr]],
 
-		(* assumed already handled, no recursion needed
-		only MCell and MStruct may need recursion *)
+		(* assumed already handled, no recursion needed; only MCell and MStruct may need recursion *)
 		_MArray | _MLogical | _MSparseArray | _MSparseLogical | _MString,
 		expr,
 
