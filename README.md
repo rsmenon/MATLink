@@ -171,6 +171,21 @@ imagesc[data];
 
 ##Supported MATLAB data types
 
+The following data types can be transferred in both directions:
+
+ - double precision numerical arrays (including multidimensional)
+ - double precision sparse matrices
+ - logical arrays (including multidimensional)
+ - sparse logical matrices
+ - strings (i.e. char arrays of dimension `[1 n]`)
+ - cells (including multidimensional)
+ - structs (only with size `[1 1]`)
+
+
+The following can only be transferred from MATLAB to Mathematica:
+
+ - numerical arrays with the following types: single, int16, int32
+ - structs with any number of elements 
 
 
 ##Known issues and limitations
@@ -178,6 +193,12 @@ imagesc[data];
 ###Large array support
 
 At the moment, only arrays with less than `2^31-1` elements are supported.  Note that this is true for matrices and multidimensional arrays as well: the _total number_ of matrix elements may not excede `2^31-1` even if the matrix has fewer rows and columns than this.  As an example, the largest supported square matrix can be of size 46341 by 46341.
+
+As a reference point, a double precision array with the maximum number of allowed elements would take up 16 GB of memory, so this limit should be more than sufficient for most applications.
+
+###Inf and NaN
+
+Inf and Nan are not supported at the moment.
 
 ###Multiple instances of MATLAB
 
