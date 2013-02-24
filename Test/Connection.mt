@@ -1,12 +1,49 @@
 (* Test connection with the Engine and MATLAB *)
 (* R. Menon *)
 
+Needs["MATLink`"];
+
 Test[
-	Needs["MATLink`"];
-	OpenMATLAB[];
+	{MATLink`Private`EngineBinaryExistsQ[], MATLink`Private`MATLABInstalledQ[], MATLink`Private`engineOpenQ[]}
+	,
+	{True, False, False}
+	,
+	TestID->"Connection-20130222-O9F3F2"
+]
+
+ConnectMATLAB[];
+Test[
+	{MATLink`Private`EngineBinaryExistsQ[], MATLink`Private`MATLABInstalledQ[], MATLink`Private`engineOpenQ[]}
+	,
+	{True, True, False}
+	,
+	TestID->"Connection-20130223-I1W3A9"
+]
+
+OpenMATLAB[];
+Test[
 	{MATLink`Private`EngineBinaryExistsQ[], MATLink`Private`MATLABInstalledQ[], MATLink`Private`engineOpenQ[]}
 	,
 	{True, True, True}
 	,
-	TestID->"Connection-20130222-O9F3F2"
+	TestID->"Connection-20130223-B4B2U6"
+]
+
+
+CloseMATLAB[];
+Test[
+	{MATLink`Private`EngineBinaryExistsQ[], MATLink`Private`MATLABInstalledQ[], MATLink`Private`engineOpenQ[]}
+	,
+	{True, True, False}
+	,
+	TestID->"Connection-20130223-I6W6A1"
+]
+
+DisconnectMATLAB[];
+Test[
+	{MATLink`Private`EngineBinaryExistsQ[], MATLink`Private`MATLABInstalledQ[], MATLink`Private`engineOpenQ[]}
+	,
+	{True, False, False}
+	,
+	TestID->"Connection-20130223-I2E7T6"
 ]

@@ -1,10 +1,11 @@
 (* Numerical array unit tests *)
 (* R. Menon *)
 
+Needs["MATLink`"];
+Quiet@OpenMATLAB[];
+
 (* Receive 2D array from MATLAB *)
 Test[
-	Needs["MATLink`"];
-	Quiet@OpenMATLAB[];
 	MEvaluate["r2DMat = magic(5);"];
 	r2DMma = MGet["r2DMat"]
 	,

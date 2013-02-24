@@ -1,10 +1,11 @@
 (* Strings and string array unit tests *)
 (* R. Menon *)
 
+Needs["MATLink`"];
+Quiet@OpenMATLAB[];
+
 (* ASCII from MATLAB *)
 Test[
-	Needs["MATLink`"];
-	Quiet@OpenMATLAB[];
 	MEvaluate["asciiMat = char(0:127);"];
 	MGet["asciiMat"]
 	,
