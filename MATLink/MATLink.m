@@ -298,7 +298,7 @@ Needs["MATLink`DataTypes`"]
 
 (* Assign to symbols defined in `Private` *)
 engineOpenQ[] /; MATLABInstalledQ[] := engOpenQ[]
-engineOpenQ[] /; !MATLABInstalledQ[] := (Message[engineOpenQ::engc];False)
+engineOpenQ[] /; !MATLABInstalledQ[] := False
 openEngine = engOpen;
 closeEngine = engClose;
 eval = engEvaluate;
