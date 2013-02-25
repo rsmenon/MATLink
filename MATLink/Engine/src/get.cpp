@@ -1,6 +1,15 @@
 
 #include "mengine.h"
 
+#include <algorithm>
+
+
+void putUnknown(const mxArray *var, MLINK link) {
+    const char *classname = mxGetClassName(var);
+    MLPutFunction(link, CONTEXT "matUnknown", 1);
+    MLPutString(link, classname);
+}
+
 
 // Takes a MATLAB variable and writes in in Mathematica form to link
 void toMma(const mxArray *var, MLINK link) {
@@ -23,19 +32,32 @@ void toMma(const mxArray *var, MLINK link) {
         return;
     }
 
-    //translate dimension information to Mathematica
+    //translate dimension information to Mathematica order
     int mmDims[depth];
-    for (int i=0; i < depth; ++i)
-        mmDims[i] = mbDims[depth - 1 - i];
+    std::reverse_copy(mbDims, mbDims + depth, mmDims);
 
-    // numerical; TODO handle single precision and other types
-    if (mxIsDouble(var)) {
+    // numerical (sparse or dense)
+    if (mxIsNumeric(var)) {
+        mxClassID classid = mxGetClassID(var);
+
+        // verify that var is of a supported class
+        switch (classid) {
+        case mxDOUBLE_CLASS:
+        case mxSINGLE_CLASS:
+        case mxINT16_CLASS:
+        case mxINT32_CLASS:
+            break;
+        default:
+            putUnknown(var, link);
+            return;
+        }
+
         if (mxIsSparse(var)) {
+            // Note: I realised that sparse arrays can only hold double precision numerical types
+            // in MATLAB R2012b.  I will leave the below implementation for single precision & integer
+            // types in case future versions of MATLAB will add support for them.
 
             int ncols = mxGetN(var); // number of columns
-
-            double *real = mxGetPr(var);
-            double *imag = mxGetPi(var);
 
             mwIndex *jc = mxGetJc(var);
             mwIndex *ir = mxGetIr(var);
@@ -45,63 +67,118 @@ void toMma(const mxArray *var, MLINK link) {
             MLPutFunction(link, CONTEXT "matSparseArray", 4);
             mlpPutIntegerList(link, jc, ncols + 1);
             mlpPutIntegerList(link, ir, nnz);
+
+            // if complex, put as im*I + re
             if (mxIsComplex(var)) {
                 MLPutFunction(link, "Plus", 2);
-                MLPutReal64List(link, real, nnz);
                 MLPutFunction(link, "Times", 2);
-                MLPutReal64List(link, imag, nnz);
                 MLPutSymbol(link, "I");
+                switch (classid) {
+                 case mxDOUBLE_CLASS:
+                    MLPutReal64List(link, mxGetPi(var), nnz); break;
+                 case mxSINGLE_CLASS:
+                    MLPutReal32List(link, (float *) mxGetImagData(var), nnz); break;
+                 case mxINT16_CLASS:
+                    MLPutInteger16List(link, (short *) mxGetImagData(var), nnz); break;
+                 case mxINT32_CLASS:
+                    MLPutInteger32List(link, (int *) mxGetImagData(var), nnz); break;
+                 default:
+                    assert(false); // should never reach here
+                }
             }
-            else { // real only
-                MLPutReal64List(link, real, nnz);
+
+            switch (classid) {
+             case mxDOUBLE_CLASS:
+                MLPutReal64List(link, mxGetPr(var), nnz); break;
+             case mxSINGLE_CLASS:
+                MLPutReal32List(link, (float *) mxGetData(var), nnz); break;
+             case mxINT16_CLASS:
+                MLPutInteger16List(link, (short *) mxGetData(var), nnz); break;
+             case mxINT32_CLASS:
+                MLPutInteger32List(link, (int *) mxGetData(var), nnz); break;
+             default:
+                assert(false); // should never reach here
             }
+
             MLPutInteger32List(link, mmDims, depth);
         }
         else // not sparse
         {
-            double *real = mxGetPr(var);    // pointer to real
-            double *imag = mxGetPi(var);    // pointer to imaginary
-
-            if (real == NULL) {
-                MLPutSymbol(link, "$Failed"); // TODO report error
-                return;
-            }
-
-            if (mxIsComplex(var) && imag == NULL) {
-                MLPutSymbol(link, "$Failed"); // TODO report error
-                return;
-            }
-
             MLPutFunction(link, CONTEXT "matArray", 2);
+
+            // if complex, put as im*I + re
             if (mxIsComplex(var)) {
-                //output re+im*I
                 MLPutFunction(link, "Plus", 2);
-                MLPutReal64Array(link, real, mmDims, NULL, depth);
                 MLPutFunction(link, "Times", 2);
-                MLPutReal64Array(link, imag, mmDims, NULL, depth);
                 MLPutSymbol(link, "I");
+                switch (classid) {
+                 case mxDOUBLE_CLASS:
+                    MLPutReal64Array(link, mxGetPi(var), mmDims, NULL, depth); break;
+                 case mxSINGLE_CLASS:
+                    MLPutReal32Array(link, (float *) mxGetImagData(var), mmDims, NULL, depth); break;
+                 case mxINT16_CLASS:
+                    MLPutInteger16Array(link, (short *) mxGetImagData(var), mmDims, NULL, depth); break;
+                 case mxINT32_CLASS:
+                    MLPutInteger32Array(link, (int *) mxGetImagData(var), mmDims, NULL, depth); break;
+                 default:
+                    assert(false); // should never reach here
+                }
             }
-            else {
-                MLPutReal64Array(link, real, mmDims, NULL, depth);
+
+            switch (classid) {
+             case mxDOUBLE_CLASS:
+                MLPutReal64Array(link, mxGetPr(var), mmDims, NULL, depth); break;
+             case mxSINGLE_CLASS:
+                MLPutReal32Array(link, (float *) mxGetData(var), mmDims, NULL, depth); break;
+             case mxINT16_CLASS:
+                MLPutInteger16Array(link, (short *) mxGetData(var), mmDims, NULL, depth); break;
+             case mxINT32_CLASS:
+                MLPutInteger32Array(link, (int *) mxGetData(var), mmDims, NULL, depth); break;
+             default:
+                assert(false); // should never reach here
             }
+
             MLPutInteger32List(link, mmDims, depth);
         }
     }
-    else if (mxIsLogical(var)) {
-        mxLogical *logicals = mxGetLogicals(var);
-        int len = mxGetNumberOfElements(var);
+    // logical (sparse or dense)
+    else if (mxIsLogical(var))
+        if (mxIsSparse(var)) {
+            int ncols = mxGetN(var); // number of columns
 
-        int intarr[len]; // TODO don't alloc on stack
-        for (int i=0; i < len; ++i)
-            if (logicals[i])
-                intarr[i] = 1;
-            else
-                intarr[i] = 0;
+            mwIndex *jc = mxGetJc(var);
+            mwIndex *ir = mxGetIr(var);
+            mxLogical *logicals = mxGetLogicals(var);
 
-        MLPutFunction(link, CONTEXT "matLogical", 2);
-        MLPutInteger32Array(link, intarr, mmDims, NULL, depth);
-        MLPutInteger32List(link, mmDims, depth);
-    }
+            int nnz = jc[ncols]; // number of nonzeros
+
+            MLPutFunction(link, CONTEXT "matSparseLogical", 4);
+            mlpPutIntegerList(link, jc, ncols + 1);
+            mlpPutIntegerList(link, ir, nnz);
+
+            short *integers = new short[nnz];
+            std::copy(logicals, logicals+nnz, integers);
+
+            MLPutInteger16List(link, integers, nnz);
+
+            MLPutInteger32List(link, mmDims, depth);
+
+            delete [] integers;
+        }
+        else // not sparse
+        {
+            mxLogical *logicals = mxGetLogicals(var);
+            int len = mxGetNumberOfElements(var);
+
+            short *integers = new short[len];
+            std::copy(logicals, logicals+len, integers);
+
+            MLPutFunction(link, CONTEXT "matLogical", 2);
+            MLPutInteger16Array(link, integers, mmDims, NULL, depth);
+            MLPutInteger32List(link, mmDims, depth);
+
+            delete [] integers;
+        }
     // char array (string); TODO handle multidimensional char arrays
     else if (mxIsChar(var)) {
         mxChar *str = mxGetChars(var);
@@ -139,9 +216,7 @@ void toMma(const mxArray *var, MLINK link) {
     // unknown or failure; TODO distinguish between unknown and failure
     else
     {
-        const char *classname = mxGetClassName(var);
-        MLPutFunction(link, CONTEXT "matUnknown", 1);
-        MLPutString(link, classname);
+        putUnknown(var, link);
     }
 }
 
