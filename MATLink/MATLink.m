@@ -205,22 +205,25 @@ MEvaluate::errx = "``" (* Fill in when necessary with the error that MATLAB repo
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
-	Catch@Module[{result, error, id = randomString[]},
-		If[
-			TrueQ[(error = errorsInMATLABCode@cmd) === None],
-			result = eval@StringJoin["
-				try
-					", cmd, "
-				catch ex
-					sprintf('%s%s%s', '", id, "', ex.getReport,'", id, "')
-				end
-			"],
-			Message[MEvaluate::errx, error];Throw[$Failed]
-		];
-		If[StringFreeQ[result,id],
-			StringReplace[result, StartOfString~~">> " -> ""],
-			First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> (Message[MEvaluate::errx, x];Throw[$Failed])]
-		]
+	Catch[
+		Module[{result, error, id = randomString[]},
+			If[
+				TrueQ[(error = errorsInMATLABCode@cmd) === None],
+				result = eval@StringJoin["
+					try
+						", cmd, "
+					catch ex
+						sprintf('%s%s%s', '", id, "', ex.getReport,'", id, "')
+					end
+				"],
+				Message[MEvaluate::errx, error];Throw[$Failed, $error]
+			];
+			If[StringFreeQ[result,id],
+				StringReplace[result, StartOfString~~">> " -> ""],
+				First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> (Message[MEvaluate::errx, x];Throw[$Failed, $error])]
+			]
+		],
+		$error
 	] /; engineOpenQ[]
 
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
