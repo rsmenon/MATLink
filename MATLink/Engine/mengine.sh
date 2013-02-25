@@ -1,10 +1,10 @@
 #!/bin/sh
 
-engdir=`dirname $0`
-
-MATLAB=`cat $engdir/matlab_path`
+# Before using mEngine, you need to
+# set the path to your MATLAB installation here:
+MATLAB=/Applications/MATLAB_R2012b.app
 
 export DYLD_LIBRARY_PATH=$MATLAB/bin/maci64:$DYLD_LIBRARY_PATH
 export PATH=$MATLAB/bin:$PATH
 
-$engdir/mengine $@
+$(dirname $0)/mengine $@
