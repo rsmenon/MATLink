@@ -331,7 +331,7 @@ convertToMathematica[expr_] :=
 		},
 		Block[{matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
 
-			matCell[list_, {1,1}] := list[[1]];
+			matCell[list_, {1,1}] := MCell[ list[[1]] ];
 			matCell[list_, dim_] := MCell[ listToArray[list,dim] ~reshape~ dim ];			
 
 			matStruct[list_, {1,1}] := list[[1]];
