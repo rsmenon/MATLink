@@ -1,0 +1,19 @@
+
+engOpen[]
+
+Opens MATLAB.  Use engOpenQ[] to see if opening has succeeded.  Will work for reopening if MATLAB has crashed or quit.
+
+
+engClose[]
+
+Closes MATLAB.
+
+
+engOpenQ[]
+
+Returns True if the MATLAB process is running, False otherwise.
+
+
+engEvaluate[command_String]
+
+Evaluates command.  Returns the results if succeeded.  Returns $Failed is MATLAB is not running.
