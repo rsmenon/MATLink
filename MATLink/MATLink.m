@@ -301,7 +301,8 @@ mcell[] :=
 			TextData[""],
 			"Program",
 			Evaluatable->True,
-			CellEvaluationFunction -> (MEvaluate[ToString[#, CharacterEncoding -> "UTF-8"]]&), (* TODO figure out how to avoid conversion to \[AAcute], \[UDoubleAcute], etc. forms *)
+			CellEvaluationFunction -> (MEvaluate@First@FrontEndExecute[FrontEnd`ExportPacket[Cell[#], "InputText"]] &), (* TODO figure out how to avoid conversion to \[AAcute], \[UDoubleAcute], etc. forms *)
+			CellGroupingRules -> "InputGrouping",
 			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
 		];
 		SelectionMove[EvaluationNotebook[], All, EvaluationCell];
