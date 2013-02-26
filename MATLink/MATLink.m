@@ -308,7 +308,7 @@ eval = engEvaluate;
 get = engGet;
 set = engSet;
 
-engGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
+MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
 
 (* CONVERT DATA TYPES TO MATHEMATICA *)
 
@@ -355,7 +355,7 @@ convertToMathematica[expr_] :=
 
 			matString[str_] := str;
 
-			matUnknown[u_] := (Message[engGet::unimpl, u]; $Failed);
+			matUnknown[u_] := (Message[MGet::unimpl, u]; $Failed);
 
 			expr
 		]
