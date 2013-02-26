@@ -42,7 +42,11 @@ $ReturnLogicalsAs0And1::usage =
 $DefaultMATLABDirectory::usage =
 	"Path to the default MATLAB directory. The MATLink engine calls the MATLAB executable located in this path."
 
+MATLink::usage =
+	"MATLink is a symbol to which MATLink package messages are attached."
+
 mcell::usage = "" (* TODO Make this private before release *)
+
 
 Begin["`Developer`"]
 $ApplicationDirectory = DirectoryName@$InputFileName;
@@ -64,10 +68,20 @@ CleanupTemporaryDirectories[] :=
 		DeleteDirectory[#, DeleteContents -> True] & /@ FileNames@FileNameJoin[{$TemporaryDirectory,"MATLink*"}];
 	]
 
-End[]
+End[] (* `Developer` *)
+
 
 Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
+
+(* Common error messages *)
+MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
+MATLink::wspo = "The MATLAB workspace is already open."
+MATLink::wspc = "The MATLAB workspace is already closed."
+MATLink::engo = "There is an existing connection to the MATLAB engine."
+MATLink::engc = "Not connected to the MATLAB engine."
+MATLink::nofn = "The `1` \"`2`\" does not exist."
+MATLink::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
 
 (* Directories and helper functions/variables *)
 EngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{$ApplicationDirectory, "Engine", "mengine"}];
@@ -81,8 +95,7 @@ If[!TrueQ[MATLABInstalledQ[]],
 	$temporaryVariablePrefix = "";
 	$sessionTemporaryDirectory = "";,
 
-	General::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
-	Message[General::needs]
+	Message[MATLink::needs]
 ]
 
 EngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mengine.sh"];
@@ -106,7 +119,7 @@ errorsInMATLABCode[cmd_String] :=
 	Module[
 		{
 			file = MScript[randomString[], cmd],
-			config = FileNameJoin[{$ApplicationDirectory, "Kernel","MLintErrors.txt"}],
+			config = FileNameJoin[{$ApplicationDirectory, "Kernel", "MLintErrors.txt"}],
 			result
 		},
 		eval@ToString@StringForm[
@@ -119,13 +132,6 @@ errorsInMATLABCode[cmd_String] :=
 		If[result =!= {}, "message" /. Flatten@result, None]
 	]
 
-(* Common error messages *)
-General::wspo = "The MATLAB workspace is already open."
-General::wspc = "The MATLAB workspace is already closed."
-General::engo = "There is an existing connection to the MATLAB engine."
-General::engc = "Not connected to the MATLAB engine."
-General::nofn = "The `1` \"`2`\" does not exist."
-General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
 
 (* Connect/Disconnect MATLAB engine *)
 ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
@@ -187,17 +193,24 @@ MGet[var_String] /; MATLABInstalledQ[] :=
 MGet[_String] /; MATLABInstalledQ[] := Message[MGet::wspc] /; !engineOpenQ[]
 MGet[_String] /; !MATLABInstalledQ[] := Message[MGet::engc]
 
+MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
+
+
 SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
 
 MSet[var_String, expr_] /; MATLABInstalledQ[] :=
 	Internal`WithLocalSettings[
 		Null,
 		mset[var, convertToMATLAB[expr]],
-		MATLink`Engine`engCleanHandles[]	(* prevent memory leaks *)
+		cleanHandles[]	(* prevent memory leaks *)
 	] /; engineOpenQ[]
 
 MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
+
+MSet::sparse = 	"Only one and two dimensional sparse arrays are supported; the default element must be 0 for numerical and False for boolean arrays."
+MSet::dupfield = "Duplicate field names not alowed in struct."
+
 
 (* MEvaluate *)
 MEvaluate::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
@@ -277,6 +290,7 @@ MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := Message[MFunction::wspc] /; !engineOpenQ[]
 MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := Message[MFunction::engc]
 
+
 mcell[] :=
 	Module[{},
 		CellPrint@Cell[
@@ -292,12 +306,12 @@ mcell[] :=
 	]
 
 
-End[]
+End[] (* MATLink`Private` *)
+
 
 (* Low level functions strongly tied with the C++ code are part of this context *)
 Begin["`Engine`"]
 AppendTo[$ContextPath, "MATLink`Private`"]
-Needs["MATLink`DataTypes`"]
 
 (* Assign to symbols defined in `Private` *)
 engineOpenQ[] /; MATLABInstalledQ[] := engOpenQ[]
@@ -307,8 +321,7 @@ closeEngine = engClose;
 eval = engEvaluate;
 get = engGet;
 set = engSet;
-
-MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
+cleanHandles = engCleanHandles
 
 (* CONVERT DATA TYPES TO MATHEMATICA *)
 
@@ -317,8 +330,10 @@ MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
    Evaluation is only allowed inside the convertToMathematica function,
    which converts it to their final Mathematica form.  engGet[] will always return
    either $Failed, or an expression wrapped in one of the below heads.
-   Note that structs and cells may contain subxpressions of other types.
+   Note that structs and cells may contain subexpressions of other types.
 *)
+
+{matCell, matStruct, matSparseArray, matSparseLogical, matLogical, matArray, matString, matUnknown}
 
 convertToMathematica[expr_] :=
 	With[
@@ -364,9 +379,6 @@ convertToMathematica[expr_] :=
 
 (* CONVERT DATA TYPES TO MATLAB *)
 
-AppendTo[$ContextPath, "MATLink`DataTypes`"]
-AppendTo[$ContextPath, "MATLink`DataTypes`Private`"]
-
 complexArrayQ[arr_] := Developer`PackedArrayQ[arr, Complex] || (Not@Developer`PackedArrayQ[arr] && Not@FreeQ[arr, Complex])
 
 booleanQ[True | False] = True
@@ -382,8 +394,6 @@ handleQ[_] = False
 mset[name_String, handle[h_Integer]] := engSet[name, h]
 mset[name_, _] := $Failed
 
-MSet::sparse = 	"Only one and two dimensional sparse arrays are supported; the default element must be 0 for numerical and False for boolean arrays."
-MSet::dupfield = "Duplicate field names not alowed in struct."
 
 convertToMATLAB[expr_] :=
 	Module[{structured,reshape = Composition[Flatten, Transpose[#, Reverse@Range@ArrayDepth@#]&]},
@@ -511,6 +521,6 @@ handleStruct[_] := $Failed (* TODO multi-element struct *)
 handleCell[list_List] := dispatcher /@ list
 handleCell[expr_] := dispatcher[expr]
 
-End[]
+End[] (* MATLink`Engine` *)
 
-EndPackage[]
+EndPackage[] (* MATLink` *)
