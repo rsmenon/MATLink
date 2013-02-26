@@ -328,9 +328,11 @@ convertToMathematica[expr_] :=
 		},
 		Block[{matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
 
-			matCell[list_, dim_] := MCell[ listToArray[list,dim] ~reshape~ dim ];
+			matCell[list_, {1,1}] := list[[1]];
+			matCell[list_, dim_] := MCell[ listToArray[list,dim] ~reshape~ dim ];			
 
-			matStruct[list_, dim_] := MStruct@@ listToArray[list,dim] ~reshape~ dim;
+			matStruct[list_, {1,1}] := list[[1]];
+			matStruct[list_, dim_] := listToArray[list,dim] ~reshape~ dim;
 
 			matSparseArray[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}];
 
@@ -377,7 +379,8 @@ handleQ[_] = False
 mset[name_String, handle[h_Integer]] := engSet[name, h]
 mset[name_, _] := $Failed
 
-MSet::sparr = "Only one and two dimensional sparse arrays are supported; the default element must be 0 for numerical and False for boolean arrays."
+MSet::sparse = 	"Only one and two dimensional sparse arrays are supported; the default element must be 0 for numerical and False for boolean arrays."
+MSet::dupfield = "Duplicate field names not alowed in struct."
 
 convertToMATLAB[expr_] :=
 	Module[{structured,reshape = Composition[Flatten, Transpose[#, Reverse@Range@ArrayDepth@#]&]},
@@ -395,6 +398,7 @@ convertToMATLAB[expr_] :=
 
 			MString[str_String] := engMakeString[str];
 
+			(* TODO allow casting array of 0s and 1s to logical *)			
 			MLogical[arr_] := engMakeLogical[Boole@reshape@arr, Reverse@Dimensions@arr];
 
 			MCell[vec_?VectorQ] := MCell[{vec}];
@@ -407,10 +411,16 @@ convertToMATLAB[expr_] :=
 					engMakeSparseComplex[Flatten[ir]-1, jc, Re[values], Im[values], m, n],
 					engMakeSparseReal[Flatten[ir]-1, jc, values, m, n]
 				];
-			MSparseArray[_] := (Message[MSet::sparr]; $Failed);
+			MSparseArray[_] := (Message[MSet::sparse]; $Failed);
 
 			MSparseLogical[HoldPattern@SparseArray[Automatic, {n_, m_}, False, {1, {jc_, ir_}, values_}]] :=
 				engMakeSparseLogical[Flatten[ir]-1, jc, Boole[values], m, n];
+
+			MStruct[rules_] := 
+				If[ Not@MatchQ[rules[[All,2]], {__handle}],
+					$Failed,
+					engMakeStruct[rules[[All,1]], rules[[All, 2, 1]]]
+				];
 
 			structured (* $Failed falls through *)
 		]
@@ -458,7 +468,7 @@ dispatcher[expr_] :=
 		(* _?(ArrayQ[#, _, StringQ] &),
 		MString[expr], *)
 
-		(* struct -- may need recursion *)
+		(* struct -- may need recursion *)		
 		MStruct[_],
 		MStruct[handleStruct@First[expr]],
 
@@ -488,7 +498,12 @@ handleSparse[arr_SparseArray ? (VectorQ[#, booleanQ]&) ] := MSparseLogical[Trans
 handleSparse[arr_SparseArray ? (MatrixQ[#, booleanQ]&) ] := MSparseLogical[Transpose@SparseArray[arr]]
 handleSparse[_] := (Message[MSet:sparr]; Throw[$Failed, $dispTag]) (* higher dim sparse arrays or non-numerical ones are not supported *)
 
-handleStruct[_] := Throw[$Failed, $dispTag] (* not YET supported *)
+handleStruct[rules_ ? (VectorQ[#, ruleQ]&)] := 
+	If[ Length@Union[rules[[All,1]]] != Length[rules],
+		Message[MSet::dupfield]; $Failed,
+		Thread[rules[[All, 1]] -> dispatcher /@ rules[[All, 2]]]
+	]
+handleStruct[_] := $Failed (* TODO multi-element struct *)
 
 handleCell[list_List] := dispatcher /@ list
 handleCell[expr_] := dispatcher[expr]
