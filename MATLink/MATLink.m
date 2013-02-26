@@ -57,7 +57,9 @@ $ApplicationDirectory = DirectoryName@$InputFileName;
 $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
 $DefaultMATLABDirectory = "/Applications/MATLAB_R2012b.app/";
 
-CompileMEngine[] :=
+CompileMEngine[] := CompileMEngine[$OperatingSystem]
+
+CompileMEngine["MacOSX"] :=
 	Block[{dir = Directory[]},
 		SetDirectory[$EngineSourceDirectory];
 		PrintTemporary["Compiling the MATLink Engine from source...\n"];
@@ -66,6 +68,10 @@ CompileMEngine[] :=
 		Run["mv mengine ../"];
 		SetDirectory@dir
 	]
+
+CompileMEngine::unsupp := "Automatically compiling the MATLink Engine from source is not supported on ``.  Please compile it manually."
+
+CompileMEngine[os_] := (Message[CompileMEngine::unsupp, os]; Abort[]) (* Abort[] avoid infinite loop *)
 
 CleanupTemporaryDirectories[] :=
 	Module[{},
