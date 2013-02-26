@@ -79,13 +79,13 @@ Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
 
 (* Common error messages *)
-MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
-MATLink::wspo = "The MATLAB workspace is already open."
-MATLink::wspc = "The MATLAB workspace is already closed."
-MATLink::engo = "There is an existing connection to the MATLAB engine."
-MATLink::engc = "Not connected to the MATLAB engine."
-MATLink::nofn = "The `1` \"`2`\" does not exist."
-MATLink::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
+MATLink::needs = "General is already loaded. Remember to use Needs instead of Get.";
+General::wspo = "The MATLAB workspace is already open."
+General::wspc = "The MATLAB workspace is already closed."
+General::engo = "There is an existing connection to the MATLAB engine."
+General::engc = "Not connected to the MATLAB engine."
+General::nofn = "The `1` \"`2`\" does not exist."
+General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
 
 (* Directories and helper functions/variables *)
 EngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{$ApplicationDirectory, "Engine", "mengine"}];
