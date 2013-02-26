@@ -22,7 +22,7 @@ CloseMATLAB::usage =
 	"CloseMATLAB[] closes a previously opened instance of MATLAB (opened via MATLink)."
 
 MGet::usage =
-	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica. MGet is Listable."
+	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica.  MGet is Listable."
 
 MSet::usage =
 	"MSet[var, expr] exports the value in expr and saves it in a variable named \"var\" in MATLAB's workspace."
@@ -31,7 +31,7 @@ MEvaluate::usage =
 	"MEvaluate[expr] evaluates a valid MATLAB expression (entered as a string) and displays an error otherwise."
 
 MScript::usage =
-	"MScript[filename, expr] creates a MATLAB script named \"filename\" with the contents in expr (string) and stores it on MATLAB's path, but does not evaluate it. These files will be removed when the MATLink engine is closed."
+	"MScript[filename, expr] creates a MATLAB script named \"filename\" with the contents in expr (string) and stores it on MATLAB's path, but does not evaluate it.  These files will be removed when the MATLink engine is closed."
 
 MFunction::usage =
 	"Create a link to a MATLAB function for use from Mathematica."
@@ -45,7 +45,11 @@ $DefaultMATLABDirectory::usage =
 MATLink::usage =
 	"MATLink is a symbol to which MATLink package messages are attached."
 
+MCell::usage = 
+	"MCell[list] will force list to be sent as a MATLAB cell.  To be used as MSet[\"var\", MCell[list]]."
+
 mcell::usage = "" (* TODO Make this private before release *)
+
 
 
 Begin["`Developer`"]
@@ -346,8 +350,8 @@ convertToMathematica[expr_] :=
 		},
 		Block[{matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
 
-			matCell[list_, {1,1}] := MCell[ list[[1]] ];
-			matCell[list_, dim_] := MCell[ listToArray[list,dim] ~reshape~ dim ];			
+			matCell[list_, {1,1}] := list[[1]];
+			matCell[list_, dim_] := listToArray[list,dim] ~reshape~ dim;			
 
 			matStruct[list_, {1,1}] := list[[1]];
 			matStruct[list_, dim_] := listToArray[list,dim] ~reshape~ dim;
