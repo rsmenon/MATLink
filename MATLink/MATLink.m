@@ -434,7 +434,7 @@ convertToMATLAB[expr_] :=
 				engMakeSparseLogical[Flatten[ir]-1, jc, Boole[values], m, n];
 
 			MStruct[rules_] := 
-				If[ Not@MatchQ[rules[[All,2]], {__handle}],
+				If[ Not[MatchQ[rules[[All,2]], {__handle}] && MatchQ[rules[[All,1]], {__String}]],
 					$Failed,
 					engMakeStruct[rules[[All,1]], rules[[All, 2, 1]]]
 				];
@@ -486,8 +486,8 @@ dispatcher[expr_] :=
 		MString[expr], *)
 
 		(* struct -- may need recursion *)		
-		MStruct[_],
-		MStruct[handleStruct@First[expr]],
+		(*MStruct[_],
+		MStruct[handleStruct@First[expr]],*)
 
 		(* struct *)
 		_?(VectorQ[#, ruleQ] &),
