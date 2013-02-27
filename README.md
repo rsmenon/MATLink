@@ -3,6 +3,10 @@
 _MATLink_ is a [_Mathematica_](http://www.wolfram.com/mathematica/) application that allows the user to communicate data between _Mathematica_ and [MATLAB](http://www.mathworks.com/products/matlab/), as well as execute MATLAB code and seamslesly call MATLAB functions from within _Mathematica_.
 It uses [_MathLink_](http://reference.wolfram.com/mathematica/tutorial/MathLinkAndExternalProgramCommunicationOverview.html) to communicate between _Mathematica_ and MATLAB (via the [MATLAB Engine library](http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html)).
 
+##System requirements
+
+MATLink is compatible with Mathematica 8 or later and MATLAB R2011b or later.  On Linux, very old versions of gcc can't be used to compile MATLink.  Please check if your compiler is supported by the version of MATLAB you have.  [For MATLAB R2012b it is gcc 4.4.](http://www.mathworks.com/support/compilers/R2012a/glnxa64.html#matlab)
+
 ##Installation
 To be able to use _MATLink_, you will need to install it to a location in _Mathematica_'s `$Path`. You can follow one of the three ways below (replace `$UserBaseDirectory` with whatever is shown when you evaluate it in _Mathematica_):
 
