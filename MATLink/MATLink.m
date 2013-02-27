@@ -177,7 +177,7 @@ errorsInMATLABCode[cmd_String] :=
 ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
-		$openLink = Install@FileNameJoin[{$BinaryDirectory, "mengine.sh"}];
+		$openLink = Install@FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine.sh"]}];
 		$sessionID = StringJoin[
 			 IntegerString[{Most@DateList[]}, 10, 2],
 			 IntegerString[List @@ Rest@$openLink]
