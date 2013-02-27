@@ -1,0 +1,25 @@
+
+# Path to MATLAB and MathLink:
+MATLABDIR   = $(shell dirname `which matlab`)/..
+MATHLINKDIR = $(shell dirname `which math`)/../SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions
+
+
+INCDIRS = -I$(MATHLINKDIR) -I$(MATLABDIR)/extern/include
+LIBDIRS = -L$(MATHLINKDIR) -L$(MATLABDIR)/bin/glnxa64
+
+MPREP = $(MATHLINKDIR)/mprep
+
+CFLAGS = -Wall
+
+
+all: mengine
+
+menginetm.cpp: mengine.tm
+	$(MPREP) -prototypes mengine.tm > menginetm.cpp
+
+mengine: main.cpp get.cpp set.cpp mengine.cpp mengine.h mlp.h menginetm.cpp
+	$(CXX) -g $(CFLAGS) $(INCDIRS) $(LIBDIRS) menginetm.cpp mengine.cpp set.cpp get.cpp main.cpp -Wl,-rpath-link,$(MATLABDIR)/bin/glnxa64/ -lML64i3 -lmx -leng -o mengine
+
+clean:
+	@ rm -rf *.o mengine menginetm.cpp
+
