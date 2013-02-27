@@ -22,6 +22,12 @@ To be able to use _MATLink_, you will need to install it to a location in _Mathe
 	ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/develop.zip"]]
 	```
 
+Some further setup may be necessary to let MATLink find MATLAB:
+
+ - On Windows, this is the standard procedure that necessary to run MATLAB Engine applications:
+ 
+    1. Add MATLAB's `bin/win64` (`bin/win32` for 32-bit versions) directory to the system `PATH`.  To do this, follow the instructions [here](http://www.mathworks.com/support/solutions/en/data/1-15ZLK/index.html).
+
 ##Quick start guide
 ###Starting MATLAB
 After installing the application, load it using ``Needs["MATLink`"]`` and execute `OpenMATLAB[]`. This will launch an instance of MATLAB with which you can now communicate.
