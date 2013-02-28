@@ -24,8 +24,8 @@ To be able to use _MATLink_, you will need to install it to a location in _Mathe
 
 Some further setup may be necessary to let MATLink find MATLAB:
 
- - On Windows, this is the standard procedure that necessary to run MATLAB Engine applications:  First, add MATLAB's `bin/win64` (`bin/win32` for 32-bit versions) directory to the system `PATH`.  To do this, follow the instructions [here](http://www.mathworks.com/support/solutions/en/data/1-15ZLK/index.html).  On most systems this will be sufficient.  However, if you ave multiple versions of MATLAB installed, you need to register the default one by running the `regmatlabserver` command from within MATLAB.
- - On OS X, navigate to the `MATLink/Engine/bin/MacOSX64` directory, edit `mengine.sh` and set the path to the MATLAB app bundle.
+ - On Windows, this is the standard procedure that is necessary to run MATLAB Engine applications:  1. First, add MATLAB's `bin/win64` (`bin/win32` for 32-bit versions) directory to the system `PATH`.  To do this, follow the instructions [here](http://www.mathworks.com/support/solutions/en/data/1-15ZLK/index.html).  2. Now register the default MATLAB version by running the `regmatlabserver` command from within MATLAB.  On most Windows systems it will be necessary to run MATLAB as administrator for the `regmatlabserver` command to work, but this step needs to be done only once.
+ - On OS X, navigate to the `MATLink/Engine/bin/MacOSX64` directory, edit the file `mengine.sh` and set the path to the MATLAB app bundle.
  - On Linux, both MATLAB and Mathematica must be in the system `PATH`.  Then MATLink will be able to automatically compile its binary component (a C++ compiler needs to be installed).
 
 ##Quick start guide
@@ -159,7 +159,7 @@ MScript::owrt: An MScript by that name already exists. Use "Overwrite" -> True t
 If it is necessary to overwrite the script (to fix typos or change parameters), use the option `"Overwrite" -> True` in `MScript`.
 
 ###Handling functions with multiple outputs (and no outputs)
-In MATLAB, one can define functions to have completely different behaviour based on the number of _output_ arguments for the same set of input arguments. This is at odds with the behaviour in _Mathematica_ (and in functional programming languages in general), where a function's behaviour is determined solely by its inputs. To bridge this divide, `MFunction` offers the functionality to use the multiple output form of MATLAB functions, but the number of outputs must be set explicitly when defining the function.
+In MATLAB, one can define functions to have completely different behaviour based on the number of _output_ arguments for the same set of input arguments. This is at odds with the behaviour in _Mathematica_ (and in functional programming languages in general), where a function's behaviour is determined solely by its inputs. To bridge this divide, `MFun  ction` offers the functionality to use the multiple output form of MATLAB functions, but the number of outputs must be set explicitly when defining the function.
 
 As an example, consider the `eig` function in MATLAB, which has a single output form that returns only the eigenvalues as a vector, and the two output form which returns both the eigenvalues and the eigenvectors as a matrices. We associate a different symbol in _Mathematica_ for each of those two cases as:
 
