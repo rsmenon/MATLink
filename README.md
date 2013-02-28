@@ -3,6 +3,10 @@
 _MATLink_ is a [_Mathematica_](http://www.wolfram.com/mathematica/) application that allows the user to communicate data between _Mathematica_ and [MATLAB](http://www.mathworks.com/products/matlab/), as well as execute MATLAB code and seamslesly call MATLAB functions from within _Mathematica_.
 It uses [_MathLink_](http://reference.wolfram.com/mathematica/tutorial/MathLinkAndExternalProgramCommunicationOverview.html) to communicate between _Mathematica_ and MATLAB (via the [MATLAB Engine library](http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html)).
 
+##System requirements
+
+MATLink is compatible with Mathematica 8 or later and MATLAB R2011b or later.  On Linux, very old versions of gcc can't be used to compile MATLink.  Please check if your compiler is supported by the version of MATLAB you have.  [For MATLAB R2012b it is gcc 4.4.](http://www.mathworks.com/support/compilers/R2012a/glnxa64.html#matlab)
+
 ##Installation
 To be able to use _MATLink_, you will need to install it to a location in _Mathematica_'s `$Path`. You can follow one of the three ways below (replace `$UserBaseDirectory` with whatever is shown when you evaluate it in _Mathematica_):
 
@@ -17,6 +21,12 @@ To be able to use _MATLink_, you will need to install it to a location in _Mathe
 	```ruby
 	ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/develop.zip"]]
 	```
+
+Some further setup may be necessary to let MATLink find MATLAB:
+
+ - On Windows, this is the standard procedure that necessary to run MATLAB Engine applications:  First, add MATLAB's `bin/win64` (`bin/win32` for 32-bit versions) directory to the system `PATH`.  To do this, follow the instructions [here](http://www.mathworks.com/support/solutions/en/data/1-15ZLK/index.html).  On most systems this will be sufficient.  However, if you ave multiple versions of MATLAB installed, you need to register the default one by running the `regmatlabserver` command from within MATLAB.
+ - On OS X, navigate to the `MATLink/Engine/bin/MacOSX64` directory, edit `mengine.sh` and set the path to the MATLAB app bundle.
+ - On Linux, both MATLAB and Mathematica must be in the system `PATH`.  Then MATLink will be able to automatically compile its binary component (a C++ compiler needs to be installed).
 
 ##Quick start guide
 ###Starting MATLAB
