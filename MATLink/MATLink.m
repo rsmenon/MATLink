@@ -48,17 +48,53 @@ MATLink::usage =
 mcell::usage = "" (* TODO Make this private before release *)
 
 Begin["`Developer`"]
+
+(*Directories & file paths*)
 $ApplicationDirectory = DirectoryName@$InputFileName;
+$ApplicationDataDirectory = FileNameJoin[{$UserBaseDirectory, "ApplicationData", "MATLink"}];
 $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
 $BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[$SystemWordLength]}];
 $BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];
 $DefaultMATLABDirectory = "/Applications/MATLAB_R2012b.app/";
 
+(*Log files and related functions *)
+If[!DirectoryQ@$ApplicationDataDirectory, CreateDirectory@$ApplicationDataDirectory];
+
+$logfile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
+
+(*Log message types:
+	matlink – Standard MATLink` action
+	user    – User initiated action
+	warning – MATLink` warning
+	error   – MATLink` error
+	fatal   – Fatal error; cannot recover *)
+writeLog[message_, type_:"matlink"] :=
+	Module[{str = OpenAppend[$logfile], date = DateString[]},
+		WriteString[str, StringJoin @@ Riffle[{date, type, message, "\n"}, "\t"]];
+		Close[str];
+	]
+
+clearLog[] := Module[{str = OpenWrite[$logfile]}, Close@str;]
+
+ShowLog[] := FilePrint@$logfile
+
+SetAttributes[message, HoldFirst]
+message[m_MessageName, args___][type_] :=
+	Module[{},
+		writeLog[ToString@StringForm[m, args], type];
+		Message[m, args];
+	]
+
+(*Other Developer` functions*)
 CompileMEngine::unsupp := "Automatically compiling the MATLink Engine from source is not supported on ``. Please compile it manually."
 CompileMEngine::failed := "Automatically compiling the MATLink Engine has failed. Please try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
 
 (* CompileMEngine[] will Abort[] on failure to avoid an infinite loop. *)
-CompileMEngine[] := CompileMEngine[$OperatingSystem]
+CompileMEngine[] :=
+	Module[{},
+		writeLog["Compiled MATLink Engine on " <> $OperatingSystem, "user"];
+		CompileMEngine[$OperatingSystem]
+	]
 
 CompileMEngine["MacOSX"] :=
 	Block[{dir = Directory[]},
@@ -66,7 +102,7 @@ CompileMEngine["MacOSX"] :=
 		PrintTemporary["Compiling the MATLink Engine from source...\n"];
 		If[ Run["make -f Makefile.osx"] != 0,
 			SetDirectory[dir];
-			Message[CompileMEngine::failed];
+			message[CompileMEngine::failed]["error"];
 			Abort[];
 		];
 		Run["mv mengine " <> $BinaryPath];
@@ -81,7 +117,7 @@ CompileMEngine["Unix"] :=
 			PrintTemporary["Compiling the MATLink Engine from source...\n"];
 			If[ Run["make -f Makefile.lin64"] != 0,
 				SetDirectory[dir];
-				Message[CompileMEngine::failed];
+				message[CompileMEngine::failed]["error"];
 				Abort[];
 			];
 			Run["mv mengine " <> $BinaryPath];
@@ -89,14 +125,15 @@ CompileMEngine["Unix"] :=
 			SetDirectory[dir]
 		],
 
-		Message[CompileMEngine::unsupp, "non-64-bit Linux"]; Abort[]
+		message[CompileMEngine::unsupp, "non-64-bit Linux"]["error"]; Abort[]
 	]
 
-CompileMEngine[os_] := (Message[CompileMEngine::unsupp, os]; Abort[])
+CompileMEngine[os_] := (message[CompileMEngine::unsupp, os]["error"]; Abort[])
 
 CleanupTemporaryDirectories[] :=
-	Module[{},
-		DeleteDirectory[#, DeleteContents -> True] & /@ FileNames@FileNameJoin[{$TemporaryDirectory,"MATLink*"}];
+	Module[{dirs = FileNames@FileNameJoin[{$TemporaryDirectory,"MATLink*"}]},
+		writeLog[ToString@StringForm["Removed `` temporary directories", Length@dirs]];
+		DeleteDirectory[#, DeleteContents -> True] & /@ dirs;
 	]
 
 End[] (* `Developer` *)
@@ -105,7 +142,7 @@ Begin["`Private`"]
 AppendTo[$ContextPath, "MATLink`Developer`"];
 
 (* Common error messages *)
-MATLink::needs = "General is already loaded. Remember to use Needs instead of Get.";
+MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
@@ -118,22 +155,25 @@ EngineBinaryExistsQ[] := FileExistsQ[$BinaryPath];
 
 (* Set these variables only once per session.
 This is to avoid losing connection/changing temporary directory because the user used Get instead of Needs *)
-If[!TrueQ[MATLABInstalledQ[]],
+If[!TrueQ[MATLinkLoadedQ[]],
+	MATLinkLoadedQ[] = True;
 	MATLABInstalledQ[] = False;
 	$openLink = {};
 	$sessionID = "";
 	$temporaryVariablePrefix = "";
-	$sessionTemporaryDirectory = "";,
+	$sessionTemporaryDirectory = "";
+	writeLog["Loaded MATLink`"];,
 
-	Message[MATLink::needs]
+	message[MATLink::needs]["warning"]
 ]
 
 EngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mengine.sh"];
 
 (* To close previously opened links that were not terminated properly (possibly from a crash) *)
 cleanupOldLinks[] :=
-	Module[{},
-		LinkClose /@ Select[Links[], EngineLinkQ];
+	Module[{links = Select[Links[], EngineLinkQ]},
+		writeLog[ToString@StringForm["Closed `` old link objects.", Length@links]];
+		LinkClose /@ links;
 		MATLABInstalledQ[] = False;
 	]
 
@@ -175,13 +215,15 @@ ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 		$sessionTemporaryDirectory = FileNameJoin[{$TemporaryDirectory, "MATLink" <> $sessionID}];
 		CreateDirectory@$sessionTemporaryDirectory;
 		MATLABInstalledQ[] = True;
+		writeLog["Connected to the MATLink Engine"];
 	]
 
-ConnectMATLAB[] /; EngineBinaryExistsQ[] && MATLABInstalledQ[] := Message[ConnectMATLAB::engo]
+ConnectMATLAB[] /; EngineBinaryExistsQ[] && MATLABInstalledQ[] := message[ConnectMATLAB::engo]["warning"]
 
 ConnectMATLAB[] /; !EngineBinaryExistsQ[] :=
 	Module[{},
-		CompileMEngine[];
+		writeLog["Compiled MATLink Engine on " <> $OperatingSystem, "matlink"];
+		CompileMEngine[$OperatingSystem];
 		ConnectMATLAB[];
 	]
 
@@ -191,13 +233,19 @@ DisconnectMATLAB[] /; MATLABInstalledQ[] :=
 		$openLink = {};
 		DeleteDirectory[$sessionTemporaryDirectory, DeleteContents -> True];
 		MATLABInstalledQ[] = False;
+		writeLog["Disconnected from the MATLink Engine"];
 	]
 
-DisconnectMATLAB[] /; !MATLABInstalledQ[] := Message[DisconnectMATLAB::engc]
+DisconnectMATLAB[] /; !MATLABInstalledQ[] := message[DisconnectMATLAB::engc]["warning"]
 
 (* Open/Close MATLAB Workspace *)
-OpenMATLAB[] /; MATLABInstalledQ[] := openEngine[] /; !engineOpenQ[];
-OpenMATLAB[] /; MATLABInstalledQ[] := Message[OpenMATLAB::wspo] /; engineOpenQ[];
+OpenMATLAB[] /; MATLABInstalledQ[] :=
+	Module[{},
+		writeLog["Opened MATLAB workspace"];
+		openEngine[]
+	] /; !engineOpenQ[];
+
+OpenMATLAB[] /; MATLABInstalledQ[] := message[OpenMATLAB::wspo]["warning"] /; engineOpenQ[];
 
 OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
@@ -206,9 +254,14 @@ OpenMATLAB[] /; !MATLABInstalledQ[] :=
 		MEvaluate["addpath('" <> $sessionTemporaryDirectory <> "')"];
 	]
 
-CloseMATLAB[] /; MATLABInstalledQ[] := closeEngine[] /; engineOpenQ[] ;
-CloseMATLAB[] /; MATLABInstalledQ[] := Message[CloseMATLAB::wspc] /; !engineOpenQ[];
-CloseMATLAB[] /; !MATLABInstalledQ[] := Message[CloseMATLAB::engc];
+CloseMATLAB[] /; MATLABInstalledQ[] :=
+	Module[{},
+		writeLog["Closed MATLAB workspace"];
+		closeEngine[]
+	] /; engineOpenQ[] ;
+
+CloseMATLAB[] /; MATLABInstalledQ[] := message[CloseMATLAB::wspc]["warning"] /; !engineOpenQ[];
+CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
 $ReturnLogicalsAs0And1 = False;
 
@@ -221,8 +274,8 @@ SetAttributes[MGet,Listable]
 MGet[var_String] /; MATLABInstalledQ[] :=
 	convertToMathematica@get[var] /; engineOpenQ[]
 
-MGet[_String] /; MATLABInstalledQ[] := Message[MGet::wspc] /; !engineOpenQ[]
-MGet[_String] /; !MATLABInstalledQ[] := Message[MGet::engc]
+MGet[_String] /; MATLABInstalledQ[] := message[MGet::wspc]["warning"] /; !engineOpenQ[]
+MGet[_String] /; !MATLABInstalledQ[] := message[MGet::engc]["warning"]
 
 MSet::sparse = "Only one and two dimensional sparse arrays are supported; the default element must be 0 for numerical and False for boolean arrays."
 MSet::dupfield = "Duplicate field names not alowed in struct."
@@ -236,8 +289,8 @@ MSet[var_String, expr_] /; MATLABInstalledQ[] :=
 		cleanHandles[]	(* prevent memory leaks *)
 	] /; engineOpenQ[]
 
-MSet[___] /; MATLABInstalledQ[] := Message[MSet::wspc] /; !engineOpenQ[]
-MSet[___] /; !MATLABInstalledQ[] := Message[MSet::engc]
+MSet[___] /; MATLABInstalledQ[] := message[MSet::wspc]["warning"] /; !engineOpenQ[]
+MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
 (* MEvaluate *)
 MEvaluate::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
@@ -270,10 +323,10 @@ MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
 	eval[name] /; engineOpenQ[]
 
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
-	Message[MEvaluate::nofn,"MScript", name]
+	message[MEvaluate::nofn,"MScript", name]["error"]
 
-MEvaluate[___] /; MATLABInstalledQ[] := Message[MEvaluate::wspc] /; !engineOpenQ[]
-MEvaluate[___] /; !MATLABInstalledQ[] := Message[MEvaluate::engc]
+MEvaluate[___] /; MATLABInstalledQ[] := message[MEvaluate::wspc]["warning"] /; !engineOpenQ[]
+MEvaluate[___] /; !MATLABInstalledQ[] := message[MEvaluate::engc]["warning"]
 
 (* MScript & MFunction *)
 Options[MScript] = {"Overwrite" -> False};
@@ -287,9 +340,9 @@ MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
 	] /; (!MScriptQ[name] || OptionValue["Overwrite"])
 
 MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
-	Message[MScript::owrt, "MScript"] /; MScriptQ[name] && !OptionValue["Overwrite"]
+	message[MScript::owrt, "MScript"]["warning"] /; MScriptQ[name] && !OptionValue["Overwrite"]
 
-MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := Message[MScript::engc]
+MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := message[MScript::engc]["warning"]
 
 MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
 	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
@@ -314,8 +367,8 @@ MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
 	] /; !OptionValue["Output"]
 
-MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := Message[MFunction::wspc] /; !engineOpenQ[]
-MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := Message[MFunction::engc]
+MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := message[MFunction::wspc]["warning"] /; !engineOpenQ[]
+MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
 
 mcell[] :=
 	Module[{},
@@ -393,7 +446,7 @@ convertToMathematica[expr_] :=
 
 			matString[str_] := str;
 
-			matUnknown[u_] := (Message[MGet::unimpl, u]; $Failed);
+			matUnknown[u_] := (message[MGet::unimpl, u]["error"]; $Failed);
 
 			expr
 		]
@@ -448,7 +501,7 @@ convertToMATLAB[expr_] :=
 					engMakeSparseComplex[Flatten[ir]-1, jc, Re[values], Im[values], m, n],
 					engMakeSparseReal[Flatten[ir]-1, jc, values, m, n]
 				];
-			MSparseArray[_] := (Message[MSet::sparse]; $Failed);
+			MSparseArray[_] := (message[MSet::sparse]["error"]; $Failed);
 
 			MSparseLogical[HoldPattern@SparseArray[Automatic, {n_, m_}, False, {1, {jc_, ir_}, values_}]] :=
 				engMakeSparseLogical[Flatten[ir]-1, jc, Boole[values], m, n];
@@ -533,11 +586,11 @@ handleSparse[arr_SparseArray ? (VectorQ[#, NumericQ]&) ] := MSparseArray[Transpo
 handleSparse[arr_SparseArray ? (MatrixQ[#, NumericQ]&) ] := MSparseArray[Transpose@SparseArray[arr]] (* the extra SparseArray call gets rid of background elements *)
 handleSparse[arr_SparseArray ? (VectorQ[#, booleanQ]&) ] := MSparseLogical[Transpose@SparseArray[{arr}]]
 handleSparse[arr_SparseArray ? (MatrixQ[#, booleanQ]&) ] := MSparseLogical[Transpose@SparseArray[arr]]
-handleSparse[_] := (Message[MSet:sparr]; Throw[$Failed, $dispTag]) (* higher dim sparse arrays or non-numerical ones are not supported *)
+handleSparse[_] := (message[MSet::sparr]["error"]; Throw[$Failed, $dispTag]) (* higher dim sparse arrays or non-numerical ones are not supported *)
 
 handleStruct[rules_ ? (VectorQ[#, ruleQ]&)] :=
 	If[ Length@Union[rules[[All,1]]] != Length[rules],
-		Message[MSet::dupfield]; $Failed,
+		message[MSet::dupfield]["error"]; $Failed,
 		Thread[rules[[All, 1]] -> dispatcher /@ rules[[All, 2]]]
 	]
 handleStruct[_] := $Failed (* TODO multi-element struct *)
