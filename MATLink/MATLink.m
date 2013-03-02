@@ -50,17 +50,49 @@ mcell::usage = "" (* TODO Make this private before release *)
 Begin["`Developer`"]
 $ApplicationDirectory = DirectoryName@$InputFileName;
 $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
+$BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[$SystemWordLength]}];
+$BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];
 $DefaultMATLABDirectory = "/Applications/MATLAB_R2012b.app/";
 
-CompileMEngine[] :=
+CompileMEngine::unsupp := "Automatically compiling the MATLink Engine from source is not supported on ``. Please compile it manually."
+CompileMEngine::failed := "Automatically compiling the MATLink Engine has failed. Please try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
+
+(* CompileMEngine[] will Abort[] on failure to avoid an infinite loop. *)
+CompileMEngine[] := CompileMEngine[$OperatingSystem]
+
+CompileMEngine["MacOSX"] :=
 	Block[{dir = Directory[]},
 		SetDirectory[$EngineSourceDirectory];
 		PrintTemporary["Compiling the MATLink Engine from source...\n"];
-		Run["make"];
-		DeleteFile@FileNames@"*.o";
-		Run["mv mengine ../"];
-		SetDirectory@dir
+		If[ Run["make -f Makefile.osx"] != 0,
+			SetDirectory[dir];
+			Message[CompileMEngine::failed];
+			Abort[];
+		];
+		Run["mv mengine " <> $BinaryPath];
+		Run["make -f Makefile.osx clean"];
+		SetDirectory[dir]
 	]
+
+CompileMEngine["Unix"] :=
+	If[$SystemWordLength == 64,
+		Block[{dir = Directory[]},
+			SetDirectory[$EngineSourceDirectory];
+			PrintTemporary["Compiling the MATLink Engine from source...\n"];
+			If[ Run["make -f Makefile.lin64"] != 0,
+				SetDirectory[dir];
+				Message[CompileMEngine::failed];
+				Abort[];
+			];
+			Run["mv mengine " <> $BinaryPath];
+			Run["make -f Makefile.lin64 clean"];
+			SetDirectory[dir]
+		],
+
+		Message[CompileMEngine::unsupp, "non-64-bit Linux"]; Abort[]
+	]
+
+CompileMEngine[os_] := (Message[CompileMEngine::unsupp, os]; Abort[])
 
 CleanupTemporaryDirectories[] :=
 	Module[{},
@@ -82,7 +114,7 @@ General::nofn = "The `1` \"`2`\" does not exist."
 General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \\[Rule] True to overwrite."
 
 (* Directories and helper functions/variables *)
-EngineBinaryExistsQ[] := FileExistsQ@FileNameJoin[{$ApplicationDirectory, "Engine", "mengine"}];
+EngineBinaryExistsQ[] := FileExistsQ[$BinaryPath];
 
 (* Set these variables only once per session.
 This is to avoid losing connection/changing temporary directory because the user used Get instead of Needs *)
@@ -134,7 +166,7 @@ errorsInMATLABCode[cmd_String] :=
 ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
-		$openLink = Install@FileNameJoin[{$ApplicationDirectory, "Engine", "mengine.sh"}];
+		$openLink = Install@FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine.sh"]}];
 		$sessionID = StringJoin[
 			 IntegerString[{Most@DateList[]}, 10, 2],
 			 IntegerString[List @@ Rest@$openLink]

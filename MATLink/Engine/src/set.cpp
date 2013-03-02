@@ -1,6 +1,7 @@
 
 #include "mengine.h"
 
+#include <vector>
 #include <map>
 #include <algorithm>
 #include <cassert>
@@ -50,8 +51,9 @@ void eng_get_handles() {
 
 
 void eng_make_RealArray(double *list, int len, int *mmDims, int depth) {
-    mwSize mbDims[depth];
-    std::reverse_copy(mmDims, mmDims+depth, mbDims);
+    std::vector<mwSize> mbDimsVec(depth);
+    std::reverse_copy(mmDims, mmDims+depth, mbDimsVec.begin());
+    mwSize *mbDims = &mbDimsVec[0];
 
     mxArray *var = mxCreateNumericArray(depth, mbDims, mxDOUBLE_CLASS, mxREAL);
     std::copy(list, list+len, mxGetPr(var));
@@ -63,8 +65,9 @@ void eng_make_RealArray(double *list, int len, int *mmDims, int depth) {
 void eng_make_ComplexArray(double *real, int rlen, double *imag, int ilen, int *mmDims, int depth) {
     assert(ilen == rlen);
 
-    mwSize mbDims[depth];
-    std::reverse_copy(mmDims, mmDims+depth, mbDims);
+    std::vector<mwSize> mbDimsVec(depth);
+    std::reverse_copy(mmDims, mmDims+depth, mbDimsVec.begin());
+    mwSize *mbDims = &mbDimsVec[0];
 
     mxArray *var = mxCreateNumericArray(depth, mbDims, mxDOUBLE_CLASS, mxCOMPLEX);
     std::copy(real, real+rlen, mxGetPr(var));
@@ -96,8 +99,9 @@ void eng_make_SparseComplex(int *ir, int irlen, int *jc, int jclen, double *real
 
 
 void eng_make_Logical(short *list, int len, int *mmDims, int depth) {
-    mwSize mbDims[depth];
-    std::reverse_copy(mmDims, mmDims+depth, mbDims);
+    std::vector<mwSize> mbDimsVec(depth);
+    std::reverse_copy(mmDims, mmDims+depth, mbDimsVec.begin());
+    mwSize *mbDims = &mbDimsVec[0];
 
     mxArray *var = mxCreateLogicalArray(depth, mbDims);
     std::copy(list, list+len, mxGetLogicals(var));
@@ -115,8 +119,9 @@ void eng_make_SparseLogical(int *ir, int irlen, int *jc, int jclen, short *list,
 
 
 void eng_make_Cell(int *elems, int len, int *mmDims, int depth) {
-    mwSize mbDims[depth];
-    std::reverse_copy(mmDims, mmDims+depth, mbDims);
+    std::vector<mwSize> mbDimsVec(depth);
+    std::reverse_copy(mmDims, mmDims+depth, mbDimsVec.begin());
+    mwSize *mbDims = &mbDimsVec[0];
 
     mxArray *var = mxCreateCellArray(depth, mbDims);
     for (int i=0; i < len; ++i) {
@@ -142,7 +147,8 @@ void eng_make_Struct() {
     int field_count;
     MLGetFunction(stdlink, &name, &field_count);
 
-    const char *field_names[field_count]; // okay to allocate on stack, not many fields
+    std::vector<const char *> field_names(field_count);
+    //const char *field_names[field_count]; // okay to allocate on stack, not many fields
     for (int i=0; i < field_count; ++i) {
         MLGetString(stdlink, &(field_names[i]));
     }
