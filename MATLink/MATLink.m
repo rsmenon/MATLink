@@ -39,11 +39,8 @@ MFunction::usage =
 $ReturnLogicalsAs0And1::usage =
 	"If $ReturnLogicalsAs0And1 is set to True, MATLAB logicals will be returned as 0 or 1, and True or False otherwise."
 
-$DefaultMATLABDirectory::usage =
-	"Path to the default MATLAB directory. The MATLink engine calls the MATLAB executable located in this path."
-
 MATLink::usage =
-	"MATLink is a symbol to which MATLink package messages are attached."
+	"MATLink refers to the MATLink package. Set cross-session package options to this symbol."
 
 mcell::usage = "" (* TODO Make this private before release *)
 
