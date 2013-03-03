@@ -474,9 +474,6 @@ convertToMathematica[expr_] :=
 
 (* CONVERT DATA TYPES TO MATLAB *)
 
-AppendTo[$ContextPath, "MATLink`DataTypes`"]
-AppendTo[$ContextPath, "MATLink`DataTypes`Private`"]
-
 complexArrayQ[arr_] := Developer`PackedArrayQ[arr, Complex] || (Not@Developer`PackedArrayQ[arr] && Not@FreeQ[arr, Complex])
 
 booleanQ[True | False] = True
@@ -616,6 +613,7 @@ handleStruct[rules_ ? (VectorQ[#, ruleQ]&)] :=
 		message[MSet::dupfield]["error"]; $Failed,
 		Thread[rules[[All, 1]] -> dispatcher /@ rules[[All, 2]]]
 	]
+
 handleStruct[_] := $Failed (* TODO multi-element struct *)
 
 handleCell[list_List] := dispatcher /@ list
