@@ -488,6 +488,9 @@ ruleQ[_] = False
 handleQ[_handle] = True
 handleQ[_] = False
 
+structHandleQ[_String -> _handle] = True
+structHandleQ[_] = False
+
 (* the convertToMATLAB function will always end up with a handle[] if it was successful *)
 mset[name_String, handle[h_Integer]] := engSet[name, h]
 mset[name_, _] := $Failed
@@ -527,7 +530,7 @@ convertToMATLAB[expr_] :=
 				engMakeSparseLogical[Flatten[ir]-1, jc, Boole[values], m, n];
 
 			MStruct[rules_] :=
-				If[ Not[MatchQ[rules[[All,2]], {__handle}] && MatchQ[rules[[All,1]], {__String}]],
+				If[ !ArrayQ[rules, _, structHandleQ],
 					$Failed,
 					engMakeStruct[rules[[All,1]], rules[[All, 2, 1]]]
 				];
