@@ -34,10 +34,7 @@ MScript::usage =
 	"MScript[filename, expr] creates a MATLAB script named \"filename\" with the contents in expr (string) and stores it on MATLAB's path, but does not evaluate it. These files will be removed when the MATLink engine is closed."
 
 MFunction::usage =
-	"Create a link to a MATLAB function for use from Mathematica."
-
-$ReturnLogicalsAs0And1::usage =
-	"If $ReturnLogicalsAs0And1 is set to True, MATLAB logicals will be returned as 0 or 1, and True or False otherwise."
+	"MFunction[func] creates a link to a MATLAB function for use from Mathematica."
 
 MATLink::usage =
 	"MATLink refers to the MATLink package. Set cross-session package options to this symbol."
@@ -95,14 +92,16 @@ MATLink /: SetOptions[MATLink, opts_] :=
 		writeLog["MATLink settings changed: " <> ToString@Options@MATLink, "user"];
 	]
 
+Options@MATLink = {"DefaultMATLABDirectory" -> "/Applications/MATLAB_R2012b.app/", "ReturnLogicalsAs0And1" -> False};
 If[FileExistsQ@$SettingsFile,
 	Options@MATLink = Get@$SettingsFile;,
 
-	Options@MATLink = {"DefaultMATLABDirectory" -> "/Applications/MATLAB_R2012b.app/"};
+	writeLog["Missing init.m; Creating a new file.", "matlink"];
 	SetOptions[MATLink, Options@MATLink];
 ]
 
 $DefaultMATLABDirectory := OptionValue[MATLink, "DefaultMATLABDirectory"];
+$ReturnLogicalsAs0And1 := OptionValue[MATLink, "ReturnLogicalsAs0And1"];
 
 (*Other Developer` functions*)
 CompileMEngine::unsupp := "Automatically compiling the MATLink Engine from source is not supported on ``. Please compile it manually."
@@ -285,8 +284,6 @@ CloseMATLAB[] /; MATLABInstalledQ[] :=
 
 CloseMATLAB[] /; MATLABInstalledQ[] := message[CloseMATLAB::wspc]["warning"] /; !engineOpenQ[];
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
-
-$ReturnLogicalsAs0And1 = False;
 
 (* MGet & MSet *)
 MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
