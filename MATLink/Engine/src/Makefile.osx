@@ -1,7 +1,28 @@
 
 # Set path to MATLAB and MathLink here:
-MATLABDIR   = /Applications/MATLAB_R2012b.app
-MATHLINKDIR = /Applications/Mathematica\ 9.app/SystemFiles/Links/MathLink/DeveloperKit
+#MATLABDIR   = /Applications/MATLAB_R2013a.app
+#MATHLINKDIR = /Applications/Mathematica 9.app/SystemFiles/Links/MathLink/DeveloperKit
+
+MATLABDIR := $(shell ls -d /Applications/MATLAB*.app | tail -n 1)
+MMADIR := $(shell ls -d /Applications/Mathematica*.app | tail -n 1)
+
+space :=
+space +=
+MMADIR := $(subst $(space),\ ,$(MMADIR))
+MATLABDIR := $(subst $(space),\ ,$(MATLABDIR))
+
+ifeq ($(MATLABDIR),)
+	$(error MATLAB not found.  Please edit the makefile and set the correct path.)
+endif
+
+ifeq ($(MMADIR),)
+	$(error Mathematica not found.  Please edit the makefile and set the correct path.)
+endif
+
+$(info Using MATLAB in $(MATLABDIR))
+$(info Using Mathematica in $(MMADIR))
+
+MATHLINKDIR := $(MMADIR)/SystemFiles/Links/MathLink/DeveloperKit
 
 SYS = MacOSX-x86-64
 CADDSDIR = $(MATHLINKDIR)/$(SYS)/CompilerAdditions
