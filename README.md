@@ -5,7 +5,9 @@ It uses [_MathLink_](http://reference.wolfram.com/mathematica/tutorial/MathLinkA
 
 ##System requirements
 
-MATLink is compatible with Mathematica 8 or later and MATLAB R2011b or later.  On Linux, very old versions of gcc can't be used to compile MATLink.  Please check if your compiler is supported by the version of MATLAB you have.  [For MATLAB R2012b it is gcc 4.4.](http://www.mathworks.com/support/compilers/R2012a/glnxa64.html#matlab)
+MATLink is compatible with Mathematica 8 or later and MATLAB R2011b or later.  
+
+On Linux systems, the C shell `csh` must be installed at `/bin/csh` [for MATLAB Engine applications to work](http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html).  Also on Linux, very old versions of gcc can't be used to compile MATLink.  Please check if your compiler is supported by the version of MATLAB you have.  [For MATLAB R2013a it is gcc 4.4.](http://www.mathworks.com/support/compilers/R2013a/index.html?sec=glnxa64)
 
 ##Installation
 To be able to use _MATLink_, you will need to install it to a location in _Mathematica_'s `$Path`. You can follow one of the three ways below (replace `$UserBaseDirectory` with whatever is shown when you evaluate it in _Mathematica_):
