@@ -1,7 +1,7 @@
 
 # Path to MATLAB and MathLink:
-MATLABDIR   = $(shell dirname `which matlab`)/..
-MATHLINKDIR = $(shell dirname `which math`)/../SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions
+MATLABDIR   = $(shell dirname $$(readlink -f $$(which matlab)))/..
+MATHLINKDIR = $(shell dirname $$(readlink -f $$(which math)))/../SystemFiles/Links/MathLink/DeveloperKit/Linux-x86-64/CompilerAdditions
 
 
 INCDIRS = -I$(MATHLINKDIR) -I$(MATLABDIR)/extern/include
