@@ -229,5 +229,11 @@ You can also open it by directly executing the binary from the command line:
 
 Do not use `MGet` on custom classes (things for which `isobject` is true), or data structures that contain custom classes as elements.  On OS X and Unix this will crash the MATLAB process because of a bug in the MATLAB Engine interface.
 
+###Reading HDF5 based `.mat` files
+
+All the limitations of the [MATLAB Engine interface](http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html) apply to MATLink.  The most noticeable of these is that HFD5 based `.mat` files cannot be read.  Quoting the [MATLAB documentation](http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html),
+
+> The MATLAB engine cannot read MAT-files in a format based on HDF5. These are MAT-files saved using the -v7.3 option of the save function or opened using the w7.3 mode argument to the C or Fortran matOpen function.
+
 ---
 <sub>_Mathematica_ is a registered trademark of Wolfram Research, Inc. and MATLAB is a registered trademark of The MathWorks, Inc.</sub>
