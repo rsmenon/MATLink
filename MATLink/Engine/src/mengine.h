@@ -121,6 +121,12 @@ public:
         int res = engPutVariable(ep, name, var);
         return !res;
     }
+
+    void setVisible(bool val) {
+        if (!isopen())
+            return;
+        engSetVisible(ep, val);
+    }
 };
 
 

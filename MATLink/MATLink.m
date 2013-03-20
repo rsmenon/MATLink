@@ -21,6 +21,12 @@ OpenMATLAB::usage =
 CloseMATLAB::usage =
 	"CloseMATLAB[] closes a previously opened instance of MATLAB (opened via MATLink)."
 
+ShowMATLAB::usage =
+	"Show the MATLAB command window."
+
+HideMATLAB::usage = 
+	"Hide the MATLAB command window."
+
 MGet::usage =
 	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica. MGet is Listable."
 
@@ -38,6 +44,8 @@ MFunction::usage =
 
 MATLink::usage =
 	"MATLink refers to the MATLink package. Set cross-session package options to this symbol."
+
+MATLink::visnowin = "Showing or hiding the MATLAB command window is only supported on Windows."
 
 mcell::usage = "" (* TODO Make this private before release *)
 
@@ -285,6 +293,12 @@ CloseMATLAB[] /; MATLABInstalledQ[] :=
 CloseMATLAB[] /; MATLABInstalledQ[] := message[CloseMATLAB::wspc]["warning"] /; !engineOpenQ[];
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
+(* Show or hide MATLAB on Windows *)
+
+ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", Message[MATLink::visnowin]]; setVisible[1])
+HideMATLAB[] := (If[$OperatingSystem =!= "Windows", Message[MATLink::visnowin]]; setVisible[0])
+
+
 (* MGet & MSet *)
 MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
 
@@ -419,7 +433,8 @@ closeEngine = engClose;
 eval = engEvaluate;
 get = engGet;
 set = engSet;
-cleanHandles = engCleanHandles
+cleanHandles = engCleanHandles;
+setVisible = engSetVisible;
 
 (* CONVERT DATA TYPES TO MATHEMATICA *)
 
