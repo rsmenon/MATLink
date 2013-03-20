@@ -1,7 +1,7 @@
 # Makefile for building on Windows 64 bit using the Microsoft C++ compiler
 
 # Set path to MATLAB and MathLink here:
-MATLABDIR   = C:\Progra~1\MATLAB\R2012b
+MATLABDIR   = C:\Progra~1\MATLAB\R2013a
 MATHLINKDIR = C:\Progra~1\Wolfra~1\Mathematica\9.0\SystemFiles\Links\MathLink\DeveloperKit
 
 SYS = Windows-x86-64
