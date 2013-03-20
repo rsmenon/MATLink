@@ -1,8 +1,7 @@
 #!/bin/sh
 
-MATLAB=$(dirname `which matlab`)/..
-MATHLINK=$(dirname `which math`)/../SystemFiles/Links/MathLink/DeveloperKit/Linux/CompilerAdditions
-
+MATLAB=$(dirname $(readlink -f $(which matlab)))/..
+MATHLINK=$(dirname $(readlink -f $(which math)))/../SystemFiles/Links/MathLink/DeveloperKit/Linux/CompilerAdditions
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MATLAB/bin/glnxa32/:$MATHLINK
 
