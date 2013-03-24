@@ -82,8 +82,9 @@ ShowLog[] := FilePrint@$logfile
 
 SetAttributes[message, HoldFirst]
 message[m_MessageName, args___][type_] :=
-	Module[{},
-		writeLog[ToString@StringForm[m, args], type];
+	Module[{msg},
+		msg = Switch[Head@m, String, m, MessageName, m /. MessageName[_, s_] :> MessageName[General, s]];
+		writeLog[ToString@StringForm[msg, args], type];
 		Message[m, args];
 	]
 
@@ -174,7 +175,7 @@ General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
 General::engc = "Not connected to the MATLAB engine."
 General::nofn = "The `1` \"`2`\" does not exist."
-General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \\[Rule] True to overwrite."
+General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
 General::badval = "Invalid option value `1` passed to `2`. Values must match the pattern `3`"
 
 (* Directories and helper functions/variables *)
