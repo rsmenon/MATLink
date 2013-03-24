@@ -42,3 +42,9 @@ void eng_evaluate(const unsigned char *command, int len, int characters) {
         MLPutSymbol(stdlink, "$Failed");
     delete [] szcommand;
 }
+
+
+void eng_set_visible(int value) {
+    engine.setVisible(value);
+    MLPutSymbol(stdlink, "Null");
+}

@@ -76,6 +76,8 @@ public:
                 // Mathematica will interpret MATLAB's output as UTF-8,
                 // so let's make sure that's what MATLAB is sending
                 engEvalString(ep, "feature('DefaultCharacterSet', 'UTF-8')");
+
+                engSetVisible(ep, 0);
             }
         }
         // if opening fails, ep stays NULL
@@ -118,6 +120,12 @@ public:
             return false;
         int res = engPutVariable(ep, name, var);
         return !res;
+    }
+
+    void setVisible(bool val) {
+        if (!isopen())
+            return;
+        engSetVisible(ep, val);
     }
 };
 

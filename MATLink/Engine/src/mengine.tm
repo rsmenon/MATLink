@@ -10,7 +10,6 @@
 :End:
 
 
-
 :Begin:
 :Function:		eng_open_q
 :Pattern:		engOpenQ[]
@@ -163,5 +162,15 @@
 :ArgumentTypes:	{String, Integer32}
 :ReturnType:	Manual
 :End:
+
+
+:Begin:
+:Function:		eng_set_visible
+:Pattern:		engSetVisible[value_]
+:Arguments:		{value}
+:ArgumentTypes:	{Integer32}
+:ReturnType:	Manual
+:End:
+
 
 :Evaluate:		End[]

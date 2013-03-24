@@ -1,6 +1,7 @@
 
 #include "mengine.h"
 
+#include <vector>
 #include <algorithm>
 
 
@@ -33,8 +34,9 @@ void toMma(const mxArray *var, MLINK link) {
     }
 
     //translate dimension information to Mathematica order
-    int mmDims[depth];
-    std::reverse_copy(mbDims, mbDims + depth, mmDims);
+    std::vector<int> mmDimsVec(depth);
+    std::reverse_copy(mbDims, mbDims + depth, mmDimsVec.begin());
+    int *mmDims = &mmDimsVec[0];
 
     // numerical (sparse or dense)
     if (mxIsNumeric(var)) {
@@ -187,9 +189,10 @@ void toMma(const mxArray *var, MLINK link) {
             MLPutString(stdlink, "non string char array");
         }
         else {
-            mxChar *str = mxGetChars(var);
+            assert(sizeof(mxChar) == sizeof(unsigned short));
+            const mxChar *str = mxGetChars(var);
             MLPutFunction(link, CONTEXT "matString", 1);
-            MLPutUTF16String(link, str, mxGetNumberOfElements(var)); // cast may be required on other platforms: (mxChar *) str
+            MLPutUTF16String(link, reinterpret_cast<const unsigned short *>(str), mxGetNumberOfElements(var)); // cast may be required on other platforms: (mxChar *) str
         }
     }
     // struct
