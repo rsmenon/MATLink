@@ -373,17 +373,18 @@ MEvaluate[___] /; !MATLABInstalledQ[] := message[MEvaluate::engc]["warning"]
 
 (* MScript & MFunction *)
 Options[MScript] = {"Overwrite" -> False};
+validOptionPatterns[MScript] = {"Overwrite" -> True | False};
 
-MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
+MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Module[{file},
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
 		WriteString[file, cmd];
 		Close[file];
 		MScript[name]
-	] /; (!MScriptQ[name] || OptionValue["Overwrite"])
+	] /; (!MScriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
 
-MScript[name_String, cmd_String, OptionsPattern[]] /; MATLABInstalledQ[] :=
-	message[MScript::owrt, "MScript"]["warning"] /; MScriptQ[name] && !OptionValue["Overwrite"]
+MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
+	message[MScript::owrt, "MScript"]["warning"] /; MScriptQ[name] && !OptionValue["Overwrite"] && validOptionsQ[MScript, {opts}]
 
 MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := message[MScript::engc]["warning"]
 
@@ -391,9 +392,10 @@ MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
 	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
 
 Options[MFunction] = {"Output" -> True, "OutputArguments" -> 1};
+validOptionPatterns[MFunction] = {"Output" -> True | False, "OutputArguments" -> _Integer?Positive | 0};
 (* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
 
-MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
+MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 	Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output},
 		vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
 		Thread[MSet[vars[[;;nIn]], {args}]];
@@ -401,14 +403,14 @@ MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 		output = MGet /@ vars[[-nOut;;]];
 		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
 		If[nOut == 1, First@output, output]
-	] /; OptionValue["Output"]
+	] /; OptionValue["Output"] && validOptionsQ[MFunction, {opts}]
 
-MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
+MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
 	With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
 		Thread[MSet[vars, {args}]];
 		MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ")"]];
 		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
-	] /; !OptionValue["Output"]
+	] /; !OptionValue["Output"] && validOptionsQ[MFunction, {opts}]
 
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := message[MFunction::wspc]["warning"] /; !engineOpenQ[]
 MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
