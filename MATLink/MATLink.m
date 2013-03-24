@@ -219,7 +219,7 @@ This is necessary because a bug in the engine causes it to hang if there is a sy
 errorsInMATLABCode[cmd_String] :=
 	Module[
 		{
-			file = MScript[randomString[], cmd],
+			file = MScript[randomString[], cmd, "NoCheck"],
 			config = FileNameJoin[{$ApplicationDirectory, "Kernel", "MLintErrors.txt"}],
 			result
 		},
@@ -233,7 +233,7 @@ errorsInMATLABCode[cmd_String] :=
 		If[result =!= {}, "message" /. Flatten@result, None]
 	]
 
-validOptionsQ[func_Symbol, opts_] :=
+validOptionsQ[func_Symbol, opts_List] :=
 	With[{o = FilterRules[opts, Options[func]], patt = validOptionPatterns[func]},
 		If[o =!= opts,
 			Message[func::optx, First@FilterRules[opts, Except[Options@func]], func]; False,
@@ -376,12 +376,15 @@ Options[MScript] = {"Overwrite" -> False};
 validOptionPatterns[MScript] = {"Overwrite" -> True | False};
 
 MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
+	MScript[name, cmd, "NoCheck", opts] /; (!MScriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
+
+MScript[name_String, cmd_String, "NoCheck", opts : OptionsPattern[]] :=
 	Module[{file},
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
 		WriteString[file, cmd];
 		Close[file];
 		MScript[name]
-	] /; (!MScriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
+	]
 
 MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
 	message[MScript::owrt, "MScript"]["warning"] /; MScriptQ[name] && !OptionValue["Overwrite"] && validOptionsQ[MScript, {opts}]
@@ -395,22 +398,25 @@ Options[MFunction] = {"Output" -> True, "OutputArguments" -> 1};
 validOptionPatterns[MFunction] = {"Output" -> True | False, "OutputArguments" -> _Integer?Positive | 0};
 (* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
 
-MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
-	Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output},
-		vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
-		Thread[MSet[vars[[;;nIn]], {args}]];
-		MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ")"]];
-		output = MGet /@ vars[[-nOut;;]];
-		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
-		If[nOut == 1, First@output, output]
-	] /; OptionValue["Output"] && validOptionsQ[MFunction, {opts}]
+MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
+	Switch[OptionValue["Output"],
+		True,
+		Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output},
+			vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
+			Thread[MSet[vars[[;;nIn]], {args}]];
+			MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ")"]];
+			output = MGet /@ vars[[-nOut;;]];
+			MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
+			If[nOut == 1, First@output, output]
+		],
 
-MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] :=
-	With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
-		Thread[MSet[vars, {args}]];
-		MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ")"]];
-		MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
-	] /; !OptionValue["Output"] && validOptionsQ[MFunction, {opts}]
+		False,
+		With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
+			Thread[MSet[vars, {args}]];
+			MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ")"]];
+			MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
+		]
+	]
 
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := message[MFunction::wspc]["warning"] /; !engineOpenQ[]
 MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
