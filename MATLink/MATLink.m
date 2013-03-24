@@ -24,7 +24,7 @@ CloseMATLAB::usage =
 ShowMATLAB::usage =
 	"Show the MATLAB command window."
 
-HideMATLAB::usage = 
+HideMATLAB::usage =
 	"Hide the MATLAB command window."
 
 MGet::usage =
@@ -175,6 +175,7 @@ General::engo = "There is an existing connection to the MATLAB engine."
 General::engc = "Not connected to the MATLAB engine."
 General::nofn = "The `1` \"`2`\" does not exist."
 General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \\[Rule] True to overwrite."
+General::badval = "Invalid option value `1` passed to `2`. Values must match the pattern `3`"
 
 (* Directories and helper functions/variables *)
 EngineBinaryExistsQ[] := FileExistsQ[$BinaryPath];
@@ -230,6 +231,14 @@ errorsInMATLABCode[cmd_String] :=
 		eval@ToString@StringForm["clear `1`", First@file];
 		DeleteFile@file["AbsolutePath"];
 		If[result =!= {}, "message" /. Flatten@result, None]
+	]
+
+validOptionsQ[func_Symbol, opts_] :=
+	With[{o = FilterRules[opts, Options[func]], patt = validOptionPatterns[func]},
+		If[o =!= opts,
+			Message[func::optx, First@FilterRules[opts, Except[Options@func]], func]; False,
+			FreeQ[If[MatchQ[#2, #1], True, Message[func::badval, #2, func, #1];False] & @@@ (opts /. patt), False]
+		]
 	]
 
 (* Connect/Disconnect MATLAB engine *)
