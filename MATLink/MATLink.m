@@ -279,10 +279,18 @@ DisconnectMATLAB[] /; MATLABInstalledQ[] :=
 DisconnectMATLAB[] /; !MATLABInstalledQ[] := message[DisconnectMATLAB::engc]["warning"]
 
 (* Open/Close MATLAB Workspace *)
+OpenMATLAB::noopen = "Could not open a connection to MATLAB."
+
 OpenMATLAB[] /; MATLABInstalledQ[] :=
-	Module[{},
-		writeLog["Opened MATLAB workspace"];
-		openEngine[]
+	Catch[
+		Module[{},
+			openEngine[];
+			If[engineOpenQ[],
+				writeLog["Opened MATLAB workspace"],
+				message[OpenMATLAB::noopen]["fatal"];Throw[$Failed, $error]
+			];
+		],
+		$error
 	] /; !engineOpenQ[];
 
 OpenMATLAB[] /; MATLABInstalledQ[] := message[OpenMATLAB::wspo]["warning"] /; engineOpenQ[];
