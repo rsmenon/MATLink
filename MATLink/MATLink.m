@@ -83,7 +83,7 @@ ShowLog[] := FilePrint@$logfile
 SetAttributes[message, HoldFirst]
 message[m_MessageName, args___][type_] :=
 	Module[{msg},
-		msg = Switch[Head@m, String, m, MessageName, m /. MessageName[_, s_] :> MessageName[General, s]];
+		msg = Switch[Head@m, String, m, MessageName, m /. HoldPattern[MessageName[_, s_]] :> MessageName[General, s]];
 		writeLog[ToString@StringForm[msg, args], type];
 		Message[m, args];
 	]
