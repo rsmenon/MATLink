@@ -237,8 +237,8 @@ errorsInMATLABCode[cmd_String] :=
 validOptionsQ[func_Symbol, opts_List] :=
 	With[{o = FilterRules[opts, Options[func]], patt = validOptionPatterns[func]},
 		If[o =!= opts,
-			Message[func::optx, First@FilterRules[opts, Except[Options@func]], func]; False,
-			FreeQ[If[MatchQ[#2, #1], True, Message[func::badval, #2, func, #1];False] & @@@ (opts /. patt), False]
+			message[func::optx, First@FilterRules[opts, Except[Options@func]], func]["error"]; False,
+			FreeQ[If[MatchQ[#2, #1], True, message[func::badval, #2, func, #1]["error"];False] & @@@ (opts /. patt), False]
 		]
 	]
 
@@ -313,8 +313,8 @@ CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
 (* Show or hide MATLAB on Windows *)
 
-ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", Message[MATLink::visnowin]]; setVisible[1])
-HideMATLAB[] := (If[$OperatingSystem =!= "Windows", Message[MATLink::visnowin]]; setVisible[0])
+ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[1])
+HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[0])
 
 
 (* MGet & MSet *)
