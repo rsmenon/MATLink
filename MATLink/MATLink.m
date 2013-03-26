@@ -101,7 +101,7 @@ MATLink /: SetOptions[MATLink, opts_] :=
 		writeLog["MATLink settings changed: " <> ToString@Options@MATLink, "user"];
 	]
 
-Options@MATLink = {"DefaultMATLABDirectory" -> "/Applications/MATLAB_R2012b.app/", "ReturnLogicalsAs0And1" -> False};
+Options@MATLink = {"DefaultMATLABDirectory" -> "/Applications/MATLAB_R2012b.app/"};
 If[FileExistsQ@$SettingsFile,
 	Options@MATLink = Get@$SettingsFile;,
 
@@ -110,7 +110,6 @@ If[FileExistsQ@$SettingsFile,
 ]
 
 $DefaultMATLABDirectory := OptionValue[MATLink, "DefaultMATLABDirectory"];
-$ReturnLogicalsAs0And1 := OptionValue[MATLink, "ReturnLogicalsAs0And1"];
 
 (*Other Developer` functions*)
 CompileMEngine::unsupp := "Automatically compiling the MATLink Engine from source is not supported on ``. Please compile it manually."
@@ -491,16 +490,11 @@ convertToMathematica[expr_] :=
 
 			matSparseArray[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}];
 
-			matSparseLogical[jc_, ir_, vals_, dims_] :=
-				If[ $ReturnLogicalsAs0And1,
-					Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}],
-					Transpose@SparseArray[Automatic, dims, False, {1, {jc, List /@ ir + 1}, vals /. 1 -> True}]
-				];
+			matSparseLogical[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, False, {1, {jc, List /@ ir + 1}, vals /. 1 -> True}];
 
 			matLogical[list_, {1,1}] := matLogical@list[[1,1]];
 			matLogical[list_, dim_] := matLogical[list ~reshape~ dim];
-			matLogical[list_] /; $ReturnLogicalsAs0And1 := list;
-			matLogical[list_] /; !$ReturnLogicalsAs0And1 := list /. {1 -> True, 0 -> False};
+			matLogical[list_] := list /. {1 -> True, 0 -> False};
 
 			matArray[list_, {1,1}] := list[[1,1]];
 			matArray[list_, dim_] := list ~reshape~ dim;
