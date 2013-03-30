@@ -1,0 +1,25 @@
+/*From Bootstrap's docs.css*/
+.footer {
+  text-align: center;
+  padding: 20px 0;
+  margin-top: 70px;
+  /*border-top: 1px solid #e5e5e5;*/
+  background-color: #f5f5f5;
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+}
+.footer p {
+  margin-bottom: 0;
+  color: #777;
+}
+.footer-links {
+  margin: 10px 0;
+}
+.footer-links li {
+  display: inline;
+  padding: 0 2px;
+}
+.footer-links li:first-child {
+  padding-left: 0;
+}

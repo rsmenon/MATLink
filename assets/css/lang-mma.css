@@ -1,0 +1,108 @@
+/* Pretty printing styles. Used with prettify.js. */
+/* SPAN elements with the classes below are added by prettyprint. */
+
+/* This is basically a copy of the file that can be found in the google-code-prettify package. */
+/* I adapted only the style which were chosen to give a look like in the Mathematica-frontend. */
+
+.pln { color: #326AB3 }  /* plain text */
+
+@media screen {
+
+    /*string content*/
+    .str { color: #833 }
+
+    /* coloring for messages like symbol::msg */
+    .mma_msg { color: #833; font-style: italic; }
+
+    /* coloring for symbol::usage */
+    .mma_use { color: #833; font-weight: bold }
+
+    /*In[23] and Out[34] coloring*/
+    .mma_iot { color: #555; font-weight: bold}
+
+    /* named characters \[Gamma] */
+    .atn { color: #326AB3; font-weight: bold;}
+
+    /*a comment*/
+    .com { color: #555 }
+
+    /*a keyword, in SO blue*/
+    .kwd { color: #000 }
+
+    /*Blank constructs with variables and slots of pure functions*/
+    .atv { color: #006600; font-style: italic; }
+
+    /*Named characters like \[Gamma] or \[Alpha]*/
+    .atn { color: #326AB3; font-weight: bold; }
+
+    /*Braces, brackets and curly braces*/
+    .tag { color: #000; font-weight: bold; }
+
+    /*Numbers 1 16^^234f*/
+    .lit { color: #833 }
+
+    /*everything else, variable names, function names*/
+    .pln { color: #326AB3 }
+
+    /*operators + - @ @@ /. ...*/
+    .pun  { color: #000; }
+
+}
+
+/* Use higher contrast and text-weight for printable form. */
+@media print, projection {
+
+    /* string content */
+    .str, .use, .msg { color: #833;}
+
+    /* a comment */
+    .com { color: #555 }
+
+    /* a keyword */
+    .kwd { color: #000; font-weight: bold; }
+
+    /* Blank constructs with variables and pure function slots */
+    .atv { color: #006600; font-style: italic;}
+
+    /* a markup tag name */
+    .tag { color: #000; font-weight: bold; }
+
+    /* a literal value */
+    .lit { color: #833 }
+
+    /* coloring for symbol::usage */
+    .mma_use { color: #833; font-weight: bold }
+
+    /* coloring for messages like symbol::msg */
+    .mma_msg { color: #833; font-style: italic }
+
+    /* In[23] and Out[34] coloring  */
+    .mma_iot { color: #555; font-weight: bold}
+
+    /* named characters \[Gamma] */
+    .atn { color: #326AB3; font-weight: bold;}
+
+    /* operators and punctuation */
+    .pun { color: #000 }
+
+}
+
+/* Put a border around prettyprinted code snippets. */
+pre.prettyprint { background: #EEE; padding: 20px;}
+
+/* Specify class=linenums on a pre to get line numbering */
+ol.linenums { margin-top: 0; margin-bottom: 0 } /* IE indents via margin-left */
+li.L0,
+li.L1,
+li.L2,
+li.L3,
+li.L5,
+li.L6,
+li.L7,
+li.L8 { list-style-type: none }
+/* Alternate shading for lines */
+li.L1,
+li.L3,
+li.L5,
+li.L7,
+li.L9 { background: #eee }

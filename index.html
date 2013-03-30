@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <title>MATLink — Communicate with MATLAB from Mathematica</title>
+  <meta name="description" content="">
+  <meta name="author" content="Rs. Menon, Sz. Horvát">
+
+  <link rel="stylesheet" href="assets/css/bootstrap.css">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/prettify.css">
+  <link rel="stylesheet" href="assets/css/lang-matlab.css">
+  <link rel="stylesheet" href="assets/css/lang-mma.css">
+  <link rel="stylesheet" href="assets/css/font-awesome.css">
+
+</head>
+<body data-spy="scroll" data-target=".navbar">
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">MATLink</a>
+      <ul class="nav">
+        <li class="dropdown">
+          <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+            Installation
+            <i class="icon-caret-down"></i>
+          </a>
+          <ul class="dropdown-menu" role="menu">
+            <li class=""><a href="#system-requirements">System requirements</a></li>
+			<li class=""><a href="#downloading-matlink">Downloading MATLink</a></li>
+            <li class=""><a href="#linking-matlab">Linking with MATLAB</a></li>
+          </ul>
+        </li>
+        <li><a href="#getting-started">Getting started</a></li>
+        <li><a href="#advanced">Advanced usage</a></li>
+        <li><a href="#examples">Examples</a></li>
+        <li><a href="#license">License</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<div class="jumbotron">
+<div class="container">
+  <div class="row">
+	<div class="span12">
+	  <div class="hero-unit">
+		<h1>MATLink</h1>
+		<p>A <i>Mathematica</i> application for two-way communication with MATLAB</p>
+		<div class="actions">
+		  <a class="btn btn-primary" href="https://github.com/rsmenon/MATLink/archive/develop.zip"
+			 onClick="_gaq.push(['_trackEvent', 'Outbound Link', 'Download on GitHub']);">
+			<i class="icon-cloud-download"></i>
+			Download 0.9 beta</a>
+		</div>
+	  </div>
+	</div>
+	  </div>
+</div>
+</div>
+
+<div class="container">
+<section id="installation">
+  <h2 class="page-header">Installation</h2>
+  <subsection id="system-requirements">
+  <h3>System requirements</h3>
+  <ul>
+	  <li><i>Mathematica</i> version 8.0.4 or higher</li>
+	  <li>MATLAB R2011b (version 7.13) or higher</li>
+	  <li>A version of Windows/Linux/OS X that can run both <i>Mathematica</i> and MATLAB</li>
+  </ul>
+
+
+<p class="alert alert-info"><i class="icon-info-sign"></i> MATLink has been extensively tested with <i>Mathematica</i> versions 8.0.4 and 9.0.1, MATLAB 2012b and 2013a on OS X 10.8.2 and 10.8.3, and moderately tested on Windows 8 and Ubuntu (version). If you encounter any issues with a relatively modern operating system or a supported <i>Mathematica</i>/MATLAB version, please open a new <a href="https://github.com/rsmenon/MATLink/issues/new">issue</a> at GitHub.</p>
+
+
+  </subsection>
+
+  <subsection id="downloading-matlink">
+  <h3>Downloading MATLink</h3>
+  <p>The <a href="https://github.com/rsmenon/MATLink">MATLink project</a> lives on GitHub. To be able to use MATLink, you will need to download and install it to a location in <i>Mathematica</i>'s <code>$Path</code>. You can do so in one of the following ways:</p>
+  <div class="row">
+    <div class="span12">
+      <h4>Clone the repository using git (preferred)</h4>
+    </div>
+    <div class="span3">
+	  <p>Using git allows you to easily pull changes and keep up-to-date with the current version.</p>
+    </div>
+    <div class="span9">
+      <ol>
+	  <li>If you don't have <a href="http://git-scm.com/">git</a> already installed, you should install it before proceeding.
+</li>
+<li>
+          Open a terminal window and run the following (change the path separator appropriately for Windows)
+<pre>
+git clone git://github.com/rsmenon/MATLink.git ParentDir/Applications/MATLink
+</pre>
+<p class="alert alert-info"><i class="icon-info-sign"></i>Replace ParentDir with the output from evaluating $UserBaseDirectory in <i>Mathematica</i></p>
+        </li>
+		<li>To update to the latest version, run <code>git pull</code> in your local repository.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="row">
+    <div class="span12">
+      <h4>Alternate installation options</h4>
+    </div>
+    <div class="span3">
+      <p>Remember to repeat these steps when a new version is released.</p>
+    </div>
+    <div class="span9">
+      <ol>
+		<li>Install from within <i>Mathematica</i> using Leonid Shifrin's <a href="https://github.com/lshifr/ProjectInstaller">ProjectInstaller</a> package:
+<pre>
+ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
+</pre>
+		</li>
+		<li>Download the <a href="https://github.com/rsmenon/MATLink/archive/master.zip">zip</a> file and extract the contents to <code>ParentDir/Applications/MATLink</code>
+<p class="alert alert-info"><i class="icon-info-sign"></i>Replace ParentDir with the output from evaluating $UserBaseDirectory in <i>Mathematica</i></p></li>
+	</ol>
+    </div>
+  </div>
+  </subsection>
+
+  <subsection id="linking-matlab">
+  <h3>Linking with MATLAB</h3>
+  Although MATLink ships with some sane default paths and pre-compiled binaries, depending on your specific setup, it might be necessary to manually change a few settings before you can begin to use MATLink. If it does not work out of the box, please try following the instructions below for your operating system.
+  <div class="container">
+	  <div class="row">
+  <div class="span4">
+	  <h4>Windows</h4>
+	  <ol>
+		  <li>Add MATLAB's <code>bin/win64</code> directory (<code>bin/win32</code> for 32-bit versions) to the system <code>PATH</code> (<a href="http://www.mathworks.com/support/solutions/en/data/1-15ZLK/index.html">more info</a>).</li>
+		  <li>Register the default MATLAB version by running <code>regmatlabserver</code> in MATLAB. On most Windows systems, you will need administrator rights to do this.</li>
+	  </ol>
+  </div>
+
+  <div class="span8">
+	  <h4>Linux and OS X</h4>
+	  <ol>
+		  <li>To run the MATLink engine, you must have the C shell <code>csh</code> installed at <code>/bin/csh</code> (<a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">more info</a>).</li>
+		  <li>A C++ compiler is needed to compile the MATLink binary. Very old versions of <code>gcc</code> cannot be used to compile MATLink.</li>
+		  <li>On linux, both <i>Mathematica</i> and MATLAB must be on the system <code>PATH</code> (i.e., <code>which matlab</code> and <code>which math</code> return the correct locations).</li>
+		  <li>On OS X, navigate to the <code>MATLink/Engine/bin/MacOSX64</code> directory, edit the file <code>mengine.sh</code> and set the path to the MATLAB app bundle.</li>
+	  </ol>
+  </div>
+  </div>
+  </div>
+  </subsection>
+  </section>
+
+<section id="getting-started">
+<h2>Getting started</h2>
+</section>
+
+<section id="advanced">
+<h2>Advanced usage</h2>
+</section>
+
+<section id="examples">
+<h2>Examples</h2>
+</section>
+
+<section id="license">
+<h2>License</h2>
+</section>
+
+ <footer class="footer">
+      <div class="container">
+		  <p>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></p>
+		  <p><i>Mathematica</i> is a registered trademark of <a href="http://wolfram.com">Wolfram Research, Inc.</a> and MATLAB is a registered trademark of <a href="http://mathworks.com/">The MathWorks, Inc.</a></p>
+		  <p>The authors have no affiliation whatsoever with either organization, nor is this application endorsed by them.</p>
+      </div>
+    </footer>
+
+<script src="assets/js/jquery-1.9.1.min.js"></script>
+<script src="assets/js/underscore.min.js"></script>
+<script src="assets/js/backbone.min.js"></script>
+<script src="assets/js/bootstrap-222.min.js"></script>
+<script src="assets/js/prettify.js"></script>
+<script src="assets/js/lang-matlab.js"></script>
+<script src="assets/js/lang-mma.js"></script>
+<script type="text/javascript">
+		jQuery(document).ready(function () {
+			// apply syntax highlighting
+			prettyPrint();
+
+			// add language selection menus (after a small delay)
+			setTimeout(function () {
+				add_language_selection_menu();
+			}, 300);
+		});
+		</script>
+</body>
+</html>
