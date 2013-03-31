@@ -1,11 +1,22 @@
+h2 {
+	color: #0063ac;
+}
+
 code {
   color: #000;
 }
 
 .alert-info code {
-  color: #3a87ad;
+  color: #0063ac;
   padding: 2px 0px 2px 4px;
   background-color: #d9edf7;
+  border: none;
+}
+
+.alert-success code {
+  color: #1c9b47;
+  background-color: #dff0d8;
+  padding: 2px 0px 2px 4px;
   border: none;
 }
 
@@ -33,4 +44,10 @@ code {
 }
 .footer-links li:first-child {
   padding-left: 0;
+}
+
+.center-all {
+  text-align: center;
+	display:inline-block;
+	vertical-align:middle;
 }

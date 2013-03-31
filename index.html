@@ -55,19 +55,46 @@
   <div class="row">
 	<div class="span12">
 	  <div class="hero-unit">
-		<h1>MATLink</h1>
-		<p>A <i>Mathematica</i> application for two-way communication with MATLAB</p>
+		<div class="container">
+		<div class="row">
+		<div class="span6 text-center">
+		<img src="assets/img/logo.png" width=400px>
+		</div>
+		<div class="span5 center-all">
+			<h1>MATLink</h1>
+		<p>A <i>Mathematica</i> application for seamless two-way communication and data transfer with MATLAB. Harness the computational power of both systems efficiently using MATLink. </p>
 		<div class="actions">
 		  <a class="btn btn-primary" href="https://github.com/rsmenon/MATLink/archive/develop.zip"
 			 onClick="_gaq.push(['_trackEvent', 'Outbound Link', 'Download on GitHub']);">
 			<i class="icon-cloud-download"></i>
 			Download 0.9 beta</a>
 		</div>
+		</div>
+
+		</div>
+
+		</div>
+
 	  </div>
 	</div>
 	  </div>
 </div>
 </div>
+
+<div class="container">
+<section id="features" class="clearfix">
+  <div class="row">
+    <div class="span4">
+      <h4>Share data in native formats </h4>
+    </div>
+    <div class="span4">
+      <h4>Use MATLAB toolboxes</h4>
+    </div>
+    <div class="span4">
+      <h4>Rapid prototyping</h4>
+    </div>
+  </div>
+  </div>
 
 <div class="container">
 <section id="installation">
@@ -81,7 +108,7 @@
   </ul>
 
 
-<p class="alert alert-info"><i class="icon-info-sign"></i> MATLink has been extensively tested with <i>Mathematica</i> versions 8.0.4 and 9.0.1, MATLAB 2012b and 2013a on OS X 10.8.2 and 10.8.3, and moderately tested on Windows 8 and Ubuntu (version). If you encounter any issues with a relatively modern operating system or a supported <i>Mathematica</i>/MATLAB version, please open a new <a href="https://github.com/rsmenon/MATLink/issues/new">issue</a> at GitHub.</p>
+<p> MATLink has been extensively tested with <i>Mathematica</i> versions 8.0.4 and 9.0.1, MATLAB 2012b and 2013a on OS X 10.8.2 and 10.8.3, and moderately tested on Windows 8 and Ubuntu (version). If you encounter any issues with a relatively modern operating system or a supported <i>Mathematica</i>/MATLAB version, please open a new <a href="https://github.com/rsmenon/MATLink/issues/new">issue</a> at GitHub.</p>
 
 
   </subsection>
@@ -103,9 +130,8 @@
 <li>
           Open a terminal window and run the following (change the path separator appropriately for Windows)
 <pre>
-git clone git://github.com/rsmenon/MATLink.git ParentDir/Applications/MATLink
+git clone git://github.com/rsmenon/MATLink.git $UserBaseDirectory/Applications/MATLink
 </pre>
-<p class="alert alert-info"><i class="icon-info-sign"></i>Replace ParentDir with the output from evaluating $UserBaseDirectory in <i>Mathematica</i></p>
         </li>
 		<li>To update to the latest version, run <code>git pull</code> in your local repository.</li>
       </ol>
@@ -125,8 +151,7 @@ git clone git://github.com/rsmenon/MATLink.git ParentDir/Applications/MATLink
 ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
 </pre>
 		</li>
-		<li>Download the <a href="https://github.com/rsmenon/MATLink/archive/master.zip">zip</a> file and extract the contents to <code>ParentDir/Applications/MATLink</code>
-<p class="alert alert-info"><i class="icon-info-sign"></i>Replace ParentDir with the output from evaluating $UserBaseDirectory in <i>Mathematica</i></p></li>
+		<li>Download the <a href="https://github.com/rsmenon/MATLink/archive/master.zip">zip</a> file and extract the contents to <code>$UserBaseDirectory/Applications/MATLink</code>
 	</ol>
     </div>
   </div>
@@ -182,7 +207,7 @@ OpenMATLAB[]
 MEvaluate["mat = magic(4)"]
 </pre>
 		will output a magic square of size 3 and make an assignment to a variable named <code>mat</code> in the MATLAB workspace. Think of <code>MEvaluate</code> as a portal to the MATLAB workspace, allowing you to run commands in it and assign values to variables.
-<p class="alert alert-info"><i class="icon-info-sign"></i><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window. It cannot be used to transfer data to <i>Mathematica</i>. Use <code>MGet</code> and <code>MSet</code> as explained in the next section.</p>
+<p class="alert alert-info"><i class="icon-exclamation-sign"></i><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window. It cannot be used to transfer data to <i>Mathematica</i>. Use <code>MGet</code> and <code>MSet</code> as explained in the next section.</p>
 	</div>
 
 	<div class="span12">
@@ -205,7 +230,7 @@ MEvaluate["
 "]
 </pre>
 
-<p class="alert alert-info"><i class="icon-info-sign"></i> Since MATLAB is white space insensitive, you can freely use newlines and indentations for clarity in <code>MEvaluate</code>'s argument. Lines not terminated by a semicolon will display the output in <i>Mathematica</i>. </p>
+<p class="alert alert-success"><i class="icon-info-sign"></i> Since MATLAB is white space insensitive, you can freely use newlines and indentations for clarity in <code>MEvaluate</code>'s argument. Lines not terminated by a semicolon will display the output in <i>Mathematica</i>. </p>
 	</div>
 	</div>
 </div>
@@ -226,8 +251,22 @@ t = MScript["timing",
 
 		<p>You can now run the above script anytime, several times within the current session, by evaluating <code>MEvaluate[t]</code> (assuming the value for <code>t</code> has not been cleared) or <code>MEvaluate[MScript["timing"]]</code> (this will work even if <code>t</code> is cleared).</p>
 
-		<p class="alert alert-info"><i class="icon-info-sign"></i> Trying to define an <code>MScript</code> with the same filename twice in the same MATLink session will throw an error. This is to avoid accidental overwrites. You can force an overwrite of the existing file with the option <code>"Overwrite" -> True</code> for <code>MScript</code></p>
+		<p class="alert alert-info"><i class="icon-exclamation-sign"></i> Trying to define an <code>MScript</code> with the same filename twice in the same MATLink session will throw an error. This is to avoid accidental overwrites. You can force an overwrite of the existing file with the option <code>"Overwrite" -> True</code> for <code>MScript</code></p>
 </div>
+</div>
+
+<div class="row">
+	<div class="span12">
+		<h4>Defining and using MATLAB functions</h4>
+	<p>You can natively call MATLAB functions already on its path using the <code>MFunction</code> command. As an example, we'll define and use the <code>magic</code> function from MATLAB, which is not available in <i>Mathematica</i>:</p>
+
+<pre class="prettyprint lang-mma">
+magic = MFunction["magic"];
+magic[4] // MatrixForm
+</pre>
+
+<p>To define a custom function for the current session and use it, use <code>MScript</code> to save it to a file (remember to use the same filename as the function) and then use <code>MFunction["function_name"]</code>, where <code>function_name</code> is the name of your function file.</p>
+	</div>
 </div>
 
 </subsection>

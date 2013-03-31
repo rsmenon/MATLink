@@ -6,6 +6,9 @@
 
 .pln { color: #326AB3 }  /* plain text */
 
+/* Original version by halirutan at https://github.com/halirutan/Mathematica-Source-Highlighting */
+/* Modified by R. Menon for MATLink's homepage */
+
 @media screen {
 
     /*string content*/
@@ -30,7 +33,7 @@
     .kwd { color: #000 }
 
     /*Blank constructs with variables and slots of pure functions*/
-    .atv { color: #006600; font-style: italic; }
+    .atv { color: #1c9b47; font-style: italic; }
 
     /*Named characters like \[Gamma] or \[Alpha]*/
     .atn { color: #326AB3; font-weight: bold; }
@@ -42,7 +45,7 @@
     .lit { color: #833 }
 
     /*everything else, variable names, function names*/
-    .pln { color: #326AB3 }
+    .pln { color: #0063ac }
 
     /*operators + - @ @@ /. ...*/
     .pun  { color: #000; }
@@ -86,9 +89,6 @@
     .pun { color: #000 }
 
 }
-
-/* Put a border around prettyprinted code snippets. */
-pre.prettyprint { background: #EEE; padding: 20px;}
 
 /* Specify class=linenums on a pre to get line numbering */
 ol.linenums { margin-top: 0; margin-bottom: 0 } /* IE indents via margin-left */
