@@ -33,13 +33,25 @@
         </li>
 		<li class="dropdown">
 			<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
-				Using MATLink
+				Getting started
             <i class="icon-caret-down"></i>
 			</a>
 			<ul class="dropdown-menu" role="menu">
-				<li class=""><a href="#getting-started">Getting started</a></li>
-				<li class=""><a href="#advanced-usage">Advanced usage</a></li>
-				<li class=""><a href="#known-issues">Known issues</a></li>
+				<li class=""><a href="#connecting">Connecting to MATLink</a></li>
+				<li class=""><a href="#executing-matlab">Executing MATLAB commands</a></li>
+				<li class=""><a href="#transferring-data">Transferring data</a></li>
+				<li class=""><a href="#scripts-functions">Working with scripts and functions</a></li>
+			</ul>
+		</li>
+		<li class="dropdown">
+			<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+				Advanced usage
+            <i class="icon-caret-down"></i>
+			</a>
+			<ul class="dropdown-menu" role="menu">
+				<li class=""><a href="#"></a></li>
+				<li class=""><a href="#"></a></li>
+				<li class=""><a href="#"></a></li>
 			</ul>
 		</li>
         <li><a href="#examples">Examples</a></li>
@@ -86,14 +98,35 @@
   <div class="row">
     <div class="span4">
       <h4>Work with native data types</h4>
+	  <p>Transfer numerical, char, cell and struct arrays of any size and shape from MATLAB as <i>Mathematica</i> lists, strings and rules (and vice versa).</p>
     </div>
     <div class="span4">
-      <h4>Use MATLAB toolboxes</h4>
+      <h4>Create functions & scripts</h4>
+	<p>In addition to built-in MATLAB functions, you can also create custom MATLAB functions and scripts on the fly and use them easily from within <i>Mathematica</i>.</p>
     </div>
     <div class="span4">
-      <h4>Rapidly prototype code</h4>
-    </div>
+      <h4>Flexible plotting options</h4>
+	  <p>Like the data processing capabilities of one system, but the plotting features of the other? No problem! Using MATLink, you can get the best of both worlds.
+</p>    </div>
   </div>
+
+  <div class="row">
+    <div class="span4">
+      <h4>Utilize MATLAB toolboxes</h4>
+	<p>Substitute missing or subpar capabilities in <i>Mathematica</i> with MATLAB's toolboxes, such as the PDE toolbox or the signal processing toolbox (for <i>Mathematica</i> 8).</p>
+    </div>
+    <div class="span4">
+      <h4>Rapid prototyping</h4>
+	<p>
+		Combine the wealth of MATLAB's extensive third-party code base from the <a href="http://www.mathworks.com/matlabcentral/fileexchange/">File Exchange</a> (and elsewhere) with <i>Mathematica</i>'s rich prototyping capabilities.
+	</p>
+    </div>
+    <div class="span4">
+      <h4>It's free!</h4>
+	  <p>We know that MATLAB and <i>Mathematica</i> are not cheap, which is why we don't want you to spend a dime more. MATLink is free and will remain free for all purposes.
+</p>    </div>
+  </div>
+
   </div>
 
 <div class="container">
@@ -185,23 +218,28 @@ ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
   </section>
 
 <section id="using-matlink">
-<h2>Using MATLink</h2>
-<subsection id="getting-started">
-<h3>Getting started</h3>
+<h2>Getting started</h2>
 This section will guide you through the very basics of using MATLink. Henceforth, it is assumed that MATLink has been properly installed and linked with MATLAB. All code, unless mentioned otherwise, must be evaluated in a <i>Mathematica</i> notebook. When finished with this section, make sure to also read the advanced usages and browse the examples.
 <div class="container">
 	<div class="row">
+<subsection id="connecting">
 	<div class="span12">
-		<h4>Launching MATLink</h4>
+		<h3>Connecting to MATLink</h3>
 		<p>To launch MATLink and begin communicating with MATLAB, execute the following in a notebook:
 <pre class="prettyprint lang-mma">
 Needs["MATLink`"]
 OpenMATLAB[]
 </pre>
-	</div>
 
+	<p>When finished, evaluate <code>DisconnectMATLAB[]</code> to completely disconnect from the MATLAB workspace and close MATLink. This will also delete all scripts and functions that were defined from MATLink during the current session.</p>
+
+<p class="alert alert-info"><i class="icon-exclamation-sign"></i> Throughout the rest of this guide, it is assumed that you're connected to MATLink and the MATLAB workspace is open.</p>
+	</div>
+</subsection>
+
+<subsection id="executing-matlab">
 	<div class="span12">
-		<h4>Executing MATLAB commands</h4>
+		<h3>Executing MATLAB commands</h3>
 		<p>You can execute arbitrary MATLAB code using the <code>MEvaluate</code> command. Any output that would normally be displayed in MATLAB's command window will be displayed in the output cell. For example, evaluating
 <pre class="prettyprint lang-mma">
 MEvaluate["mat = magic(4)"]
@@ -209,9 +247,11 @@ MEvaluate["mat = magic(4)"]
 		will output a magic square of size 3 and make an assignment to a variable named <code>mat</code> in the MATLAB workspace. Think of <code>MEvaluate</code> as a portal to the MATLAB workspace, allowing you to run commands in it and assign values to variables.
 <p class="alert alert-info"><i class="icon-exclamation-sign"></i><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window. It cannot be used to transfer data to <i>Mathematica</i>. Use <code>MGet</code> and <code>MSet</code> as explained in the next section.</p>
 	</div>
+</subsection>
 
+<subsection id="transferring-data">
 	<div class="span12">
-		<h4>Transferring data between <i>Mathematica</i> and MATLAB</h4>
+		<h3>Transferring data between <i>Mathematica</i> and MATLAB</h3>
 		<p>The functions <code>MSet</code> and <code>MGet</code> allow the user to transfer variables to and from the MATLAB workspace. The variable name is always passed as a string. For example, to transfer the data stored in the variable <code>mat</code> in the MATLAB workspace to <i>Mathematica</i>, evaluate </p>
 <pre class="prettyprint lang-mma">
 mat = MGet["mat"];
@@ -234,10 +274,12 @@ MEvaluate["
 	</div>
 	</div>
 </div>
+</subsection>
 
+<subsection id="scripts-functions">
+<h3>Working with scripts and functions</h3>
 <div class="row">
 <div class="span12">
-	<h4>Saving and executing arbitrary MATLAB code as scripts</h4>
 		<p>Often one wishes to reuse code found online, either on the <a href="http://www.mathworks.com/matlabcentral/fileexchange/">MathWorks File Exchange</a> or elsewhere and execute it as a script (i.e., in the base workspace and not as a function). The function <code>MScript</code> makes it easy to do this. As a simple example, we'll define a script called <code>timing.m</code> that does some computations using the two variables <code>mat</code> and <code>mat_tr</code> defined earlier and displays the timing for 1000 trials:</p>
 <pre class="prettyprint lang-mma">
 t = MScript["timing",
@@ -257,8 +299,7 @@ t = MScript["timing",
 
 <div class="row">
 	<div class="span12">
-		<h4>Defining and using MATLAB functions</h4>
-	<p>You can natively call MATLAB functions already on its path using the <code>MFunction</code> command. As an example, we'll define and use the <code>magic</code> function from MATLAB, which is not available in <i>Mathematica</i>:</p>
+	<p>You can also natively call MATLAB functions already on its path using the <code>MFunction</code> command. As an example, we'll define and use the <code>magic</code> function from MATLAB, which is not available in <i>Mathematica</i>:</p>
 
 <pre class="prettyprint lang-mma">
 magic = MFunction["magic"];
@@ -268,20 +309,14 @@ magic[4] // MatrixForm
 <p>To define a custom function for the current session and use it, use <code>MScript</code> to save it to a file (remember to use the same filename as the function) and then use <code>MFunction["function_name"]</code>, where <code>function_name</code> is the name of your function file.</p>
 	</div>
 </div>
+</subsection>
 
-<div class="row">
-	<div class="span12">
-		<h4>Closing MATLink</h4>
-	<p>To completely disconnect from the MATLAB workspace and close MATLink, evaluate <code>DisconnectMATLAB[]</code>. This will also delete all scripts and functions that were defined from MATLink during current session.</p>
-
-	</div>
-</div>
 
 </subsection>
 
-<subsection id="advanced-usage">
-<h3>Advanced usage</h3>
-</subsection>
+<section id="advanced-usage">
+<h2>Advanced usage</h2>
+</section>
 
 </section>
 
@@ -291,13 +326,24 @@ magic[4] // MatrixForm
 
 <section id="license">
 <h2>License</h2>
+<div class="container">
+	<div class="row">
+		<div class="span12">
+			<ul>
+				<li>Copyright 2013, R. Menon and Sz. Horvát</li>
+				<li>Code licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></li>
+				<li>Code is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</li>
+			</ul>
+		</div>
+	</div>
+</div>
 </section>
 
  <footer class="footer">
       <div class="container">
 		  <p>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></p>
 		  <p><i>Mathematica</i> is a registered trademark of <a href="http://wolfram.com">Wolfram Research, Inc.</a> and MATLAB is a registered trademark of <a href="http://mathworks.com/">The MathWorks, Inc.</a></p>
-		  <p>The authors have no affiliation whatsoever with either organization, nor is this application endorsed by them.</p>
+		  <p>The authors are not affiliated with either organization and this application is not endorsed by either of them.</p>
       </div>
     </footer>
 
