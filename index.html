@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="assets/css/prettify.css">
   <link rel="stylesheet" href="assets/css/lang-matlab.css">
   <link rel="stylesheet" href="assets/css/lang-mma.css">
-  <link rel="stylesheet" href="assets/css/font-awesome.css">
+  <link rel="stylesheet" href="assets/css/font-awesome.min.css">
 
 </head>
 <body data-spy="scroll" data-target=".navbar">
@@ -31,8 +31,17 @@
             <li class=""><a href="#linking-matlab">Linking with MATLAB</a></li>
           </ul>
         </li>
-        <li><a href="#getting-started">Getting started</a></li>
-        <li><a href="#advanced">Advanced usage</a></li>
+		<li class="dropdown">
+			<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+				Using MATLink
+            <i class="icon-caret-down"></i>
+			</a>
+			<ul class="dropdown-menu" role="menu">
+				<li class=""><a href="#getting-started">Getting started</a></li>
+				<li class=""><a href="#advanced-usage">Advanced usage</a></li>
+				<li class=""><a href="#known-issues">Known issues</a></li>
+			</ul>
+		</li>
         <li><a href="#examples">Examples</a></li>
         <li><a href="#license">License</a></li>
       </ul>
@@ -150,12 +159,83 @@ ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
   </subsection>
   </section>
 
-<section id="getting-started">
-<h2>Getting started</h2>
-</section>
+<section id="using-matlink">
+<h2>Using MATLink</h2>
+<subsection id="getting-started">
+<h3>Getting started</h3>
+This section will guide you through the very basics of using MATLink. Henceforth, it is assumed that MATLink has been properly installed and linked with MATLAB. All code, unless mentioned otherwise, must be evaluated in a <i>Mathematica</i> notebook. When finished with this section, make sure to also read the advanced usages and browse the examples.
+<div class="container">
+	<div class="row">
+	<div class="span12">
+		<h4>Launching MATLink</h4>
+		<p>To launch MATLink and begin communicating with MATLAB, execute the following in a notebook:
+<pre class="prettyprint lang-mma">
+Needs["MATLink`"]
+OpenMATLAB[]
+</pre>
+	</div>
 
-<section id="advanced">
-<h2>Advanced usage</h2>
+	<div class="span12">
+		<h4>Executing MATLAB commands</h4>
+		<p>You can execute arbitrary MATLAB code using the <code>MEvaluate</code> command. Any output that would normally be displayed in MATLAB's command window will be displayed in the output cell. For example, evaluating
+<pre class="prettyprint lang-mma">
+MEvaluate["mat = magic(4)"]
+</pre>
+		will output a magic square of size 3 and make an assignment to a variable named <code>mat</code> in the MATLAB workspace. Think of <code>MEvaluate</code> as a portal to the MATLAB workspace, allowing you to run commands in it and assign values to variables.
+<p class="alert alert-info"><i class="icon-info-sign"></i><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window. It cannot be used to transfer data to <i>Mathematica</i>. Use <code>MGet</code> and <code>MSet</code> as explained in the next section.</p>
+	</div>
+
+	<div class="span12">
+		<h4>Transferring data between <i>Mathematica</i> and MATLAB</h4>
+		<p>The functions <code>MSet</code> and <code>MGet</code> allow the user to transfer variables to and from the MATLAB workspace. The variable name is always passed as a string. For example, to transfer the data stored in the variable <code>mat</code> in the MATLAB workspace to <i>Mathematica</i>, evaluate </p>
+<pre class="prettyprint lang-mma">
+mat = MGet["mat"];
+</pre>
+
+<p>Now let's transform this variable in <i>Mathematica</i> and send it back to MATLAB:
+<pre class="prettyprint lang-mma">
+MSet["mat_tr", Transpose[mat]];
+</pre>
+
+<p>You can verify that a new variable <code>mat_tr</code> was created in the MATLAB workspace and has the correct value:</p>
+<pre class="prettyprint lang-mma">
+MEvaluate["
+	exist('mat_tr','var')
+	isequal(mat', mat_tr)
+"]
+</pre>
+
+<p class="alert alert-info"><i class="icon-info-sign"></i> Since MATLAB is white space insensitive, you can freely use newlines and indentations for clarity in <code>MEvaluate</code>'s argument. Lines not terminated by a semicolon will display the output in <i>Mathematica</i>. </p>
+	</div>
+	</div>
+</div>
+
+<div class="row">
+<div class="span12">
+	<h4>Saving and executing arbitrary MATLAB code as scripts</h4>
+		<p>Often one wishes to reuse code found online, either on the <a href="http://www.mathworks.com/matlabcentral/fileexchange/">MathWorks File Exchange</a> or elsewhere and execute it as a script (i.e., in the base workspace and not as a function). The function <code>MScript</code> makes it easy to do this. As a simple example, we'll define a script called <code>timing.m</code> that does some computations using the two variables <code>mat</code> and <code>mat_tr</code> defined earlier and displays the timing for 1000 trials:</p>
+<pre class="prettyprint lang-mma">
+t = MScript["timing",
+    "tic;
+    for i=1:1000
+        eig(mat*mat_tr);
+    end
+    toc"
+]
+</pre>
+
+		<p>You can now run the above script anytime, several times within the current session, by evaluating <code>MEvaluate[t]</code> (assuming the value for <code>t</code> has not been cleared) or <code>MEvaluate[MScript["timing"]]</code> (this will work even if <code>t</code> is cleared).</p>
+
+		<p class="alert alert-info"><i class="icon-info-sign"></i> Trying to define an <code>MScript</code> with the same filename twice in the same MATLink session will throw an error. This is to avoid accidental overwrites. You can force an overwrite of the existing file with the option <code>"Overwrite" -> True</code> for <code>MScript</code></p>
+</div>
+</div>
+
+</subsection>
+
+<subsection id="advanced-usage">
+<h3>Advanced usage</h3>
+</subsection>
+
 </section>
 
 <section id="examples">

@@ -1,3 +1,14 @@
+code {
+  color: #000;
+}
+
+.alert-info code {
+  color: #3a87ad;
+  padding: 2px 0px 2px 4px;
+  background-color: #d9edf7;
+  border: none;
+}
+
 /*From Bootstrap's docs.css*/
 .footer {
   text-align: center;
