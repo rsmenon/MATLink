@@ -85,13 +85,13 @@
 <section id="features" class="clearfix">
   <div class="row">
     <div class="span4">
-      <h4>Share data in native formats </h4>
+      <h4>Work with native data types</h4>
     </div>
     <div class="span4">
       <h4>Use MATLAB toolboxes</h4>
     </div>
     <div class="span4">
-      <h4>Rapid prototyping</h4>
+      <h4>Rapidly prototype code</h4>
     </div>
   </div>
   </div>
@@ -147,7 +147,7 @@ git clone git://github.com/rsmenon/MATLink.git $UserBaseDirectory/Applications/M
     <div class="span9">
       <ol>
 		<li>Install from within <i>Mathematica</i> using Leonid Shifrin's <a href="https://github.com/lshifr/ProjectInstaller">ProjectInstaller</a> package:
-<pre>
+<pre class="prettyprint lang-mma">
 ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
 </pre>
 		</li>
@@ -266,6 +266,14 @@ magic[4] // MatrixForm
 </pre>
 
 <p>To define a custom function for the current session and use it, use <code>MScript</code> to save it to a file (remember to use the same filename as the function) and then use <code>MFunction["function_name"]</code>, where <code>function_name</code> is the name of your function file.</p>
+	</div>
+</div>
+
+<div class="row">
+	<div class="span12">
+		<h4>Closing MATLink</h4>
+	<p>To completely disconnect from the MATLAB workspace and close MATLink, evaluate <code>DisconnectMATLAB[]</code>. This will also delete all scripts and functions that were defined from MATLink during current session.</p>
+
 	</div>
 </div>
 
