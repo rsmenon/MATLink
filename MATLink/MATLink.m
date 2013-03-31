@@ -481,7 +481,7 @@ convertToMathematica[expr_] :=
 			]&,
 			listToArray = First@Fold[Partition, #, Reverse[#2]]&
 		},
-		Block[{matCell,matArray,matStruct,matSparseArray,matLogical,matString,matUnknown},
+		Block[{matCell, matStruct, matArray, matSparseArray, matLogical, matSparseLogical, matString, matUnknown},
 
 			matCell[list_, {1,1}] := list[[1]];
 			matCell[list_, dim_] := listToArray[list,dim] ~reshape~ dim;
