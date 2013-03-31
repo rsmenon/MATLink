@@ -481,7 +481,7 @@ convertToMathematica[expr_] :=
 			]&,
 			listToArray = First@Fold[Partition, #, Reverse[#2]]&
 		},
-		Block[{matCell, matStruct, matArray, matSparseArray, matLogical, matSparseLogical, matString, matUnknown},
+		Block[{matCell, matStruct, matArray, matSparseArray, matLogical, matSparseLogical, matString, matCharArray, matUnknown},
 
 			matCell[list_, {1,1}] := list[[1]];
 			matCell[list_, dim_] := listToArray[list,dim] ~reshape~ dim;
@@ -506,6 +506,8 @@ convertToMathematica[expr_] :=
 			matArray[list_, dim_] := list ~reshape~ dim;
 
 			matString[str_] := str;
+
+			matCharArray[list_, dim_] := listToArray[list,dim] ~reshape~ dim;
 
 			matUnknown[u_] := (message[MGet::unimpl, u]["error"]; $Failed);
 

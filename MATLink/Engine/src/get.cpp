@@ -183,16 +183,23 @@ void toMma(const mxArray *var, MLINK link) {
         }
     // char array (string); TODO handle multidimensional char arrays
     else if (mxIsChar(var)) {
-        // only 1 by N char arrays are supported; TODO implement others
-        if (depth != 2 || mbDims[0] != 1) {
-            MLPutFunction(stdlink, CONTEXT "matUnknown", 1);
-            MLPutString(stdlink, "non string char array");
-        }
-        else {
-            assert(sizeof(mxChar) == sizeof(unsigned short));
+        assert(sizeof(mxChar) == sizeof(unsigned short));
+        // 1 by N char arrays are sent as a string
+        if (depth == 2 && (mbDims[0] == 1 || mbDims[1] == 1)) {
             const mxChar *str = mxGetChars(var);
             MLPutFunction(link, CONTEXT "matString", 1);
             MLPutUTF16String(link, reinterpret_cast<const unsigned short *>(str), mxGetNumberOfElements(var)); // cast may be required on other platforms: (mxChar *) str
+
+        }
+        // general char arrays are sent as an array of characters
+        else {
+            MLPutFunction(link, CONTEXT "matCharArray", 2);
+            const mxChar *str = mxGetChars(var);
+            int len = mxGetNumberOfElements(var);
+            MLPutFunction(link, "List", len);
+            for (int i=0; i < len; ++i)
+                MLPutUTF16String(link, reinterpret_cast<const unsigned short *>(str + i), 1);
+            MLPutInteger32List(link, mmDims, depth);
         }
     }
     // struct
