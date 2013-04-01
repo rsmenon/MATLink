@@ -566,7 +566,7 @@ convertToMATLAB[expr_] :=
 			MStruct[rules_] :=
 				If[ !ArrayQ[rules, _, structHandleQ],
 					$Failed,
-					engMakeStruct[rules[[All,1]], rules[[All, 2, 1]]]
+					engMakeStruct[rules[[All,1]], rules[[All, 2, 1]], {1}]
 				];
 
 			structured (* $Failed falls through *)

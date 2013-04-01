@@ -120,8 +120,8 @@
 
 :Begin:
 :Function:		eng_make_Struct
-:Pattern:		engMakeStruct[fields_, handles_]
-:Arguments:		{fields, handles}
+:Pattern:		engMakeStruct[fields_, handles_, dims_]
+:Arguments:		{fields, handles, dims}
 :ArgumentTypes:	{Manual}
 :ReturnType:	Manual
 :End:

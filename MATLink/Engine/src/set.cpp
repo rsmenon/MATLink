@@ -152,21 +152,34 @@ void eng_make_Struct() {
     for (int i=0; i < field_count; ++i) {
         MLGetString(stdlink, &(field_names[i]));
     }
-    mxArray *var = mxCreateStructMatrix(1, 1, field_count, &(field_names[0]));
-
-    for (int i=0; i < field_count; ++i)
-        MLReleaseString(stdlink, field_names[i]);
 
     int *handle_list;
     int handle_count;
     MLGetInteger32List(stdlink, &handle_list, &handle_count);
-    assert(field_count == handle_count);
-    for (int i=0; i < handle_count; ++i) {
-        mxSetFieldByNumber(var, 0, i, handles.value(handle_list[i]));
-        handles.remove(handle_list[i]);
-    }
+
+    int *mmDims;
+    int depth;
+    MLGetInteger32List(stdlink, &mmDims, &depth);
+
+    std::vector<mwSize> mbDimsVec(depth);
+    std::reverse_copy(mmDims, mmDims+depth, mbDimsVec.begin());
+    mwSize *mbDims = &mbDimsVec[0];
+
+    mxArray *var = mxCreateStructArray(depth, mbDims, field_count, &(field_names[0]));
+
+    int len = handle_count / field_count;
+    assert(mxGetNumberOfElements(var) == len);
+    for (int i=0; i < len; ++i)
+        for (int j=0; j < field_count; ++j) {
+            mxSetFieldByNumber(var, i, j, handles.value(handle_list[i*len + j]));
+            handles.remove(handle_list[i*len + j]);
+        }
+
+    for (int i=0; i < field_count; ++i)
+        MLReleaseString(stdlink, field_names[i]);
 
     MLReleaseInteger32List(stdlink, handle_list, handle_count);
+    MLReleaseInteger32List(stdlink, mmDims, depth);
 
     returnHandle(var);
 }
