@@ -55,7 +55,6 @@
 			</ul>
 		</li>
         <li><a href="#examples">Examples</a></li>
-        <li><a href="#license">License</a></li>
       </ul>
     </div>
   </div>
@@ -218,7 +217,7 @@ ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
   </section>
 
 <section id="using-matlink">
-<h2>Getting started</h2>
+<h2 class="page-header">Getting started</h2>
 This section will guide you through the very basics of using MATLink. Henceforth, it is assumed that MATLink has been properly installed and linked with MATLAB. All code, unless mentioned otherwise, must be evaluated in a <i>Mathematica</i> notebook. When finished with this section, make sure to also read the advanced usages and browse the examples.
 <div class="container">
 	<div class="row">
@@ -315,35 +314,90 @@ magic[4] // MatrixForm
 </subsection>
 
 <section id="advanced-usage">
-<h2>Advanced usage</h2>
+<h2 class="page-header">Advanced usage</h2>
 </section>
 
 </section>
 
-<section id="examples">
-<h2>Examples</h2>
-</section>
-
-<section id="license">
-<h2>License</h2>
 <div class="container">
-	<div class="row">
-		<div class="span12">
-			<ul>
-				<li>Copyright 2013, R. Menon and Sz. Horvát</li>
-				<li>Code licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></li>
-				<li>Code is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</li>
-			</ul>
-		</div>
+<section id="examples">
+<h2 class="page-header">Examples</h2>
+The following examples are illustrative of real world problems that are easily solved by using MATLink to get the best of both MATLAB and <i>Mathematica</i>.
+
+<subsection id="filtering">
+<h3>Filtering sound using the signal processing toolbox</h3>
+<p>Signal processing functionality was notoriously missing from <i>Mathematica</i> until version 9, and still lags behind MATLAB's toolbox in terms of functionality and ease of use. Let's suppose we wanted to inspect the frequency content of an audio file and bandpass filter it (assume you're using <i>Mathematica</i> 8 and don't have the newer functions).</p>
+
+<div class="row">
+	<div class="span12">
+<pre class="prettyprint lang-mma">
+{data, fs}  = {#[[1, 1, 1]], #[[1, 2]]} &@ExampleData[{"Sound", "Apollo13Problem"}];
+spectrogram = MFunction["spectrogram", "Output" -> False]; (* Use MATLAB's spectrogram *)
+spectrogram[data, 1000, 0, 1024, fs]
+</pre>
+</div>
+</div>
+
+<div class="row">
+	<div class="span6">
+		<p>Clearly, the frequency content is mostly below 2.5 kHz, and so we design a lowpass filter in MATLAB using the following code:
+<pre class="prettyprint lang-matlab">
+[z, p, k] = butter(6, 2.5e3/fs, 'low') ;%Butterworth filter
+[sos, g]  = zp2sos(z, p, k)            ;
+Hd        = dfilt.df2tsos(sos, g)      ;
+</pre>
+
+<p> To use this from MATLink, we need to pass the value of <code>fs</code> and also make a helper function that will return the filtered data</p>
+
+<pre class="prettyprint lang-mma">
+MSet["fs", fs];
+MEvaluate["
+	[z, p, k] = butter(6, 2.5e3/fs, 'low') ;
+	[sos, g]  = zp2sos(z, p, k)            ;
+	Hd        = dfilt.df2tsos(sos, g)      ;
+	myfilt    = @(x)filter(Hd,x)           ;
+"]
+filter = MFunction["myfilt"];
+</pre>
+
 	</div>
+	<div class="span6">
+		<img src="assets/img/spectrogram_data.png">
+</div>
+</div>
+
+<div class="row">
+	<div class="span12">
+		<p>Now we're all set to use the <code>filter</code> function from within <i>Mathematica</i> on the data. This simple example demonstrates how one can fill in for missing functionality. It saves us the trouble of having to develop a complicated filter design algorithm in <i>Mathematica</i> (which is not an easy task) and spend hours debugging it. The code for the Butterworth filter could've come from anywhere — the file exchange or Stack Overflow or previously written code or perhaps even, as in this case, an example from the documentation for <code>butter</code>. A slight tweak of the parameters to suit the needs at hand, and we're good to proceed with our work in <i>Mathematica</i>.
+</div>
+</div>
+<div class="row">
+	<div class="span6">
+<p>To complete the example, let's filter the data using our filter and look at the spectrogram</p>
+<pre class="prettyprint lang-mma">
+filteredData = filter@data;
+spectrogram[filteredData, 1000, 0, 1024, fs]
+</pre>
+		  <p>No surprises there; it looks exactly as expected. For fun, we can also play both the filtered and unfiltered data and listen to the differences</p>
+<pre class="prettyprint lang-mma">
+ListPlay[data, SampleRate -> fs]
+ListPlay[filteredData, SampleRate -> fs]
+</pre>
+</div>
+	<div class="span6">
+		<img src="assets/img/spectrogram_filtered.png">
+</div>
 </div>
 </section>
 
  <footer class="footer">
       <div class="container">
-		  <p>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></p>
+		  <ul class="footer-links">
+		  <li>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></li>
+		 <li class="muted">·</li>
+		<li>Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></li>
+	 </ul>
 		  <p><i>Mathematica</i> is a registered trademark of <a href="http://wolfram.com">Wolfram Research, Inc.</a> and MATLAB is a registered trademark of <a href="http://mathworks.com/">The MathWorks, Inc.</a></p>
-		  <p>The authors are not affiliated with either organization and this application is not endorsed by either of them.</p>
       </div>
     </footer>
 

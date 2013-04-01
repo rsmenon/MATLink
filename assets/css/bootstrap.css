@@ -997,7 +997,7 @@ code {
 pre {
   display: block;
   padding: 3px 5px;
-  margin: 0 0 13px;
+  margin: 10px 0;
   font-size: 12px;
   line-height: 20px;
   word-break: break-all;
@@ -1013,7 +1013,7 @@ pre {
 }
 
 pre.prettyprint {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 pre code {

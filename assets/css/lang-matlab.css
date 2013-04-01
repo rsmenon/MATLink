@@ -4,7 +4,7 @@
 	/* plain text: #000; */
 	.lang-matlab .pln { color: #000000; }
 	/* strings: #080; #800000; */
-	.lang-matlab .str { color: #A020F0; }
+	.lang-matlab .str { color: #833; }
 	/* keywords: #00008B; */
 	.lang-matlab .kwd { color: #0063ac; }
 	/* comments: #808080; */

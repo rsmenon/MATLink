@@ -1,3 +1,4 @@
+/* other modifications to override bootstrap.css*/
 h2 {
 	color: #0063ac;
 }
@@ -23,6 +24,7 @@ code {
 /*From Bootstrap's docs.css*/
 .footer {
   text-align: center;
+  font-size: 12px;
   padding: 20px 0;
   background-color: #f5f5f5;
   -webkit-border-radius: 6px;
@@ -34,11 +36,13 @@ code {
   color: #777;
 }
 .footer-links {
-  margin: 10px 0;
+  /*margin: 10px 0;*/
+  margin-bottom: 0;
+  color: #777;
 }
 .footer-links li {
   display: inline;
-  padding: 0 2px;
+  /*padding: 0 2px;*/
 }
 .footer-links li:first-child {
   padding-left: 0;
