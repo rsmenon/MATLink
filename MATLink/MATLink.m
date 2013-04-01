@@ -412,7 +412,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 		Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output},
 			vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
 			Thread[MSet[vars[[;;nIn]], {args}]];
-			MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ")"]];
+			MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"]];
 			output = MGet /@ vars[[-nOut;;]];
 			MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
 			If[nOut == 1, First@output, output]
