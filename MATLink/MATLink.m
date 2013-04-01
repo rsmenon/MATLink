@@ -345,14 +345,20 @@ MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
 (* MEvaluate *)
 MEvaluate::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
+MEvaluate::unkw = "`1` is an unrecognized argument"
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
-MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
+MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
 	Catch[
 		Module[{result, error, id = randomString[]},
+			Switch[mlint,
+				"Check", error = errorsInMATLABCode@cmd,
+				"NoCheck", error = None,
+				_, Message[MEvaluate::unkw, mlint];Throw[$Failed,$error]
+			];
 			If[
-				TrueQ[(error = errorsInMATLABCode@cmd) === None],
+				TrueQ[error === None],
 				result = eval@StringJoin["
 					try
 						", cmd, "
@@ -412,17 +418,17 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 		Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output},
 			vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
 			Thread[MSet[vars[[;;nIn]], {args}]];
-			MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"]];
+			MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
 			output = MGet /@ vars[[-nOut;;]];
-			MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
+			MEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
 			If[nOut == 1, First@output, output]
 		],
 
 		False,
 		With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
 			Thread[MSet[vars, {args}]];
-			MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ")"]];
-			MEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
+			MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
+			MEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
 		]
 	]
 
