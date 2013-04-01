@@ -32,6 +32,7 @@ LIBDIRS = -L$(CADDSDIR) -L$(MATLABDIR)/bin/maci64/
 
 MPREP = $(CADDSDIR)/mprep
 
+# compile for OS X 10.6 and later, which is the minimum version required for MATLAB 2011b
 CFLAGS = -mmacosx-version-min=10.6 -Wall
 
 
