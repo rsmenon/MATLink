@@ -235,5 +235,9 @@ All the limitations of the [MATLAB Engine interface](http://www.mathworks.com/he
 
 > The MATLAB engine cannot read MAT-files in a format based on HDF5. These are MAT-files saved using the -v7.3 option of the save function or opened using the w7.3 mode argument to the C or Fortran matOpen function.
 
+###Unicode support
+
+`MGet` and `MSet` do support Unicode strings.  However, `MEvaluate` and related functions may not handle them correctly depending on operating system and MATLAB version.
+
 ---
 <sub>_Mathematica_ is a registered trademark of Wolfram Research, Inc. and MATLAB is a registered trademark of The MathWorks, Inc.</sub>
