@@ -185,7 +185,7 @@ void toMma(const mxArray *var, MLINK link) {
     else if (mxIsChar(var)) {
         assert(sizeof(mxChar) == sizeof(unsigned short));
         // 1 by N char arrays are sent as a string
-        if (depth == 2 && (mbDims[0] == 1 || mbDims[1] == 1)) {
+        if (depth == 2 && mbDims[0] == 1) {
             const mxChar *str = mxGetChars(var);
             MLPutFunction(link, CONTEXT "matString", 1);
             MLPutUTF16String(link, reinterpret_cast<const unsigned short *>(str), mxGetNumberOfElements(var)); // cast may be required on other platforms: (mxChar *) str
