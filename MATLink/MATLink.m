@@ -412,22 +412,33 @@ Options[MFunction] = {"Output" -> True, "OutputArguments" -> 1};
 validOptionPatterns[MFunction] = {"Output" -> True | False, "OutputArguments" -> _Integer?Positive};
 (* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
 
+MFunction::args = "The arguments at positions `1` to \"`2`\" could not be translated to MATLAB."
+
 MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
 	Switch[OptionValue["Output"],
 		True,
-		Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output},
+		Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output, fails},
 			vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
-			Thread[MSet[vars[[;;nIn]], {args}]];
-			MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
-			output = MGet /@ vars[[-nOut;;]];
+			fails = Thread[MSet[vars[[;;nIn]], {args}]];
+			If[MemberQ[fails, $Failed],
+				message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
+				nOut = 1;
+				output = {$Failed},
+
+				MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
+				output = MGet /@ vars[[-nOut;;]];				
+			];
 			MEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
 			If[nOut == 1, First@output, output]
 		],
 
 		False,
 		With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
-			Thread[MSet[vars, {args}]];
-			MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
+			fails = Thread[MSet[vars, {args}]];
+			If[MemberQ[fails, $Failed],
+				message[MFunction::args, Position[fails, $Failed]]["error"],							
+				MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
+			];
 			MEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
 		]
 	]
