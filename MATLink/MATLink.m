@@ -409,7 +409,7 @@ MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
 	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
 
 Options[MFunction] = {"Output" -> True, "OutputArguments" -> 1};
-validOptionPatterns[MFunction] = {"Output" -> True | False, "OutputArguments" -> _Integer?Positive | 0};
+validOptionPatterns[MFunction] = {"Output" -> True | False, "OutputArguments" -> _Integer?NonNegative};
 (* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
 
 MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
