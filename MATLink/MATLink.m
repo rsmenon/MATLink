@@ -422,11 +422,10 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 			fails = Thread[MSet[vars[[;;nIn]], {args}]];
 			If[MemberQ[fails, $Failed],
 				message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
-				nOut = 1;
-				output = {$Failed},
+				output = ConstantArray[$Failed, nOut];,
 
 				MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
-				output = MGet /@ vars[[-nOut;;]];				
+				output = MGet /@ vars[[-nOut;;]];
 			];
 			MEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
 			If[nOut == 1, First@output, output]
@@ -436,7 +435,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 		With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
 			fails = Thread[MSet[vars, {args}]];
 			If[MemberQ[fails, $Failed],
-				message[MFunction::args, Position[fails, $Failed]]["error"],							
+				message[MFunction::args, Position[fails, $Failed]]["error"],
 				MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
 			];
 			MEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
