@@ -357,8 +357,7 @@ MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
 				"NoCheck", error = None,
 				_, Message[MEvaluate::unkw, mlint];Throw[$Failed,$error]
 			];
-			If[
-				TrueQ[error === None],
+			If[TrueQ[error === None],
 				result = eval@StringJoin["
 					try
 						", cmd, "
@@ -366,11 +365,21 @@ MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
 						sprintf('%s%s%s', '", id, "', ex.getReport,'", id, "')
 					end
 				"],
-				Message[MEvaluate::errx, error];Throw[$Failed, $error]
+
+				Block[{$MessagePrePrint = Identity},
+					Message[MEvaluate::errx, error];
+					Throw[$Failed, $error]
+				]
 			];
 			If[StringFreeQ[result,id],
 				StringReplace[result, StartOfString~~">> " -> ""],
-				First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :> (Message[MEvaluate::errx, x];Throw[$Failed, $error])]
+
+				First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
+					Block[{$MessagePrePrint = Identity},
+						Message[MEvaluate::errx, x];
+						Throw[$Failed, $error]
+					]
+				]
 			]
 		],
 		$error
