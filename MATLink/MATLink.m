@@ -220,7 +220,7 @@ This is necessary because a bug in the engine causes it to hang if there is a sy
 errorsInMATLABCode[cmd_String] :=
 	Module[
 		{
-			file = MScript[randomString[], cmd, "NoCheck"],
+			file = iMScript[randomString[], cmd],
 			config = FileNameJoin[{$ApplicationDirectory, "Kernel", "MLintErrors.txt"}],
 			result
 		},
@@ -228,7 +228,7 @@ errorsInMATLABCode[cmd_String] :=
 			"`1` = checkcode('`2`','-id','-config=`3`')",
 			First@file, file["AbsolutePath"],config
 		];
-		result = List@@MGet@First@file;
+		result = List@@iMGet@First@file;
 		eval@ToString@StringForm["clear `1`", First@file];
 		DeleteFile@file["AbsolutePath"];
 		If[result =!= {}, "message" /. Flatten@result, None]
@@ -317,30 +317,32 @@ ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["
 HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[0])
 
 
-(* MGet & MSet *)
+(* MGet *)
 MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
 
 SyntaxInformation[MGet] = {"ArgumentsPattern" -> {_}};
 SetAttributes[MGet,Listable]
 
-MGet[var_String] /; MATLABInstalledQ[] :=
-	convertToMathematica@get[var] /; engineOpenQ[]
+iMGet[var_String] := convertToMathematica@get@var
 
+MGet[var_String] /; MATLABInstalledQ[] := iMGet@var /; engineOpenQ[]
 MGet[_String] /; MATLABInstalledQ[] := message[MGet::wspc]["warning"] /; !engineOpenQ[]
 MGet[_String] /; !MATLABInstalledQ[] := message[MGet::engc]["warning"]
 
+(* MSet *)
 MSet::sparse = "Only one and two dimensional sparse arrays are supported; the default element must be 0 for numerical and False for boolean arrays."
 MSet::dupfield = "Duplicate field names not alowed in struct."
 
 SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
 
-MSet[var_String, expr_] /; MATLABInstalledQ[] :=
+iMSet[var_String, expr_] :=
 	Internal`WithLocalSettings[
 		Null,
 		mset[var, convertToMATLAB[expr]],
 		cleanHandles[]	(* prevent memory leaks *)
-	] /; engineOpenQ[]
+	]
 
+MSet[var_String, expr_] /; MATLABInstalledQ[] := iMSet[var, expr] /; engineOpenQ[]
 MSet[___] /; MATLABInstalledQ[] := message[MSet::wspc]["warning"] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
@@ -349,7 +351,7 @@ MEvaluate::unkw = "`1` is an unrecognized argument"
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
-MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
+iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	Catch[
 		Module[{result, error, id = randomString[]},
 			Switch[mlint,
@@ -383,7 +385,10 @@ MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
 			]
 		],
 		$error
-	] /; engineOpenQ[]
+	]
+
+MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
+	iMEvaluate[cmd, mlint] /; engineOpenQ[]
 
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
 	eval[name] /; engineOpenQ[]
@@ -398,16 +403,16 @@ MEvaluate[___] /; !MATLABInstalledQ[] := message[MEvaluate::engc]["warning"]
 Options[MScript] = {"Overwrite" -> False};
 validOptionPatterns[MScript] = {"Overwrite" -> True | False};
 
-MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
-	MScript[name, cmd, "NoCheck", opts] /; (!MScriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
-
-MScript[name_String, cmd_String, "NoCheck", opts : OptionsPattern[]] :=
+iMScript[name_String, cmd_String, opts : OptionsPattern[]] :=
 	Module[{file},
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
 		WriteString[file, cmd];
 		Close[file];
 		MScript[name]
 	]
+
+MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
+	iMScript[name, cmd, opts] /; (!MScriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
 
 MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
 	message[MScript::owrt, "MScript"]["warning"] /; MScriptQ[name] && !OptionValue["Overwrite"] && validOptionsQ[MScript, {opts}]
@@ -428,28 +433,28 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 		True,
 		Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output, fails},
 			vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
-			fails = Thread[MSet[vars[[;;nIn]], {args}]];
+			fails = Thread[iMSet[vars[[;;nIn]], {args}]];
 			If[MemberQ[fails, $Failed],
 				message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
 				output = ConstantArray[$Failed, nOut];,
 
-				MEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
-				output = MGet /@ vars[[-nOut;;]];
+				iMEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
+				output = iMGet /@ vars[[-nOut;;]];
 			];
-			MEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
+			iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
 			If[nOut == 1, First@output, output]
 		],
 
 		False,
 		With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
-			fails = Thread[MSet[vars, {args}]];
+			fails = Thread[iMSet[vars, {args}]];
 			If[MemberQ[fails, $Failed],
 				message[MFunction::args, Position[fails, $Failed]]["error"],
-				MEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
+				iMEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
 			];
-			MEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
+			iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
 		]
-	]
+	] /; engineOpenQ[]
 
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := message[MFunction::wspc]["warning"] /; !engineOpenQ[]
 MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
