@@ -45,7 +45,7 @@
 		</li>
 		<li class="dropdown">
 			<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
-				Advanced usage
+				Additional details
             <i class="icon-caret-down"></i>
 			</a>
 			<ul class="dropdown-menu" role="menu">
@@ -269,7 +269,7 @@ MEvaluate["
 "]
 </pre>
 
-<p class="alert alert-success"><i class="icon-info-sign"></i> Since MATLAB is white space insensitive, you can freely use newlines and indentations for clarity in <code>MEvaluate</code>'s argument. Lines not terminated by a semicolon will display the output in <i>Mathematica</i>. </p>
+<p class="alert alert-info"><i class="icon-info-sign"></i> Since MATLAB is white space insensitive, you can freely use newlines and indentations for clarity in <code>MEvaluate</code>'s argument. Lines not terminated by a semicolon will display the output in <i>Mathematica</i>. </p>
 	</div>
 	</div>
 </div>
@@ -313,8 +313,8 @@ magic[4] // MatrixForm
 
 </subsection>
 
-<section id="advanced-usage">
-<h2 class="page-header">Advanced usage</h2>
+<section id="additional-details">
+<h2 class="page-header">Additional details</h2>
 </section>
 
 </section>
@@ -325,8 +325,90 @@ magic[4] // MatrixForm
 The following examples are illustrative of real world problems that are easily solved by using MATLink to get the best of both MATLAB and <i>Mathematica</i>.
 
 <subsection id="filtering">
+<h3>Fast Delaunay triangulations</h3>
+<p><i>Mathematica</i> has a <code>DelaunayTriangulation</code> function in the <code>ComputationalGeometry</code> package, but it is very slow.
+(It does have its strong points though, such as the capability to use exact arithmetic and deal with collinear points.)
+<!--This in turn also causes <code>ListDensityPlot</code> to be very inefficient (to the point where it's impossible to plot a few thousands of points).-->
+Using MATLink, we can use MATLAB's <code>delaunay</code> function to compute the Delaunay triangulation of a set of points as
+<pre class="prettyprint lang-mma">
+delaunay = Composition[Round, MFunction["delaunay"]];
+</pre>
+
+Since <i>Mathematica</i>'s function returns a vertex adjacency list, we'll need to <a href="http://mathematica.stackexchange.com/a/281">post-process</a> the output to compare it with MATLAB's:
+<pre class="prettyprint lang-mma">
+Needs["ComputationalGeometry`"];
+delaunayMma[points_] :=
+    Module[{tr, triples},
+        tr = DelaunayTriangulation[points];
+        triples = Flatten[
+            Function[{v, list},
+                Switch[Length[list],
+                 (* account for nodes with connectivity 2 or less *)
+                 1, {},
+                 2, {Flatten[{v, list}]}, _, {v, ##}& @@@ Partition[list, 2, 1, {1, 1}]]
+            ] @@@ tr, 1];
+        Cases[GatherBy[triples, Sort], a_ /; Length[a] == 3 :> a[[1]]]
+    ]
+</pre>
+
+<div class="row">
+	<div class="span8">
+A random set of points will generally have a unique Delaunay triangulation, so we can test that the two systems return identical results
+<pre class="prettyprint lang-mma">
+With[{pts = RandomVariate[NormalDistribution[], {100, 2}]},
+    Sort[Sort /@ delaunay[pts]] === Sort[Sort /@ delaunayMma[pts]]
+]
+</pre>
+and plot the triangulations with
+<pre class="prettyprint lang-mma">
+trianglesToLines[t_] :=
+  Union@Flatten[{{#1, #2}, {#2, #3}, {#1, #3}} & @@
+      Transpose[Sort /@ t], {{1, 3}, {2}}];
+Graphics@GraphicsComplex[pts, Line@trianglesToLines@delaunay[pts]]
+</pre>
+</div>
+<div class="span4">
+<img src="assets/img/delaunay.png">
+</div>
+</div>
+
+<p>Not only is <code>delaunay</code> much faster than <code>DelaunayTriangulation</code> (especially for larger data sets), it is also much faster than the triangulator used internally by <code>ListDensityPlot</code>. Hence we can use MATLAB's <code>delaunay</code> to design a custom <code>listDensityPlot</code> which is faster than the built-in function and can handle large data sets as follows:
+
+<pre class="prettyprint lang-mma">
+Options[listDensityPlot] = Options[Graphics] ~Join~ {ColorFunction -> Automatic, MeshStyle -> None, Frame -> True};
+
+listDensityPlot[data_?MatrixQ, opt : OptionsPattern[]] :=
+    Module[{in, out, tri, colfun},
+        tri = delaunay[data[[All, 1;;2]]];
+        colfun = OptionValue[ColorFunction];
+        If[Not@MatchQ[colfun, _Symbol | _Function], Check[colfun = ColorData[colfun], colfun = Automatic]];
+        If[colfun === Automatic, colfun = ColorData["LakeColors"]];
+        Graphics[
+            GraphicsComplex[data[[All, 1;;2]],
+                GraphicsGroup[{EdgeForm[OptionValue[MeshStyle]], Polygon[tri]}],
+                VertexColors -> colfun /@ Rescale[data[[All, 3]]]
+            ],
+            Sequence @@ FilterRules[{opt}, Options[Graphics]], Method -> {"GridLinesInFront" -> True}
+        ]
+    ]
+</pre>
+<p>Let's now test our custom function against the built-in function for 30000 points:</p>
+<pre class="prettyprint lang-mma">
+pts = RandomReal[{-1, 1}, {30000, 2}];
+values = Sin[3 Sqrt[#1^2 + #2^2]] & @@@ pts;
+
+listDensityPlot[ArrayFlatten[{{pts, List /@ values}}], Frame -> True] // AbsoluteTiming
+(* 0.409001, --Graphics-- *)
+
+ListDensityPlot[ArrayFlatten[{{pts, List /@ values}}]] // AbsoluteTiming
+(* 12.416587, --Graphics-- *)
+</pre>
+<p>The speedup is indeed quite significant. For hundreds of thousands of points, the built in <code>ListDensityPlot</code> is practically unusable, while <code>listDensityPlot</code> finishes in seconds.</p>
+<p class="alert alert-info"><i class="icon-info-sign"></i> When benchmarking MATLink, it's necessary to use <code>AbsoluteTiming</code>, which measures wall time.  <code>Timing</code> only measures the CPU time consumed by the <i>Mathematica</i> kernel; it does not measure the time used by MATLAB. </p>
+
+
 <h3>Filtering sound using the signal processing toolbox</h3>
-<p>Signal processing functionality was notoriously missing from <i>Mathematica</i> until version 9, and still lags behind MATLAB's toolbox in terms of functionality and ease of use. Let's suppose we wanted to inspect the frequency content of an audio file and bandpass filter it (assume you're using <i>Mathematica</i> 8 and don't have the newer functions).</p>
+<p>Signal processing functionality was notoriously missing from <i>Mathematica</i> until version 9, and still lags behind MATLAB's toolbox in terms of functionality and ease of use. Let's suppose we wanted to inspect the frequency content of an audio file and filter it (assume you're using <i>Mathematica</i> 8 and don't have the newer functions).</p>
 
 <div class="row">
 	<div class="span12">
@@ -378,7 +460,7 @@ filter = MFunction["myfilt"];
 filteredData = filter@data;
 spectrogram[filteredData, 1000, 0, 1024, fs]
 </pre>
-		  <p>No surprises there; it looks exactly as expected. For fun, we can also play both the filtered and unfiltered data and listen to the differences</p>
+		  <p>For fun, we can also play both the filtered and unfiltered data and listen to the differences</p>
 <pre class="prettyprint lang-mma">
 ListPlay[data, SampleRate -> fs]
 ListPlay[filteredData, SampleRate -> fs]
