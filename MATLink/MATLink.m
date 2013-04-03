@@ -169,6 +169,7 @@ AppendTo[$ContextPath, "MATLink`Developer`"];
 
 (* Common error messages *)
 MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
+MATLink::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
@@ -344,7 +345,6 @@ MSet[___] /; MATLABInstalledQ[] := message[MSet::wspc]["warning"] /; !engineOpen
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
 (* MEvaluate *)
-MEvaluate::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
 MEvaluate::unkw = "`1` is an unrecognized argument"
 
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
@@ -367,7 +367,7 @@ MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
 				"],
 
 				Block[{$MessagePrePrint = Identity},
-					Message[MEvaluate::errx, error];
+					Message[MATLink::errx, error];
 					Throw[$Failed, $error]
 				]
 			];
@@ -376,7 +376,7 @@ MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
 
 				First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
 					Block[{$MessagePrePrint = Identity},
-						Message[MEvaluate::errx, x];
+						Message[MATLink::errx, x];
 						Throw[$Failed, $error]
 					]
 				]
