@@ -133,7 +133,7 @@ CompileMEngine["MacOSX"] :=
 		];
 		Run["mv mengine " <> $BinaryPath];
 		Run["make -f Makefile.osx clean"];
-		SetDirectory[dir]
+		SetDirectory[dir];
 	]
 
 CompileMEngine["Unix"] :=
@@ -148,7 +148,7 @@ CompileMEngine["Unix"] :=
 			];
 			Run["mv mengine " <> $BinaryPath];
 			Run["make -f Makefile.lin64 clean"];
-			SetDirectory[dir]
+			SetDirectory[dir];
 		],
 
 		message[CompileMEngine::unsupp, "non-64-bit Linux"]["error"]; Abort[]
