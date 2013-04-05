@@ -300,7 +300,8 @@ OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
 		ConnectMATLAB[];
 		OpenMATLAB[];
-		MEvaluate["addpath('" <> $sessionTemporaryDirectory <> "')"];
+		MFunction["addpath"][$sessionTemporaryDirectory];
+		MFunction["cd"][Directory[]];
 	]
 
 CloseMATLAB[] /; MATLABInstalledQ[] :=
