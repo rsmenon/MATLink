@@ -408,6 +408,7 @@ iMScript[name_String, cmd_String, opts : OptionsPattern[]] :=
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
 		WriteString[file, cmd];
 		Close[file];
+		MEvaluate["rehash", "NoCheck"];
 		MScript[name]
 	]
 
