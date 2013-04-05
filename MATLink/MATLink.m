@@ -416,7 +416,10 @@ MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] 
 	iMScript[name, cmd, opts] /; (!MScriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
 
 MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
-	message[MScript::owrt, "MScript"]["warning"] /; MScriptQ[name] && !OptionValue["Overwrite"] && validOptionsQ[MScript, {opts}]
+	Module[{},
+		message[MScript::owrt, "MScript"]["warning"];
+		MScript@name
+	]  /; MScriptQ[name] && !OptionValue["Overwrite"] && validOptionsQ[MScript, {opts}]
 
 MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := message[MScript::engc]["warning"]
 
