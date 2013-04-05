@@ -162,6 +162,9 @@ CleanupTemporaryDirectories[] :=
 		DeleteDirectory[#, DeleteContents -> True] & /@ dirs;
 	]
 
+randomString[n_Integer:50] :=
+	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
+
 End[] (* `Developer` *)
 
 Begin["`Private`"]
@@ -212,9 +215,6 @@ cleanupOldLinks[] :=
 MScriptQ[name_String] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
-randomString[n_Integer:50] :=
-	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
-
 (* Check MATLAB code for syntax errors before evaluating.
 This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
 errorsInMATLABCode[cmd_String] :=
@@ -248,8 +248,9 @@ ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 		cleanupOldLinks[];
 		$openLink = Install@FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine.sh"]}];
 		$sessionID = StringJoin[
-			 IntegerString[{Most@DateList[]}, 10, 2],
-			 IntegerString[List @@ Rest@$openLink]
+			IntegerString[{Most@DateList[]}, 10, 2],
+			IntegerString[List @@ Rest@$openLink],
+			randomString[10]
 		];
 		$temporaryVariablePrefix = "MATLink" <> $sessionID;
 		$sessionTemporaryDirectory = FileNameJoin[{$TemporaryDirectory, "MATLink" <> $sessionID}];
