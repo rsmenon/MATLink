@@ -239,5 +239,27 @@ All the limitations of the [MATLAB Engine interface](http://www.mathworks.com/he
 
 `MGet` and `MSet` do support Unicode strings.  However, `MEvaluate` and related functions may not handle them correctly depending on operating system and MATLAB version.
 
+###JIT accelerator
+
+The JIT accelerator does not work for commands submitted using `MEvaluate` on Windows (at least on R2013a).  This means that the same MATLAB program may run much faster when submitted using `MScript` than when using `MEvaluate`.   However, the performance difference will only be significant for certain types of code, and is usually non-existent simple commands.  Scripts and functions called from `MEvaluate` will perform fast, and vectorized code is not affected much by the JIT.  The only case when you can expect bad performance from `MEvaluate` is if you submit a longer piece of non-vectorized code which heavily relies on loops (`for`, `while`).
+
+Example of the type of code that will be affected by the lack of acceleration (it relies on explicit loops):
+
+```
+x=zeros(1e7,1);
+for i=1:length(x)
+  x(i)=rand();
+end
+```
+
+Example of the type of code that will *not* be affected (relying on built-in or custom functions and vectorization):
+
+```
+x = rand(1e7,1)
+```
+
+Currently only Windows is affected, but future versions of MATLink may lose support for JIT acceleration with `MEvaluate` on all platforms, so please consider using `MScript` for your projects when appropriate.
+
 ---
+
 <sub>_Mathematica_ is a registered trademark of Wolfram Research, Inc. and MATLAB is a registered trademark of The MathWorks, Inc.</sub>
