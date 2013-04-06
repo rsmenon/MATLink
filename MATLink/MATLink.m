@@ -137,21 +137,18 @@ CompileMEngine["MacOSX"] :=
 	]
 
 CompileMEngine["Unix"] :=
-	If[$SystemWordLength == 64,
-		Block[{dir = Directory[]},
-			SetDirectory[$EngineSourceDirectory];
-			PrintTemporary["Compiling the MATLink Engine from source...\n"];
-			If[ Run["make -f Makefile.lin64"] != 0,
-				SetDirectory[dir];
-				message[CompileMEngine::failed]["error"];
-				Abort[];
-			];
-			Run["mv mengine " <> $BinaryPath];
-			Run["make -f Makefile.lin64 clean"];
+	Block[{dir = Directory[], makefile},
+		If[$SystemWordLength == 64, makefile="Makefile.lin64", makefile="Makefile.lin32"];
+		SetDirectory[$EngineSourceDirectory];
+		PrintTemporary["Compiling the MATLink Engine from source...\n"];
+		If[ Run["make -f " <> makefile] != 0,
 			SetDirectory[dir];
-		],
-
-		message[CompileMEngine::unsupp, "non-64-bit Linux"]["error"]; Abort[]
+			message[CompileMEngine::failed]["error"];
+			Abort[];
+		];
+		Run["mv mengine " <> $BinaryPath];
+		Run["make -f " <> makefile <> " clean"];
+		SetDirectory[dir];
 	]
 
 CompileMEngine[os_] := (message[CompileMEngine::unsupp, os]["error"]; Abort[])
