@@ -428,6 +428,18 @@ MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := mes
 MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
 	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
 
+MScript[name_String]["AbsolutePath"] /; !MScriptQ[name] :=
+	Module[{},
+		message[MScript::nofn, "MScript", name]["error"];
+		Throw[$Failed, $error]
+	]
+
+MScript /: DeleteFile[MScript[name_String]] :=
+	Catch[
+		DeleteFile[MScript[name]["AbsolutePath"]],
+		$error
+	]
+
 Options[MFunction] = {"Output" -> True, "OutputArguments" -> 1};
 validOptionPatterns[MFunction] = {"Output" -> True | False, "OutputArguments" -> _Integer?Positive};
 (* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
