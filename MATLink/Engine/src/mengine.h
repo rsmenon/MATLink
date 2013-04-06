@@ -17,17 +17,6 @@
 #define ENGINE_WIN  // compiling on Windows
 #endif
 
-#ifdef MX_COMPAT_32    // from engine.h
-#define ENGINE_32   // compiling for 32 bit (TODO)
-#else
-#define ENGINE_64   // compiling for 64 bit
-#endif
-
-
-#ifdef ENGINE_64
-inline int MLPutIntegerMWList(MLINK link, mwIndex *a, int n) { return MLPutInteger64List(link, (mlint64 *) a, n); }
-#endif
-
 
 class MatlabVariable {
     mxArray *arr;
