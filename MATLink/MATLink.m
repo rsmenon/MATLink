@@ -480,6 +480,12 @@ MFunction[name_String, code_String, opts : OptionsPattern[]] /; MATLABInstalledQ
 		MFunction[name, Sequence @@ FilterRules[{opts}, Except["Overwrite"]]]
 	]
 
+MFunction /: DeleteFile[MFunction[name_String, ___]] :=
+	Catch[
+		DeleteFile[MScript[name]["AbsolutePath"]],
+		$error
+	]
+
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := message[MFunction::wspc]["warning"] /; !engineOpenQ[]
 MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
 
