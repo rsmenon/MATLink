@@ -1,267 +1,260 @@
 <!DOCTYPE html>
 <head>
-  <meta charset="utf-8" />
-  <title>MATLink — Communicate with MATLAB from Mathematica</title>
-  <meta name="description" content="">
-  <meta name="author" content="Rs. Menon, Sz. Horvát">
+<meta charset="utf-8" />
+<title>MATLink — Communicate with MATLAB from Mathematica</title>
+<meta name="description" content="">
+<meta name="author" content="Rs. Menon, Sz. Horvát">
 
-  <link rel="stylesheet" href="assets/css/bootstrap.css">
-  <link rel="stylesheet" href="assets/css/site.css">
-  <link rel="stylesheet" href="assets/css/prettify.css">
-  <link rel="stylesheet" href="assets/css/lang-matlab.css">
-  <link rel="stylesheet" href="assets/css/lang-mma.css">
-  <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/css/bootstrap.css">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="stylesheet" href="assets/css/prettify.css">
+<link rel="stylesheet" href="assets/css/lang-matlab.css">
+<link rel="stylesheet" href="assets/css/lang-mma.css">
+<link rel="stylesheet" href="assets/css/font-awesome.min.css">
 
 </head>
 <body data-spy="scroll" data-target=".navbar">
 
 <div class="navbar navbar-inverse navbar-fixed-top">
-  <div class="navbar-inner">
-    <div class="container">
-      <a class="brand" href="#">MATLink</a>
-      <ul class="nav">
-        <li class="dropdown">
-          <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
-            Installation
-            <i class="icon-caret-down"></i>
-          </a>
-          <ul class="dropdown-menu" role="menu">
-            <li class=""><a href="#system-requirements">System requirements</a></li>
-			<li class=""><a href="#downloading-matlink">Downloading MATLink</a></li>
-            <li class=""><a href="#linking-matlab">Linking with MATLAB</a></li>
-          </ul>
-        </li>
-		<li class="dropdown">
-			<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
-				Getting started
-            <i class="icon-caret-down"></i>
-			</a>
-			<ul class="dropdown-menu" role="menu">
-				<li class=""><a href="#connecting">Connecting to MATLink</a></li>
-				<li class=""><a href="#executing-matlab">Executing MATLAB commands</a></li>
-				<li class=""><a href="#transferring-data">Transferring data</a></li>
-				<li class=""><a href="#scripts-functions">Working with scripts and functions</a></li>
+	<div class="navbar-inner">
+		<div class="container">
+			<a class="brand" href="#">MATLink</a>
+			<ul class="nav">
+				<li><a href="#installation">Installation</a></li>
+				<li class="dropdown">
+				<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+					Getting started
+					<i class="icon-caret-down"></i>
+				</a>
+				<ul class="dropdown-menu" role="menu">
+					<li class=""><a href="#connecting">Connecting to MATLink</a></li>
+					<li class=""><a href="#executing-matlab">Executing MATLAB commands</a></li>
+					<li class=""><a href="#transferring-data">Transferring data</a></li>
+					<li class=""><a href="#scripts-functions">Working with scripts and functions</a></li>
+				</ul>
+				</li>
+				<li><a href="#documentation">Documentation</a></li>
+				<li><a href="#examples">Examples</a></li>
 			</ul>
-		</li>
-		<li class="dropdown">
-			<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
-				Additional details
-            <i class="icon-caret-down"></i>
-			</a>
-			<ul class="dropdown-menu" role="menu">
-				<li class=""><a href="#"></a></li>
-				<li class=""><a href="#"></a></li>
-				<li class=""><a href="#"></a></li>
-			</ul>
-		</li>
-        <li><a href="#examples">Examples</a></li>
-      </ul>
-    </div>
-  </div>
+		</div>
+	</div>
 </div>
 
 
 <div class="jumbotron">
-<div class="container">
-  <div class="row">
-	<div class="span12">
-	  <div class="hero-unit">
-		<div class="container">
+	<div class="container">
 		<div class="row">
-		<div class="span6 text-center">
-		<img src="assets/img/logo.png" width=400px>
-		</div>
-		<div class="span5 center-all">
-			<h1>MATLink</h1>
-		<p>A <i>Mathematica</i> application for seamless two-way communication and data transfer with MATLAB. Harness the computational power of both systems efficiently using MATLink. </p>
-		<div class="actions">
-		  <a class="btn btn-primary" href="https://github.com/rsmenon/MATLink/archive/develop.zip"
-			 onClick="_gaq.push(['_trackEvent', 'Outbound Link', 'Download on GitHub']);">
-			<i class="icon-cloud-download"></i>
-			Download 0.9 beta</a>
-		</div>
-		</div>
+			<div class="span12">
+				<div class="hero-unit">
+					<div class="container">
+						<div class="row">
+							<div class="span6 text-center">
+								<img src="assets/img/logo.png" width=400px>
+							</div>
+							<div class="span5 center-all">
+								<h1>MATLink</h1>
+								<p>A <i>Mathematica</i> application for seamless two-way communication and data transfer with MATLAB. Harness the computational power of both systems efficiently using MATLink. </p>
+								<div class="actions">
+									<a class="btn btn-primary" href="https://github.com/rsmenon/MATLink/archive/develop.zip"
+										onClick="_gaq.push(['_trackEvent', 'Outbound Link', 'Download on GitHub']);">
+										<i class="icon-cloud-download"></i>
+										Download 0.9 beta</a>
+								</div>
+							</div>
 
-		</div>
+						</div>
 
-		</div>
+					</div>
 
-	  </div>
+				</div>
+			</div>
+		</div>
 	</div>
-	  </div>
-</div>
 </div>
 
 <div class="container">
-<section id="features" class="clearfix">
-  <div class="row">
-    <div class="span4">
-      <h4>Work with native data types</h4>
-	  <p>Transfer numerical, char, cell and struct arrays of any size and shape from MATLAB as <i>Mathematica</i> lists, strings and rules (and vice versa).</p>
-    </div>
-    <div class="span4">
-      <h4>Create functions & scripts</h4>
-	<p>In addition to built-in MATLAB functions, you can also create custom MATLAB functions and scripts on the fly and use them easily from within <i>Mathematica</i>.</p>
-    </div>
-    <div class="span4">
-      <h4>Flexible plotting options</h4>
-	  <p>Like the data processing capabilities of one system, but the plotting features of the other? No problem! Using MATLink, you can get the best of both worlds.
-</p>    </div>
-  </div>
+	<div class="row">
+		<div class="span4">
+			<h4>Work with native data types</h4>
+			<p>Transfer numerical, char, cell and struct arrays of any size and shape from MATLAB as <i>Mathematica</i> lists, strings and rules (and vice versa).</p>
+		</div>
+		<div class="span4">
+			<h4>Create functions & scripts</h4>
+			<p>In addition to built-in MATLAB functions, you can also create custom MATLAB functions and scripts on the fly and use them easily from within <i>Mathematica</i>.</p>
+		</div>
+		<div class="span4">
+			<h4>Flexible plotting options</h4>
+			<p>Like the data processing capabilities of one system, but the plotting features of the other? No problem! Using MATLink, you can get the best of both worlds.
+		</p>    </div>
+	</div>
 
-  <div class="row">
-    <div class="span4">
-      <h4>Utilize MATLAB toolboxes</h4>
-	<p>Substitute missing or subpar capabilities in <i>Mathematica</i> with MATLAB's toolboxes, such as the PDE toolbox or the signal processing toolbox (for <i>Mathematica</i> 8).</p>
-    </div>
-    <div class="span4">
-      <h4>Rapid prototyping</h4>
-	<p>
-		Combine the wealth of MATLAB's extensive third-party code base from the <a href="http://www.mathworks.com/matlabcentral/fileexchange/">File Exchange</a> (and elsewhere) with <i>Mathematica</i>'s rich prototyping capabilities.
-	</p>
-    </div>
-    <div class="span4">
-      <h4>It's free!</h4>
-	  <p>We know that MATLAB and <i>Mathematica</i> are not cheap, which is why we don't want you to spend a dime more. MATLink is free and will remain free for all purposes.
-</p>    </div>
-  </div>
+	<div class="row">
+		<div class="span4">
+			<h4>Utilize MATLAB toolboxes</h4>
+			<p>Substitute missing or subpar capabilities in <i>Mathematica</i> with MATLAB's toolboxes, such as the PDE toolbox or the signal processing toolbox (for <i>Mathematica</i> 8).</p>
+		</div>
+		<div class="span4">
+			<h4>Rapid prototyping</h4>
+			<p>
+			Combine the wealth of MATLAB's extensive third-party code base from the <a href="http://www.mathworks.com/matlabcentral/fileexchange/">File Exchange</a> (and elsewhere) with <i>Mathematica</i>'s rich prototyping capabilities.
+			</p>
+		</div>
+		<div class="span4">
+			<h4>It's free!</h4>
+			<p>We know that MATLAB and <i>Mathematica</i> are not cheap, which is why we don't want you to spend a dime more. MATLink is free and will remain free for all purposes.</p>
+		</div>
+	</div>
 
-  </div>
+</div>
 
 <div class="container">
-<section id="installation">
-  <h2 class="page-header">Installation</h2>
-  <subsection id="system-requirements">
-  <h3>System requirements</h3>
-  <ul>
-	  <li><i>Mathematica</i> version 8.0.4 or higher</li>
-	  <li>MATLAB R2011b (version 7.13) or higher</li>
-	  <li>A version of Windows/Linux/OS X that can run both <i>Mathematica</i> and MATLAB</li>
-  </ul>
+	<section id="installation">
+		<h2 class="page-header">Installation</h2>
+		<ul id="install-tabs" class="nav nav-tabs">
+			<li class="active"><a href="#system-requirements" data-toggle="tab">System Requirements</a></li>
+			<li><a href="#download-matlink" data-toggle="tab">Download MATLink</a></li>
+			<li class="dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Link with MATLAB <b class="caret"></b></a>
+			<ul class="dropdown-menu">
+				<li><a href="#windows" data-toggle="tab">Windows</a></li>
+				<li><a href="#linux" data-toggle="tab">Linux</a></li>
+				<li><a href="#osx" data-toggle="tab">OS X</a></li>
+			</ul>
+			</li>
+		</ul>
+
+		<div id="install-tabs-content" class="tab-content">
+			<div class="tab-pane fade in active" id="system-requirements">
+				<ul>
+					<li><i>Mathematica</i> version 8.0.4 or higher</li>
+					<li>MATLAB R2011b (version 7.13) or higher</li>
+					<li>A version of Windows/Linux/OS X that can run both <i>Mathematica</i> and MATLAB</li>
+				</ul>
 
 
-<p> MATLink has been extensively tested with <i>Mathematica</i> versions 8.0.4 and 9.0.1, MATLAB 2012b and 2013a on OS X 10.8.2 and 10.8.3, and moderately tested on Windows 8 and Ubuntu (version). If you encounter any issues with a relatively modern operating system or a supported <i>Mathematica</i>/MATLAB version, please open a new <a href="https://github.com/rsmenon/MATLink/issues/new">issue</a> at GitHub.</p>
+				<p> MATLink has been extensively tested with <i>Mathematica</i> versions 8.0.4 and 9.0.1, MATLAB 2012b and 2013a on OS X 10.8.2 and 10.8.3, and moderately tested on Windows 8 and Ubuntu (version). If you encounter any issues with a relatively modern operating system or a supported <i>Mathematica</i>/MATLAB version, please open a new <a href="https://github.com/rsmenon/MATLink/issues/new">issue</a> at GitHub.</p>
 
+			</div>
 
-  </subsection>
-
-  <subsection id="downloading-matlink">
-  <h3>Downloading MATLink</h3>
-  <p>The <a href="https://github.com/rsmenon/MATLink">MATLink project</a> lives on GitHub. To be able to use MATLink, you will need to download and install it to a location in <i>Mathematica</i>'s <code>$Path</code>. You can do so in one of the following ways:</p>
-  <div class="row">
-    <div class="span12">
-      <h4>Clone the repository using git (preferred)</h4>
-    </div>
-    <div class="span3">
-	  <p>Using git allows you to easily pull changes and keep up-to-date with the current version.</p>
-    </div>
-    <div class="span9">
-      <ol>
-	  <li>If you don't have <a href="http://git-scm.com/">git</a> already installed, you should install it before proceeding.
-</li>
-<li>
-          Open a terminal window and run the following (change the path separator appropriately for Windows)
+			<div class="tab-pane fade" id="download-matlink">
+				<p>Download and install MATLink to a location in <i>Mathematica</i>'s <code>$Path</code>. You can do so in one of the following ways:</p>
+				<div class="row">
+					<div class="span12">
+						<h4>Clone the repository using git (preferred)</h4>
+					</div>
+					<div class="span3">
+						<p>Using git allows you to easily pull changes and keep up-to-date with the current version.</p>
+					</div>
+					<div class="span9">
+						<ol>
+							<li>If you don't have <a href="http://git-scm.com/">git</a> already installed, you should install it before proceeding.
+							</li>
+							<li>
+							Open a terminal window and run the following (change the path separator appropriately for Windows)
 <pre>
 git clone git://github.com/rsmenon/MATLink.git $UserBaseDirectory/Applications/MATLink
 </pre>
-        </li>
-		<li>To update to the latest version, run <code>git pull</code> in your local repository.</li>
-      </ol>
-    </div>
-  </div>
-  <div class="row">
-    <div class="span12">
-      <h4>Alternate installation options</h4>
-    </div>
-    <div class="span3">
-      <p>Remember to repeat these steps when a new version is released.</p>
-    </div>
-    <div class="span9">
-      <ol>
-		<li>Install from within <i>Mathematica</i> using Leonid Shifrin's <a href="https://github.com/lshifr/ProjectInstaller">ProjectInstaller</a> package:
+							</li>
+							<li>To update to the latest version, run <code>git pull</code> in your local repository.</li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="span12">
+						<h4>Alternate installation options</h4>
+					</div>
+					<div class="span3">
+						<p>Remember to repeat these steps when a new version is released.</p>
+					</div>
+					<div class="span9">
+						<ol>
+							<li>Install from within <i>Mathematica</i> using Leonid Shifrin's <a href="https://github.com/lshifr/ProjectInstaller">ProjectInstaller</a> package:
 <pre class="prettyprint lang-mma">
 ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
 </pre>
-		</li>
-		<li>Download the <a href="https://github.com/rsmenon/MATLink/archive/master.zip">zip</a> file and extract the contents to <code>$UserBaseDirectory/Applications/MATLink</code>
-	</ol>
-    </div>
-  </div>
-  </subsection>
+							</li>
+							<li>Download the <a href="https://github.com/rsmenon/MATLink/archive/master.zip">zip</a> file and extract the contents to <code>$UserBaseDirectory/Applications/MATLink</code></li>
+						</ol>
+					</div>
+				</div>
+			</div>
 
-  <subsection id="linking-matlab">
-  <h3>Linking with MATLAB</h3>
-  Although MATLink ships with some sane default paths and pre-compiled binaries, depending on your specific setup, it might be necessary to manually change a few settings before you can begin to use MATLink. If it does not work out of the box, please try following the instructions below for your operating system.
-  <div class="container">
-	  <div class="row">
-  <div class="span4">
-	  <h4>Windows</h4>
-	  <ol>
-		  <li>Add MATLAB's <code>bin/win64</code> directory (<code>bin/win32</code> for 32-bit versions) to the system <code>PATH</code> (<a href="http://www.mathworks.com/support/solutions/en/data/1-15ZLK/index.html">more info</a>).</li>
-		  <li>Register the default MATLAB version by running <code>regmatlabserver</code> in MATLAB. On most Windows systems, you will need administrator rights to do this.</li>
-	  </ol>
-  </div>
+			<div class="tab-pane fade" id="windows">
+				<h4>Windows</h4>
+				<p>Although MATLink ships with pre-compiled binaries, depending on your specific setup, it might be necessary to manually change a few settings before you can begin to use MATLink. If it does not work out of the box, please try following the instructions below:</p>
+				<ol>
+					<li>Add MATLAB's <code>bin/win64</code> directory (<code>bin/win32</code> for 32-bit versions) to the system <code>PATH</code> (<a href="http://www.mathworks.com/support/solutions/en/data/1-15ZLK/index.html">more info</a>).</li>
+					<li>Register the default MATLAB version by running <code>regmatlabserver</code> in MATLAB. On most Windows systems, you will need administrator rights to do this.</li>
+				</ol>
+			</div>
 
-  <div class="span8">
-	  <h4>Linux and OS X</h4>
-	  <ol>
-		  <li>To run the MATLink engine, you must have the C shell <code>csh</code> installed at <code>/bin/csh</code> (<a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">more info</a>).</li>
-		  <li>A C++ compiler is needed to compile the MATLink binary. Very old versions of <code>gcc</code> cannot be used to compile MATLink.</li>
-		  <li>On linux, both <i>Mathematica</i> and MATLAB must be on the system <code>PATH</code> (i.e., <code>which matlab</code> and <code>which math</code> return the correct locations).</li>
-		  <li>On OS X, navigate to the <code>MATLink/Engine/bin/MacOSX64</code> directory, edit the file <code>mengine.sh</code> and set the path to the MATLAB app bundle.</li>
-	  </ol>
-  </div>
-  </div>
-  </div>
-  </subsection>
-  </section>
+			<div class="tab-pane fade" id="linux">
+				<h4>Linux</h4>
+				<p>Although MATLink ships with pre-compiled binaries, depending on your specific setup, it might be necessary to manually change a few settings before you can begin to use MATLink. If it does not work out of the box, please try following the instructions below:</p>
+				<ol>
+					<li>To run the MATLink engine, you must have the C shell <code>csh</code> installed at <code>/bin/csh</code> (<a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">more info</a>).</li>
+					<li>A C++ compiler is needed to compile the MATLink binary. Very old versions of <code>gcc</code> cannot be used to compile MATLink.</li>
+					<li>Both <i>Mathematica</i> and MATLAB must be on the system <code>PATH</code> (i.e., <code>which matlab</code> and <code>which math</code> return the correct locations).</li>
+				</ol>
+			</div>
+
+			<div class="tab-pane fade" id="osx">
+				<h4>OS X</h4>
+				<p>Although MATLink ships with pre-compiled binaries, depending on your specific setup, it might be necessary to manually change a few settings before you can begin to use MATLink. If it does not work out of the box, please try following the instructions below:</p>
+				<ol>
+					<li>Navigate to the <code>MATLink/Engine/bin/MacOSX64</code> directory, edit the file <code>mengine.sh</code> and set the path to the MATLAB app bundle. This is not
+					necessary if MATLAB is installed in the default folder in <code>/Applications</code> (e.g. <code>/Applications/MATLAB_R2013a.app</code>)</li>
+				</ol>
+			</div>
+		</div>
+	</section>
 
 <section id="using-matlink">
-<h2 class="page-header">Getting started</h2>
-This section will guide you through the very basics of using MATLink. Henceforth, it is assumed that MATLink has been properly installed and linked with MATLAB. All code, unless mentioned otherwise, must be evaluated in a <i>Mathematica</i> notebook. When finished with this section, make sure to also read the advanced usages and browse the examples.
-<div class="container">
-	<div class="row">
-<subsection id="connecting">
-	<div class="span12">
-		<h3>Connecting to MATLink</h3>
-		<p>To launch MATLink and begin communicating with MATLAB, execute the following in a notebook:
+	<h2 class="page-header">Getting started</h2>
+	This section will guide you through the very basics of using MATLink. Henceforth, it is assumed that MATLink has been properly installed and linked with MATLAB. All code, unless mentioned otherwise, must be evaluated in a <i>Mathematica</i> notebook. When finished with this section, make sure to also read the advanced usages and browse the examples.
+	<div class="container">
+		<div class="row">
+			<subsection id="connecting">
+			<div class="span12">
+				<h3>Connecting to MATLink</h3>
+				<p>To launch MATLink and begin communicating with MATLAB, execute the following in a notebook:
 <pre class="prettyprint lang-mma">
 Needs["MATLink`"]
 OpenMATLAB[]
 </pre>
 
-	<p>When finished, evaluate <code>DisconnectMATLAB[]</code> to completely disconnect from the MATLAB workspace and close MATLink. This will also delete all scripts and functions that were defined from MATLink during the current session.</p>
+				<p>When finished, evaluate <code>DisconnectMATLAB[]</code> to completely disconnect from the MATLAB workspace and close MATLink. This will also delete all scripts and functions that were defined from MATLink during the current session.</p>
 
-<p class="alert alert-info"><i class="icon-exclamation-sign"></i> Throughout the rest of this guide, it is assumed that you're connected to MATLink and the MATLAB workspace is open.</p>
-	</div>
-</subsection>
+				<p class="alert alert-info"><i class="icon-exclamation-sign"></i> Throughout the rest of this guide, it is assumed that you're connected to MATLink and the MATLAB workspace is open.</p>
+			</div>
+			</subsection>
 
-<subsection id="executing-matlab">
-	<div class="span12">
-		<h3>Executing MATLAB commands</h3>
-		<p>You can execute arbitrary MATLAB code using the <code>MEvaluate</code> command. Any output that would normally be displayed in MATLAB's command window will be displayed in the output cell. For example, evaluating
+			<subsection id="executing-matlab">
+			<div class="span12">
+				<h3>Executing MATLAB commands</h3>
+				<p>You can execute arbitrary MATLAB code using the <code>MEvaluate</code> command. Any output that would normally be displayed in MATLAB's command window will be displayed in the output cell. For example, evaluating
 <pre class="prettyprint lang-mma">
 MEvaluate["mat = magic(4)"]
 </pre>
-		will output a magic square of size 3 and make an assignment to a variable named <code>mat</code> in the MATLAB workspace. Think of <code>MEvaluate</code> as a portal to the MATLAB workspace, allowing you to run commands in it and assign values to variables.
-<p class="alert alert-info"><i class="icon-exclamation-sign"></i><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window. It cannot be used to transfer data to <i>Mathematica</i>. Use <code>MGet</code> and <code>MSet</code> as explained in the next section.</p>
-	</div>
-</subsection>
+				will output a magic square of size 3 and make an assignment to a variable named <code>mat</code> in the MATLAB workspace. Think of <code>MEvaluate</code> as a portal to the MATLAB workspace, allowing you to run commands in it and assign values to variables.
+				<p class="alert alert-info"><i class="icon-exclamation-sign"></i><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window. It cannot be used to transfer data to <i>Mathematica</i>. Use <code>MGet</code> and <code>MSet</code> as explained in the next section.</p>
+			</div>
+			</subsection>
 
-<subsection id="transferring-data">
-	<div class="span12">
-		<h3>Transferring data between <i>Mathematica</i> and MATLAB</h3>
-		<p>The functions <code>MSet</code> and <code>MGet</code> allow the user to transfer variables to and from the MATLAB workspace. The variable name is always passed as a string. For example, to transfer the data stored in the variable <code>mat</code> in the MATLAB workspace to <i>Mathematica</i>, evaluate </p>
+			<subsection id="transferring-data">
+				<div class="span12">
+<h3>Transferring data between <i>Mathematica</i> and MATLAB</h3>
+<p>The functions <code>MSet</code> and <code>MGet</code> allow the user to transfer variables to and from the MATLAB workspace. The variable name is always passed as a string. For example, to transfer the data stored in the variable <code>mat</code> in the MATLAB workspace to <i>Mathematica</i>, evaluate </p>
 <pre class="prettyprint lang-mma">
 mat = MGet["mat"];
 </pre>
 
-<p>Now let's transform this variable in <i>Mathematica</i> and send it back to MATLAB:
+					<p>Now let's transform this variable in <i>Mathematica</i> and send it back to MATLAB:
 <pre class="prettyprint lang-mma">
 MSet["mat_tr", Transpose[mat]];
 </pre>
 
-<p>You can verify that a new variable <code>mat_tr</code> was created in the MATLAB workspace and has the correct value:</p>
+					<p>You can verify that a new variable <code>mat_tr</code> was created in the MATLAB workspace and has the correct value:</p>
 <pre class="prettyprint lang-mma">
 MEvaluate["
 	exist('mat_tr','var')
@@ -269,130 +262,130 @@ MEvaluate["
 "]
 </pre>
 
-<p class="alert alert-info"><i class="icon-info-sign"></i> Since MATLAB is white space insensitive, you can freely use newlines and indentations for clarity in <code>MEvaluate</code>'s argument. Lines not terminated by a semicolon will display the output in <i>Mathematica</i>. </p>
-	</div>
-	</div>
-</div>
-</subsection>
+					<p class="alert alert-info"><i class="icon-info-sign"></i> Since MATLAB is white space insensitive, you can freely use newlines and indentations for clarity in <code>MEvaluate</code>'s argument. Lines not terminated by a semicolon will display the output in <i>Mathematica</i>. </p>
+				</div>
+			</div>
+		</div>
+		</subsection>
 
-<subsection id="scripts-functions">
-<h3>Working with scripts and functions</h3>
-<div class="row">
-<div class="span12">
-		<p>Often one wishes to reuse code found online, either on the <a href="http://www.mathworks.com/matlabcentral/fileexchange/">MathWorks File Exchange</a> or elsewhere and execute it as a script (i.e., in the base workspace and not as a function). The function <code>MScript</code> makes it easy to do this. As a simple example, we'll define a script called <code>timing.m</code> that does some computations using the two variables <code>mat</code> and <code>mat_tr</code> defined earlier and displays the timing for 1000 trials:</p>
+		<subsection id="scripts-functions">
+		<h3>Working with scripts and functions</h3>
+		<div class="row">
+			<div class="span12">
+				<p>Often one wishes to reuse code found online, either on the <a href="http://www.mathworks.com/matlabcentral/fileexchange/">MathWorks File Exchange</a> or elsewhere and execute it as a script (i.e., in the base workspace and not as a function). The function <code>MScript</code> makes it easy to do this. As a simple example, we'll define a script called <code>timing.m</code> that does some computations using the two variables <code>mat</code> and <code>mat_tr</code> defined earlier and displays the timing for 1000 trials:</p>
 <pre class="prettyprint lang-mma">
 t = MScript["timing",
-    "tic;
-    for i=1:1000
-        eig(mat*mat_tr);
-    end
-    toc"
+	"tic;
+	for i=1:1000
+		eig(mat*mat_tr);
+	end
+	toc"
 ]
 </pre>
 
-		<p>You can now run the above script anytime, several times within the current session, by evaluating <code>MEvaluate[t]</code> (assuming the value for <code>t</code> has not been cleared) or <code>MEvaluate[MScript["timing"]]</code> (this will work even if <code>t</code> is cleared).</p>
+				<p>You can now run the above script anytime, several times within the current session, by evaluating <code>MEvaluate[t]</code> (assuming the value for <code>t</code> has not been cleared) or <code>MEvaluate[MScript["timing"]]</code> (this will work even if <code>t</code> is cleared).</p>
 
-		<p class="alert alert-info"><i class="icon-exclamation-sign"></i> Trying to define an <code>MScript</code> with the same filename twice in the same MATLink session will throw an error. This is to avoid accidental overwrites. You can force an overwrite of the existing file with the option <code>"Overwrite" -> True</code> for <code>MScript</code></p>
-</div>
-</div>
+				<p class="alert alert-info"><i class="icon-exclamation-sign"></i> Trying to define an <code>MScript</code> with the same filename twice in the same MATLink session will throw an error. This is to avoid accidental overwrites. You can force an overwrite of the existing file with the option <code>"Overwrite" -> True</code> for <code>MScript</code></p>
+			</div>
+		</div>
 
-<div class="row">
-	<div class="span12">
-	<p>You can also natively call MATLAB functions already on its path using the <code>MFunction</code> command. As an example, we'll define and use the <code>magic</code> function from MATLAB, which is not available in <i>Mathematica</i>:</p>
+		<div class="row">
+			<div class="span12">
+				<p>You can also natively call MATLAB functions already on its path using the <code>MFunction</code> command. As an example, we'll define and use the <code>magic</code> function from MATLAB, which is not available in <i>Mathematica</i>:</p>
 
 <pre class="prettyprint lang-mma">
 magic = MFunction["magic"];
 magic[4] // MatrixForm
 </pre>
 
-<p>To define a custom function for the current session and use it, use <code>MScript</code> to save it to a file (remember to use the same filename as the function) and then use <code>MFunction["function_name"]</code>, where <code>function_name</code> is the name of your function file.</p>
-	</div>
-</div>
-</subsection>
+				<p>To define a custom function for the current session and use it, use <code>MScript</code> to save it to a file (remember to use the same filename as the function) and then use <code>MFunction["function_name"]</code>, where <code>function_name</code> is the name of your function file.</p>
+			</div>
+		</div>
+		</subsection>
 
 
-</subsection>
+		</subsection>
 
-<section id="additional-details">
-<h2 class="page-header">Additional details</h2>
-</section>
+		<section id="documentation">
+			<h2 class="page-header">Documentation</h2>
+		</section>
 
-</section>
+	</section>
 
-<div class="container">
-<section id="examples">
-<h2 class="page-header">Examples</h2>
-The following examples are illustrative of real world problems that are easily solved by using MATLink to get the best of both MATLAB and <i>Mathematica</i>.
+	<div class="container">
+		<section id="examples">
+			<h2 class="page-header">Examples</h2>
+			The following examples are illustrative of real world problems that are easily solved by using MATLink to get the best of both MATLAB and <i>Mathematica</i>.
 
-<subsection id="filtering">
-<h3>Fast Delaunay triangulations</h3>
-<p><i>Mathematica</i> has a <code>DelaunayTriangulation</code> function in the <code>ComputationalGeometry</code> package, but it is very slow.
-(It does have its strong points though, such as the capability to use exact arithmetic and deal with collinear points.)
-<!--This in turn also causes <code>ListDensityPlot</code> to be very inefficient (to the point where it's impossible to plot a few thousands of points).-->
-Using MATLink, we can use MATLAB's <code>delaunay</code> function to compute the Delaunay triangulation of a set of points as
+			<subsection id="filtering">
+			<h3>Fast Delaunay triangulations</h3>
+			<p><i>Mathematica</i> has a <code>DelaunayTriangulation</code> function in the <code>ComputationalGeometry</code> package, but it is very slow.
+			(It does have its strong points though, such as the capability to use exact arithmetic and deal with collinear points.)
+			<!--This in turn also causes <code>ListDensityPlot</code> to be very inefficient (to the point where it's impossible to plot a few thousands of points).-->
+			Using MATLink, we can use MATLAB's <code>delaunay</code> function to compute the Delaunay triangulation of a set of points as
 <pre class="prettyprint lang-mma">
 delaunay = Composition[Round, MFunction["delaunay"]];
 </pre>
 
-Since <i>Mathematica</i>'s function returns a vertex adjacency list, we'll need to <a href="http://mathematica.stackexchange.com/a/281">post-process</a> the output to compare it with MATLAB's:
+			Since <i>Mathematica</i>'s function returns a vertex adjacency list, we'll need to <a href="http://mathematica.stackexchange.com/a/281">post-process</a> the output to compare it with MATLAB's:
 <pre class="prettyprint lang-mma">
 Needs["ComputationalGeometry`"];
 delaunayMma[points_] :=
-    Module[{tr, triples},
-        tr = DelaunayTriangulation[points];
-        triples = Flatten[
-            Function[{v, list},
-                Switch[Length[list],
-                 (* account for nodes with connectivity 2 or less *)
-                 1, {},
-                 2, {Flatten[{v, list}]}, _, {v, ##}& @@@ Partition[list, 2, 1, {1, 1}]]
-            ] @@@ tr, 1];
-        Cases[GatherBy[triples, Sort], a_ /; Length[a] == 3 :> a[[1]]]
-    ]
+	Module[{tr, triples},
+		tr = DelaunayTriangulation[points];
+		triples = Flatten[
+			Function[{v, list},
+				Switch[Length[list],
+				 (* account for nodes with connectivity 2 or less *)
+				 1, {},
+				 2, {Flatten[{v, list}]}, _, {v, ##}& @@@ Partition[list, 2, 1, {1, 1}]]
+			] @@@ tr, 1];
+		Cases[GatherBy[triples, Sort], a_ /; Length[a] == 3 :> a[[1]]]
+	]
 </pre>
 
-<div class="row">
-	<div class="span8">
-A random set of points will generally have a unique Delaunay triangulation, so we can test that the two systems return identical results
+			<div class="row">
+				<div class="span8">
+					A random set of points will generally have a unique Delaunay triangulation, so we can test that the two systems return identical results
 <pre class="prettyprint lang-mma">
 With[{pts = RandomVariate[NormalDistribution[], {100, 2}]},
-    Sort[Sort /@ delaunay[pts]] === Sort[Sort /@ delaunayMma[pts]]
+	Sort[Sort /@ delaunay[pts]] === Sort[Sort /@ delaunayMma[pts]]
 ]
 </pre>
-and plot the triangulations with
+					and plot the triangulations with
 <pre class="prettyprint lang-mma">
 trianglesToLines[t_] :=
   Union@Flatten[{{#1, #2}, {#2, #3}, {#1, #3}} & @@
-      Transpose[Sort /@ t], {{1, 3}, {2}}];
+	  Transpose[Sort /@ t], {{1, 3}, {2}}];
 Graphics@GraphicsComplex[pts, Line@trianglesToLines@delaunay[pts]]
 </pre>
-</div>
-<div class="span4">
-<img src="assets/img/delaunay.png">
-</div>
-</div>
+				</div>
+				<div class="span4">
+					<img src="assets/img/delaunay.png">
+				</div>
+			</div>
 
-<p>Not only is <code>delaunay</code> much faster than <code>DelaunayTriangulation</code> (especially for larger data sets), it is also much faster than the triangulator used internally by <code>ListDensityPlot</code>. Hence we can use MATLAB's <code>delaunay</code> to design a custom <code>listDensityPlot</code> which is faster than the built-in function and can handle large data sets as follows:
+			<p>Not only is <code>delaunay</code> much faster than <code>DelaunayTriangulation</code> (especially for larger data sets), it is also much faster than the triangulator used internally by <code>ListDensityPlot</code>. Hence we can use MATLAB's <code>delaunay</code> to design a custom <code>listDensityPlot</code> which is faster than the built-in function and can handle large data sets as follows:
 
 <pre class="prettyprint lang-mma">
 Options[listDensityPlot] = Options[Graphics] ~Join~ {ColorFunction -> Automatic, MeshStyle -> None, Frame -> True};
 
 listDensityPlot[data_?MatrixQ, opt : OptionsPattern[]] :=
-    Module[{in, out, tri, colfun},
-        tri = delaunay[data[[All, 1;;2]]];
-        colfun = OptionValue[ColorFunction];
-        If[Not@MatchQ[colfun, _Symbol | _Function], Check[colfun = ColorData[colfun], colfun = Automatic]];
-        If[colfun === Automatic, colfun = ColorData["LakeColors"]];
-        Graphics[
-            GraphicsComplex[data[[All, 1;;2]],
-                GraphicsGroup[{EdgeForm[OptionValue[MeshStyle]], Polygon[tri]}],
-                VertexColors -> colfun /@ Rescale[data[[All, 3]]]
-            ],
-            Sequence @@ FilterRules[{opt}, Options[Graphics]], Method -> {"GridLinesInFront" -> True}
-        ]
-    ]
+	Module[{in, out, tri, colfun},
+		tri = delaunay[data[[All, 1;;2]]];
+		colfun = OptionValue[ColorFunction];
+		If[Not@MatchQ[colfun, _Symbol | _Function], Check[colfun = ColorData[colfun], colfun = Automatic]];
+		If[colfun === Automatic, colfun = ColorData["LakeColors"]];
+		Graphics[
+			GraphicsComplex[data[[All, 1;;2]],
+				GraphicsGroup[{EdgeForm[OptionValue[MeshStyle]], Polygon[tri]}],
+				VertexColors -> colfun /@ Rescale[data[[All, 3]]]
+			],
+			Sequence @@ FilterRules[{opt}, Options[Graphics]], Method -> {"GridLinesInFront" -> True}
+		]
+	]
 </pre>
-<p>Let's now test our custom function against the built-in function for 30000 points:</p>
+			<p>Let's now test our custom function against the built-in function for 30000 points:</p>
 <pre class="prettyprint lang-mma">
 pts = RandomReal[{-1, 1}, {30000, 2}];
 values = Sin[3 Sqrt[#1^2 + #2^2]] & @@@ pts;
@@ -403,33 +396,33 @@ listDensityPlot[ArrayFlatten[{{pts, List /@ values}}], Frame -> True] // Absolut
 ListDensityPlot[ArrayFlatten[{{pts, List /@ values}}]] // AbsoluteTiming
 (* 12.416587, --Graphics-- *)
 </pre>
-<p>The speedup is indeed quite significant. For hundreds of thousands of points, the built in <code>ListDensityPlot</code> is practically unusable, while <code>listDensityPlot</code> finishes in seconds.</p>
-<p class="alert alert-info"><i class="icon-info-sign"></i> When benchmarking MATLink, it's necessary to use <code>AbsoluteTiming</code>, which measures wall time.  <code>Timing</code> only measures the CPU time consumed by the <i>Mathematica</i> kernel; it does not measure the time used by MATLAB. </p>
+			<p>The speedup is indeed quite significant. For hundreds of thousands of points, the built in <code>ListDensityPlot</code> is practically unusable, while <code>listDensityPlot</code> finishes in seconds.</p>
+			<p class="alert alert-info"><i class="icon-info-sign"></i> When benchmarking MATLink, it's necessary to use <code>AbsoluteTiming</code>, which measures wall time.  <code>Timing</code> only measures the CPU time consumed by the <i>Mathematica</i> kernel; it does not measure the time used by MATLAB. </p>
 
 
-<h3>Filtering sound using the signal processing toolbox</h3>
-<p>Signal processing functionality was notoriously missing from <i>Mathematica</i> until version 9, and still lags behind MATLAB's toolbox in terms of functionality and ease of use. Let's suppose we wanted to inspect the frequency content of an audio file and filter it (assume you're using <i>Mathematica</i> 8 and don't have the newer functions).</p>
+			<h3>Filtering sound using the signal processing toolbox</h3>
+			<p>Signal processing functionality was notoriously missing from <i>Mathematica</i> until version 9, and still lags behind MATLAB's toolbox in terms of functionality and ease of use. Let's suppose we wanted to inspect the frequency content of an audio file and filter it (assume you're using <i>Mathematica</i> 8 and don't have the newer functions).</p>
 
-<div class="row">
-	<div class="span12">
+			<div class="row">
+				<div class="span12">
 <pre class="prettyprint lang-mma">
 {data, fs}  = {#[[1, 1, 1]], #[[1, 2]]} &@ExampleData[{"Sound", "Apollo13Problem"}];
 spectrogram = MFunction["spectrogram", "Output" -> False]; (* Use MATLAB's spectrogram *)
 spectrogram[data, 1000, 0, 1024, fs]
 </pre>
-</div>
-</div>
+				</div>
+			</div>
 
-<div class="row">
-	<div class="span6">
-		<p>Clearly, the frequency content is mostly below 2.5 kHz, and so we design a lowpass filter in MATLAB using the following code:
+			<div class="row">
+				<div class="span6">
+					<p>Clearly, the frequency content is mostly below 2.5 kHz, and so we design a lowpass filter in MATLAB using the following code:
 <pre class="prettyprint lang-matlab">
 [z, p, k] = butter(6, 2.5e3/fs, 'low') ;%Butterworth filter
 [sos, g]  = zp2sos(z, p, k)            ;
 Hd        = dfilt.df2tsos(sos, g)      ;
 </pre>
 
-<p> To use this from MATLink, we need to pass the value of <code>fs</code> and also make a helper function that will return the filtered data</p>
+					<p> To use this from MATLink, we need to pass the value of <code>fs</code> and also make a helper function that will return the filtered data</p>
 
 <pre class="prettyprint lang-mma">
 MSet["fs", fs];
@@ -442,64 +435,71 @@ MEvaluate["
 filter = MFunction["myfilt"];
 </pre>
 
-	</div>
-	<div class="span6">
-		<img src="assets/img/spectrogram_data.png">
-</div>
-</div>
+				</div>
+				<div class="span6">
+					<img src="assets/img/spectrogram_data.png">
+				</div>
+			</div>
 
-<div class="row">
-	<div class="span12">
-		<p>Now we're all set to use the <code>filter</code> function from within <i>Mathematica</i> on the data. This simple example demonstrates how one can fill in for missing functionality. It saves us the trouble of having to develop a complicated filter design algorithm in <i>Mathematica</i> (which is not an easy task) and spend hours debugging it. The code for the Butterworth filter could've come from anywhere — the file exchange or Stack Overflow or previously written code or perhaps even, as in this case, an example from the documentation for <code>butter</code>. A slight tweak of the parameters to suit the needs at hand, and we're good to proceed with our work in <i>Mathematica</i>.
-</div>
-</div>
-<div class="row">
-	<div class="span6">
-<p>To complete the example, let's filter the data using our filter and look at the spectrogram</p>
+			<div class="row">
+				<div class="span12">
+					<p>Now we're all set to use the <code>filter</code> function from within <i>Mathematica</i> on the data. This simple example demonstrates how one can fill in for missing functionality. It saves us the trouble of having to develop a complicated filter design algorithm in <i>Mathematica</i> (which is not an easy task) and spend hours debugging it. The code for the Butterworth filter could've come from anywhere — the file exchange or Stack Overflow or previously written code or perhaps even, as in this case, an example from the documentation for <code>butter</code>. A slight tweak of the parameters to suit the needs at hand, and we're good to proceed with our work in <i>Mathematica</i>.
+				</div>
+			</div>
+			<div class="row">
+				<div class="span6">
+					<p>To complete the example, let's filter the data using our filter and look at the spectrogram</p>
 <pre class="prettyprint lang-mma">
 filteredData = filter@data;
 spectrogram[filteredData, 1000, 0, 1024, fs]
 </pre>
-		  <p>For fun, we can also play both the filtered and unfiltered data and listen to the differences</p>
+					<p>For fun, we can also play both the filtered and unfiltered data and listen to the differences</p>
 <pre class="prettyprint lang-mma">
 ListPlay[data, SampleRate -> fs]
 ListPlay[filteredData, SampleRate -> fs]
 </pre>
-</div>
-	<div class="span6">
-		<img src="assets/img/spectrogram_filtered.png">
-</div>
-</div>
-</section>
+				</div>
+				<div class="span6">
+					<img src="assets/img/spectrogram_filtered.png">
+				</div>
+			</div>
+		</section>
 
- <footer class="footer">
-      <div class="container">
-		  <ul class="footer-links">
-		  <li>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></li>
-		 <li class="muted">·</li>
-		<li>Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></li>
-	 </ul>
-		  <p><i>Mathematica</i> is a registered trademark of <a href="http://wolfram.com">Wolfram Research, Inc.</a> and MATLAB is a registered trademark of <a href="http://mathworks.com/">The MathWorks, Inc.</a></p>
-      </div>
-    </footer>
+		<footer class="footer">
+			<div class="container">
+				<ul class="footer-links">
+					<li>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></li>
+					<li class="muted">·</li>
+					<li>Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></li>
+				</ul>
+				<p><i>Mathematica</i> is a registered trademark of <a href="http://wolfram.com">Wolfram Research, Inc.</a> and MATLAB is a registered trademark of <a href="http://mathworks.com/">The MathWorks, Inc.</a></p>
+			</div>
+		</footer>
 
-<script src="assets/js/jquery-1.9.1.min.js"></script>
-<script src="assets/js/underscore.min.js"></script>
-<script src="assets/js/backbone.min.js"></script>
-<script src="assets/js/bootstrap-222.min.js"></script>
-<script src="assets/js/prettify.js"></script>
-<script src="assets/js/lang-matlab.js"></script>
-<script src="assets/js/lang-mma.js"></script>
-<script type="text/javascript">
-		jQuery(document).ready(function () {
-			// apply syntax highlighting
-			prettyPrint();
+		<script src="assets/js/jquery-1.9.1.min.js"></script>
+		<script src="assets/js/underscore.min.js"></script>
+		<script src="assets/js/backbone.min.js"></script>
+		<script src="assets/js/bootstrap-222.min.js"></script>
+		<script src="assets/js/prettify.js"></script>
+		<script src="assets/js/lang-matlab.js"></script>
+		<script src="assets/js/lang-mma.js"></script>
+		<script type="text/javascript">
+jQuery(document).ready(function () {
+		// apply syntax highlighting
+		prettyPrint();
 
-			// add language selection menus (after a small delay)
-			setTimeout(function () {
-				add_language_selection_menu();
+		// add language selection menus (after a small delay)
+		setTimeout(function () {
+			add_language_selection_menu();
 			}, 300);
 		});
 		</script>
-</body>
-</html>
+
+		<script>
+$(function () {
+		$('#install-tabs a:first').tab('show');
+		})
+		</script>
+
+		</body>
+		</html>

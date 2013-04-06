@@ -4174,8 +4174,8 @@ input[type="submit"].btn.btn-mini {
 
 .nav .dropdown-toggle:hover .caret,
 .nav .dropdown-toggle:focus .caret {
-  border-top-color: #da7e18;
-  border-bottom-color: #da7e18;
+  border-top-color: #3a87ad;
+  border-bottom-color: #3a87ad;
 }
 
 /* move down carets for tabs */
