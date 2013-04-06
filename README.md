@@ -241,7 +241,7 @@ All the limitations of the [MATLAB Engine interface](http://www.mathworks.com/he
 
 ###JIT accelerator
 
-The JIT accelerator does not work for commands submitted using `MEvaluate` on Windows (at least on R2013a).  This means that the same MATLAB program may run much faster when submitted using `MScript` than when using `MEvaluate`.   However, the performance difference will only be significant for certain types of code, and is usually non-existent simple commands.  Scripts and functions called from `MEvaluate` will perform fast, and vectorized code is not affected much by the JIT.  The only case when you can expect bad performance from `MEvaluate` is if you submit a longer piece of non-vectorized code which heavily relies on loops (`for`, `while`).
+The JIT accelerator does not work for commands submitted using `MEvaluate` on Windows (as of R2013a).  This means that the same MATLAB program may run much faster when submitted using `MScript` than when using `MEvaluate`.   However, the performance difference will only be significant for certain types of code, and is usually non-existent when using simple commands.  Scripts or functions defined in .m files *will* still use the JIT accelerator when called from `MEvaluate`, and vectorized code is not affected much by the JIT.  The only case when you can expect bad performance from `MEvaluate` is if you submit a longer piece of non-vectorized code which heavily relies on loops (`for`, `while`, etc.).
 
 Example of the type of code that will be affected by the lack of acceleration (it relies on explicit loops):
 
