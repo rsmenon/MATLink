@@ -133,25 +133,22 @@ CompileMEngine["MacOSX"] :=
 		];
 		Run["mv mengine " <> $BinaryPath];
 		Run["make -f Makefile.osx clean"];
-		SetDirectory[dir]
+		SetDirectory[dir];
 	]
 
 CompileMEngine["Unix"] :=
-	If[$SystemWordLength == 64,
-		Block[{dir = Directory[]},
-			SetDirectory[$EngineSourceDirectory];
-			PrintTemporary["Compiling the MATLink Engine from source...\n"];
-			If[ Run["make -f Makefile.lin64"] != 0,
-				SetDirectory[dir];
-				message[CompileMEngine::failed]["error"];
-				Abort[];
-			];
-			Run["mv mengine " <> $BinaryPath];
-			Run["make -f Makefile.lin64 clean"];
-			SetDirectory[dir]
-		],
-
-		message[CompileMEngine::unsupp, "non-64-bit Linux"]["error"]; Abort[]
+	Block[{dir = Directory[], makefile},
+		If[$SystemWordLength == 64, makefile="Makefile.lin64", makefile="Makefile.lin32"];
+		SetDirectory[$EngineSourceDirectory];
+		PrintTemporary["Compiling the MATLink Engine from source...\n"];
+		If[ Run["make -f " <> makefile] != 0,
+			SetDirectory[dir];
+			message[CompileMEngine::failed]["error"];
+			Abort[];
+		];
+		Run["mv mengine " <> $BinaryPath];
+		Run["make -f " <> makefile <> " clean"];
+		SetDirectory[dir];
 	]
 
 CompileMEngine[os_] := (message[CompileMEngine::unsupp, os]["error"]; Abort[])
@@ -440,11 +437,12 @@ MScript /: DeleteFile[MScript[name_String]] :=
 		$error
 	]
 
-Options[MFunction] = {"Output" -> True, "OutputArguments" -> 1};
-validOptionPatterns[MFunction] = {"Output" -> True | False, "OutputArguments" -> _Integer?Positive};
+Options[MFunction] = {"NewFunction" -> False, "Output" -> True, "OutputArguments" -> 1};
+validOptionPatterns[MFunction] = {"NewFunction" -> True | False, "Output" -> True | False, "OutputArguments" -> _Integer?Positive};
 (* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
 
 MFunction::args = "The arguments at positions `1` to \"`2`\" could not be translated to MATLAB."
+MFunction::nfun = "To define a new function, use the \"NewFunction\" \[Rule] True option."
 
 MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
 	Switch[OptionValue["Output"],
@@ -473,6 +471,13 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 			iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
 		]
 	] /; engineOpenQ[]
+
+MFunction[name_String, code_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
+	If[OptionValue["NewFunction"] === True,
+		MScript[name, code, "Overwrite" -> True];
+		MFunction[name, Sequence @@ FilterRules[{opts}, Except["NewFunction"]]],
+		message[MFunction::nfun]["error"]
+	]
 
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := message[MFunction::wspc]["warning"] /; !engineOpenQ[]
 MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
