@@ -17,7 +17,7 @@ public:
 
     int add(mxArray *var) { data[counter] = var; return counter++; }
     void remove(int key) { data.erase(key); }
-    mxArray *value(int key) { return data.at(key); }
+    mxArray *value(int key) { assert(data.find(key) != data.end()); return data[key]; }
     void clean() {
         for (mbmap::iterator i = data.begin(); i != data.end(); ++i)
             mxDestroyArray(i->second);
@@ -33,7 +33,7 @@ static MatlabHandleSet handles;
 void returnHandle(mxArray *var) {
     int handle = handles.add(var);
     MLPutFunction(stdlink, CONTEXT "handle", 1);
-    MLPutInteger64(stdlink, handle);
+    MLPutInteger32(stdlink, handle);
 }
 
 
