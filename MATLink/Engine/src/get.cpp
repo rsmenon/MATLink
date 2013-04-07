@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <cassert>
 
 
 void putUnknown(const mxArray *var, MLINK link) {
