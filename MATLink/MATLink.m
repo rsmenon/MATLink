@@ -353,7 +353,7 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	Catch[
-		Module[{result, error, file, id = randomString[]},
+		Module[{result, error, file, id = randomString[], ex = $temporaryVariablePrefix <> randomString[10]},
 			Switch[mlint,
 				"Check", {error, file} = errorsInMATLABCode@cmd,
 				"NoCheck", {error, file} = {None, {cmd}},
@@ -363,10 +363,11 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 				result = eval@StringJoin["
 					try
 						", First@file, "
-					catch ex
-						sprintf('%s%s%s', '", id, "', ex.getReport,'", id, "')
+					catch ", ex, "
+						sprintf('%s%s%s', '", id, "', ", ex, ".getReport,'", id, "')
 					end
-				"];
+					clear ", ex
+				];
 				If[MScriptQ@file, DeleteFile@file],
 
 				If[MScriptQ@file, DeleteFile@file];
@@ -376,7 +377,7 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 				]
 			];
 			If[StringFreeQ[result,id],
-				StringReplace[result, StartOfString~~">> " -> ""],
+				StringReplace[result, StartOfString~~">> ".. -> ">> "],
 
 				First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
 					Block[{$MessagePrePrint = Identity},
