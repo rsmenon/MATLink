@@ -23,6 +23,17 @@
 #include <algorithm>
 #include <cassert>
 
+
+/* All eng_make_* functions create a handle to an mxArray data structure
+ * The handles are represented as handle[integer] in Mathematica
+ * The handles can be used in eng_set() to send the mxArray to MATLAB
+ * as a variable, or in eng_make_Cell() and eng_make_Struct() to
+ * populate their elements.
+ */
+
+
+// maps integers to mxArray *
+// the integers are used handle[integer] expressions in Mathematica
 class MatlabHandleSet {
     typedef std::map<int, mxArray *> mbmap;
     int counter;
@@ -47,6 +58,7 @@ public:
 static MatlabHandleSet handles;
 
 
+// record handle and return it to Mathematica
 void returnHandle(mxArray *var) {
     int handle = handles.add(var);
     MLPutFunction(stdlink, CONTEXT "handle", 1);
@@ -54,12 +66,15 @@ void returnHandle(mxArray *var) {
 }
 
 
+// remove all handles
 void eng_clean_handles() {
     handles.clean();
     MLPutSymbol(stdlink, "Null");
 }
 
 
+// return list of live handles to Mathematica
+// used for debugging
 void eng_get_handles() {
     MLPutFunction(stdlink, "List", handles.data.size());
     for (MatlabHandleSet::mbmap::iterator i = handles.data.begin(); i != handles.data.end(); ++i)
@@ -143,7 +158,7 @@ void eng_make_Cell(int *elems, int len, int *mmDims, int depth) {
     mxArray *var = mxCreateCellArray(depth, mbDims);
     for (int i=0; i < len; ++i) {
         mxArray *el = handles.value(elems[i]);
-        handles.remove(elems[i]);
+        handles.remove(elems[i]); // remove to avoid double mxFree()
         mxSetCell(var, i, el);
     }
 
@@ -165,7 +180,6 @@ void eng_make_Struct() {
     MLGetFunction(stdlink, &name, &field_count);
 
     std::vector<const char *> field_names(field_count);
-    //const char *field_names[field_count]; // okay to allocate on stack, not many fields
     for (int i=0; i < field_count; ++i) {
         MLGetString(stdlink, &(field_names[i]));
     }
@@ -189,7 +203,7 @@ void eng_make_Struct() {
     for (int i=0; i < len; ++i)
         for (int j=0; j < field_count; ++j) {
             mxSetFieldByNumber(var, i, j, handles.value(handle_list[i*len + j]));
-            handles.remove(handle_list[i*len + j]);
+            handles.remove(handle_list[i*len + j]); // remove to avoid double mxFree()
         }
 
     for (int i=0; i < field_count; ++i)

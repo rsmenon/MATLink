@@ -1,3 +1,10 @@
+/* mlp.h
+ *
+ * Automatically choose the correct MLPutInteger* function
+ * based on the type of data passed
+ *
+ */
+
 
 #include <mathlink.h>
 

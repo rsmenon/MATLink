@@ -50,7 +50,7 @@ void toMma(const mxArray *var, MLINK link) {
         return;
     }
 
-    //translate dimension information to Mathematica order
+    // translate dimension information to Mathematica order
     std::vector<int> mmDimsVec(depth);
     std::reverse_copy(mbDims, mbDims + depth, mmDimsVec.begin());
     int *mmDims = &mmDimsVec[0];
@@ -73,7 +73,7 @@ void toMma(const mxArray *var, MLINK link) {
 
         if (mxIsSparse(var)) {
             // Note: I realised that sparse arrays can only hold double precision numerical types
-            // in MATLAB R2012b.  I will leave the below implementation for single precision & integer
+            // in MATLAB R2013a.  I will leave the below implementation for single precision & integer
             // types in case future versions of MATLAB will add support for them.
 
             int ncols = mxGetN(var); // number of columns
@@ -198,10 +198,10 @@ void toMma(const mxArray *var, MLINK link) {
 
             delete [] integers;
         }
-    // char array (string); TODO handle multidimensional char arrays
+    // char array
     else if (mxIsChar(var)) {
         assert(sizeof(mxChar) == sizeof(unsigned short));
-        // 1 by N char arrays are sent as a string
+        // 1 by N char arrays (row vectors) are sent as a string
         if (depth == 2 && mbDims[0] == 1) {
             const mxChar *str = mxGetChars(var);
             MLPutFunction(link, CONTEXT "matString", 1);
