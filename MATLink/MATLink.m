@@ -212,6 +212,9 @@ cleanupOldLinks[] :=
 MScriptQ[name_String] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
+MScriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
+	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
+
 (* Check MATLAB code for syntax errors before evaluating.
 This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
 errorsInMATLABCode[cmd_String] :=
@@ -227,8 +230,7 @@ errorsInMATLABCode[cmd_String] :=
 		];
 		result = List@@iMGet@First@file;
 		eval@ToString@StringForm["clear `1`", First@file];
-		DeleteFile@file["AbsolutePath"];
-		If[result =!= {}, "message" /. Flatten@result, None]
+		{If[result =!= {}, "message" /. Flatten@result, None], file}
 	]
 
 validOptionsQ[func_Symbol, opts_List] :=
@@ -311,7 +313,6 @@ CloseMATLAB[] /; MATLABInstalledQ[] := message[CloseMATLAB::wspc]["warning"] /; 
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
 (* Show or hide MATLAB on Windows *)
-
 ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[1])
 HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[0])
 
@@ -352,21 +353,23 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	Catch[
-		Module[{result, error, id = randomString[]},
+		Module[{result, error, file, id = randomString[]},
 			Switch[mlint,
-				"Check", error = errorsInMATLABCode@cmd,
-				"NoCheck", error = None,
+				"Check", {error, file} = errorsInMATLABCode@cmd,
+				"NoCheck", {error, file} = {None, {cmd}},
 				_, Message[MEvaluate::unkw, mlint];Throw[$Failed,$error]
 			];
 			If[TrueQ[error === None],
 				result = eval@StringJoin["
 					try
-						", cmd, "
+						", First@file, "
 					catch ex
 						sprintf('%s%s%s', '", id, "', ex.getReport,'", id, "')
 					end
-				"],
+				"];
+				If[MScriptQ@file, DeleteFile@file],
 
+				If[MScriptQ@file, DeleteFile@file];
 				Block[{$MessagePrePrint = Identity},
 					Message[MATLink::errx, error];
 					Throw[$Failed, $error]
