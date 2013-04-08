@@ -45,6 +45,8 @@ MFunction::usage =
 MATLink::usage =
 	"MATLink refers to the MATLink package. Set cross-session package options to this symbol."
 
+MCell::usage = "MCell[list] forces list to be interpreted as a MATLAB cell in MSet, MFunction, etc."
+
 mcell::usage = "mcell[] creates a code cell that is evaluated using MATLAB." (* TODO Make this private before release *)
 
 Begin["`Developer`"]
