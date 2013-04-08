@@ -45,8 +45,6 @@ MFunction::usage =
 MATLink::usage =
 	"MATLink refers to the MATLink package. Set cross-session package options to this symbol."
 
-MATLink::visnowin = "Showing or hiding the MATLAB command window is only supported on Windows."
-
 mcell::usage = "mcell[] creates a code cell that is evaluated using MATLAB." (* TODO Make this private before release *)
 
 Begin["`Developer`"]
@@ -170,6 +168,7 @@ AppendTo[$ContextPath, "MATLink`Developer`"];
 (* Common error messages *)
 MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
 MATLink::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
+MATLink::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
@@ -324,8 +323,8 @@ CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 SyntaxInformation[ShowMATLAB] = {"ArgumentsPattern" -> {}}
 SyntaxInformation[HideMATLAB] = {"ArgumentsPattern" -> {}}
 
-ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[1])
-HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[0])
+ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::noshow]["warning"]]; setVisible[1])
+HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::noshow]["warning"]]; setVisible[0])
 
 
 (* MGet *)
