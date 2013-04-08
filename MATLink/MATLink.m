@@ -242,6 +242,8 @@ validOptionsQ[func_Symbol, opts_List] :=
 	]
 
 (* Connect/Disconnect MATLAB engine *)
+SyntaxInformation[ConnectMATLAB] = {"ArgumentsPattern" -> {}}
+
 ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
@@ -267,6 +269,8 @@ ConnectMATLAB[] /; !EngineBinaryExistsQ[] :=
 		ConnectMATLAB[];
 	]
 
+SyntaxInformation[DisconnectMATLAB] = {"ArgumentsPattern" -> {}}
+
 DisconnectMATLAB[] /; MATLABInstalledQ[] :=
 	Module[{},
 		LinkClose@$openLink;
@@ -280,6 +284,8 @@ DisconnectMATLAB[] /; !MATLABInstalledQ[] := message[DisconnectMATLAB::engc]["wa
 
 (* Open/Close MATLAB Workspace *)
 OpenMATLAB::noopen = "Could not open a connection to MATLAB."
+
+SyntaxInformation[OpenMATLAB] = {"ArgumentsPattern" -> {}}
 
 OpenMATLAB[] /; MATLABInstalledQ[] :=
 	Catch[
@@ -303,6 +309,8 @@ OpenMATLAB[] /; !MATLABInstalledQ[] :=
 		MFunction["cd"][Directory[]];
 	]
 
+SyntaxInformation[CloseMATLAB] = {"ArgumentsPattern" -> {}}
+
 CloseMATLAB[] /; MATLABInstalledQ[] :=
 	Module[{},
 		writeLog["Closed MATLAB workspace"];
@@ -313,6 +321,9 @@ CloseMATLAB[] /; MATLABInstalledQ[] := message[CloseMATLAB::wspc]["warning"] /; 
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
 (* Show or hide MATLAB command windows --- works on Windows only *)
+SyntaxInformation[ShowMATLAB] = {"ArgumentsPattern" -> {}}
+SyntaxInformation[HideMATLAB] = {"ArgumentsPattern" -> {}}
+
 ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[1])
 HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[0])
 
@@ -406,6 +417,8 @@ MEvaluate[___] /; !MATLABInstalledQ[] := message[MEvaluate::engc]["warning"]
 Options[MScript] = {"Overwrite" -> False};
 validOptionPatterns[MScript] = {"Overwrite" -> True | False};
 
+SyntaxInformation[MScript] = {"ArgumentsPattern" -> {_, _., OptionsPattern[]}}
+
 iMScript[name_String, cmd_String, opts : OptionsPattern[]] :=
 	Module[{file},
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
@@ -445,6 +458,8 @@ Options[MFunction] = {"Overwrite" -> False, "Output" -> True, "OutputArguments" 
 validOptionPatterns[MFunction] = {"Overwrite" -> True | False, "Output" -> True | False, "OutputArguments" -> _Integer?Positive};
 (* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, 
 	we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
+
+SyntaxInformation[MFunction] = {"ArgumentsPattern" -> {_, _., OptionsPattern[]}}
 
 MFunction::args = "The arguments at positions `1` to \"`2`\" could not be translated to MATLAB."
 
