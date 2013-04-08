@@ -51,19 +51,19 @@ mcell::usage = "" (* TODO Make this private before release *)
 
 Begin["`Developer`"]
 
-(*Directories & file paths*)
+(* Directories & file paths *)
 $ApplicationDirectory = DirectoryName@$InputFileName;
 $ApplicationDataDirectory = FileNameJoin[{$UserBaseDirectory, "ApplicationData", "MATLink"}];
 $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
 $BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[$SystemWordLength]}];
 $BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];
 
-(*Log files and related functions *)
+(* Log files and related functions *)
 If[!DirectoryQ@$ApplicationDataDirectory, CreateDirectory@$ApplicationDataDirectory];
 
 $logfile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
 
-(*Log message types:
+(* Log message types:
 	matlink – Standard MATLink` action
 	info    – System info
 	user    – User initiated action
@@ -88,7 +88,7 @@ message[m_MessageName, args___][type_] :=
 		Message[m, args];
 	]
 
-(*Settings file*)
+(* Settings file *)
 $SettingsFile = FileNameJoin[{$ApplicationDataDirectory, "init.m"}];
 
 MATLink /: SetOptions[MATLink, opts_] :=
@@ -111,7 +111,7 @@ If[FileExistsQ@$SettingsFile,
 
 $DefaultMATLABDirectory := OptionValue[MATLink, "DefaultMATLABDirectory"];
 
-(*Other Developer` functions*)
+(* Other Developer` functions *)
 CompileMEngine::unsupp := "Automatically compiling the MATLink Engine from source is not supported on ``. Please compile it manually."
 CompileMEngine::failed := "Automatically compiling the MATLink Engine has failed. Please try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
 
@@ -182,7 +182,7 @@ General::badval = "Invalid option value `1` passed to `2`. Values must match the
 EngineBinaryExistsQ[] := FileExistsQ[$BinaryPath];
 
 (* Set these variables only once per session.
-This is to avoid losing connection/changing temporary directory because the user used Get instead of Needs *)
+   This is to avoid losing connection/changing temporary directory because the user used Get instead of Needs *)
 If[!TrueQ[MATLinkLoadedQ[]],
 	MATLinkLoadedQ[] = True;
 	MATLABInstalledQ[] = False;
@@ -216,7 +216,7 @@ MScriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
 (* Check MATLAB code for syntax errors before evaluating.
-This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
+   This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
 errorsInMATLABCode[cmd_String] :=
 	Module[
 		{
@@ -312,7 +312,7 @@ CloseMATLAB[] /; MATLABInstalledQ[] :=
 CloseMATLAB[] /; MATLABInstalledQ[] := message[CloseMATLAB::wspc]["warning"] /; !engineOpenQ[];
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
-(* Show or hide MATLAB on Windows *)
+(* Show or hide MATLAB command windows --- works on Windows only *)
 ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[1])
 HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[0])
 
@@ -411,7 +411,7 @@ iMScript[name_String, cmd_String, opts : OptionsPattern[]] :=
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
 		WriteString[file, cmd];
 		Close[file];
-		MEvaluate["rehash", "NoCheck"];
+		MEvaluate["rehash", "NoCheck"]; (* necessary on Windows for MATLAB to pick up new script *)
 		MScript[name]
 	]
 
@@ -443,7 +443,8 @@ MScript /: DeleteFile[MScript[name_String]] :=
 
 Options[MFunction] = {"Overwrite" -> False, "Output" -> True, "OutputArguments" -> 1};
 validOptionPatterns[MFunction] = {"Overwrite" -> True | False, "Output" -> True | False, "OutputArguments" -> _Integer?Positive};
-(* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
+(* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, 
+	we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
 
 MFunction::args = "The arguments at positions `1` to \"`2`\" could not be translated to MATLAB."
 
@@ -501,7 +502,7 @@ mcell[] :=
 			TextData[""],
 			"Program",
 			Evaluatable->True,
-			CellEvaluationFunction -> (MEvaluate@First@FrontEndExecute[FrontEnd`ExportPacket[Cell[#], "InputText"]] &), (* TODO figure out how to avoid conversion to \[AAcute], \[UDoubleAcute], etc. forms *)
+			CellEvaluationFunction -> (MEvaluate@First@FrontEndExecute[FrontEnd`ExportPacket[Cell[#], "InputText"]] &),
 			CellGroupingRules -> "InputGrouping",
 			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
 		];
