@@ -28,7 +28,7 @@ HideMATLAB::usage =
 	"Hide the MATLAB command window."
 
 MGet::usage =
-	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica. MGet is Listable."
+	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica.  MGet is Listable."
 
 MSet::usage =
 	"MSet[var, expr] exports the value in expr and saves it in a variable named \"var\" in MATLAB's workspace."
@@ -37,17 +37,17 @@ MEvaluate::usage =
 	"MEvaluate[expr] evaluates a valid MATLAB expression (entered as a string) and displays an error otherwise."
 
 MScript::usage =
-	"MScript[filename, expr] creates a MATLAB script named \"filename\" with the contents in expr (string) and stores it on MATLAB's path, but does not evaluate it. These files will be removed when the MATLink engine is closed."
+	"MScript[filename, expr] creates a MATLAB script named \"filename\" with the contents in expr (string) and stores it on MATLAB's path, but does not evaluate it. These files will be removed when the MATLink engine is closed.\nMScript[filename] represents a callable MATLAB script that can be passed to MEvaluate."
 
 MFunction::usage =
-	"MFunction[func] creates a link to a MATLAB function for use from Mathematica."
+	"MFunction[func] creates a link to a MATLAB function for use from Mathematica.\nMFunction[filename, expr] creates a script on MATLAB's path and returns MFunction[filename].  expr (string) must be a valid MATLAB function definition."
 
 MATLink::usage =
 	"MATLink refers to the MATLink package. Set cross-session package options to this symbol."
 
 MATLink::visnowin = "Showing or hiding the MATLAB command window is only supported on Windows."
 
-mcell::usage = "" (* TODO Make this private before release *)
+mcell::usage = "mcell[] creates a code cell that is evaluated using MATLAB." (* TODO Make this private before release *)
 
 Begin["`Developer`"]
 
