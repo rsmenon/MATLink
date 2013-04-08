@@ -175,7 +175,7 @@ General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
 General::engc = "Not connected to the MATLAB engine."
 General::nofn = "The `1` \"`2`\" does not exist."
-General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
+General::owrt = "An `1` by that name already exists. Use \"Overwrite\" -> True to overwrite."
 General::badval = "Invalid option value `1` passed to `2`. Values must match the pattern `3`"
 
 (* Directories and helper functions/variables *)
