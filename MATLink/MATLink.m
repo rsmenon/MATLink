@@ -365,21 +365,26 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	Catch[
-		Module[{result, error, file, id = randomString[], ex = $temporaryVariablePrefix <> randomString[10]},
+		Module[{result, error, file, message,
+				exVar =  $temporaryVariablePrefix <> randomString[10],
+				resVar = $temporaryVariablePrefix <> randomString[10],
+				errVar = $temporaryVariablePrefix <> randomString[10]},
 			Switch[mlint,
 				"Check", {error, file} = errorsInMATLABCode@cmd,
 				"NoCheck", {error, file} = {None, {cmd}},
 				_, Message[MEvaluate::unkw, mlint];Throw[$Failed,$error]
 			];
 			If[TrueQ[error === None],
-				result = eval@StringJoin["
+				eval@StringJoin["
 					try
-						", First@file, "
-					catch ", ex, "
-						sprintf('%s%s%s', '", id, "', ", ex, ".getReport,'", id, "')
-					end
-					clear ", ex
+						", resVar, " = evalc('", First@file, "')
+					catch ", exVar, "
+					    ", errVar, " = ", exVar, ".message
+					end"
 				];
+				result = MGet[resVar];
+				message = MGet[errVar];
+				eval["clear " <> exVar <> " " <> resVar <> " " <> errVar];
 				If[MScriptQ@file, DeleteFile@file],
 
 				If[MScriptQ@file, DeleteFile@file];
@@ -388,14 +393,13 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 					Throw[$Failed, $error]
 				]
 			];
-			If[StringFreeQ[result,id],
-				StringReplace[result, StartOfString~~">> ".. -> ">> "],
+			If[message === $Failed,
 
-				First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
-					Block[{$MessagePrePrint = Identity},
-						Message[MATLink::errx, x];
-						Throw[$Failed, $error]
-					]
+				result,
+
+				Block[{$MessagePrePrint = Identity},
+					Message[MATLink::errx, message];
+					Throw[$Failed, $error]
 				]
 			]
 		],
