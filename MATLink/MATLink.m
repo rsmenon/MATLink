@@ -306,8 +306,8 @@ OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
 		ConnectMATLAB[];
 		OpenMATLAB[];
-		MFunction["addpath"][$sessionTemporaryDirectory];
-		MFunction["cd"][Directory[]];
+		MFunction["addpath", "Output" -> False][$sessionTemporaryDirectory];
+		MFunction["cd", "Output" -> False][Directory[]];
 	]
 
 SyntaxInformation[CloseMATLAB] = {"ArgumentsPattern" -> {}}
@@ -374,7 +374,7 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 				"NoCheck", {error, file} = {None, {cmd}},
 				_, Message[MEvaluate::unkw, mlint];Throw[$Failed,$error]
 			];
-			If[TrueQ[error === None],
+			If[error === None,
 				eval@StringJoin["
 					try
 						", resVar, " = evalc('", First@file, "')
