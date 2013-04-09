@@ -368,24 +368,23 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	Catch[
 		Module[{result, error, file, message,
 				exVar =  $temporaryVariablePrefix <> randomString[10],
-				resVar = $temporaryVariablePrefix <> randomString[10],
-				errVar = $temporaryVariablePrefix <> randomString[10]},
+				resVar = $temporaryVariablePrefix <> randomString[10]},
 			Switch[mlint,
 				"Check", {error, file} = errorsInMATLABCode@cmd,
 				"NoCheck", {error, file} = {None, {cmd}},
 				_, Message[MEvaluate::unkw, mlint];Throw[$Failed,$error]
 			];
 			If[error === None,
-				eval@StringJoin["
+				message = StringTrim@eval@StringJoin["
 					try
-						", resVar, " = evalc('", First@file, "')
+						", resVar, " = evalc('", First@file, "');
 					catch ", exVar, "
-					    ", errVar, " = ", exVar, ".message
+					    disp(", exVar, ".message);
 					end"
 				];
+				message = StringTrim[message, (">>"|Whitespace)..];
 				result = MGet[resVar];
-				message = MGet[errVar];
-				eval["clear " <> exVar <> " " <> resVar <> " " <> errVar];
+				eval["clear " <> exVar <> " " <> resVar];
 				If[MScriptQ@file, DeleteFile@file],
 
 				If[MScriptQ@file, DeleteFile@file];
@@ -394,7 +393,7 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 					Throw[$Failed, $error]
 				]
 			];
-			If[message === $Failed,
+			If[message === "",
 
 				result,
 
