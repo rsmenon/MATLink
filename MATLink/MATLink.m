@@ -293,7 +293,10 @@ OpenMATLAB[] /; MATLABInstalledQ[] :=
 		Module[{},
 			openEngine[];
 			If[engineOpenQ[],
-				writeLog["Opened MATLAB workspace"],
+				writeLog["Opened MATLAB workspace"];
+				MFunction["addpath", "Output" -> False][$sessionTemporaryDirectory];
+				MFunction["cd", "Output" -> False][Directory[]],
+
 				message[OpenMATLAB::noopen]["fatal"];Throw[$Failed, $error]
 			];
 		],
@@ -306,8 +309,6 @@ OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
 		ConnectMATLAB[];
 		OpenMATLAB[];
-		MFunction["addpath", "Output" -> False][$sessionTemporaryDirectory];
-		MFunction["cd", "Output" -> False][Directory[]];
 	]
 
 SyntaxInformation[CloseMATLAB] = {"ArgumentsPattern" -> {}}
