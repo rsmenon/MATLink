@@ -641,7 +641,7 @@ convertToMATLAB[expr_] :=
 				engMakeCell[reshape@arr /. handle -> Identity, Reverse@Dimensions[arr]];
 
 			(* http://mathematica.stackexchange.com/questions/18081/how-to-interpret-the-fullform-of-a-sparsearray *)
-			MSparseArray[HoldPattern@SparseArray[Automatic, {n_, m_}, (0|0.), {1, {jc_, ir_}, values_}]] :=
+			MSparseArray[HoldPattern@SparseArray[Automatic, {n_, m_}, def_ /; def==0, {1, {jc_, ir_}, values_}]] :=
 				If[ complexArrayQ[values],
 					engMakeSparseComplex[Flatten[ir]-1, jc, Re[values], Im[values], m, n],
 					engMakeSparseReal[Flatten[ir]-1, jc, values, m, n]
