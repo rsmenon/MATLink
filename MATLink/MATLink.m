@@ -343,7 +343,8 @@ MGet[_String] /; MATLABInstalledQ[] := message[MGet::wspc]["warning"] /; !engine
 MGet[_String] /; !MATLABInstalledQ[] := message[MGet::engc]["warning"]
 
 (* MSet *)
-MSet::sparse = "Only one and two dimensional sparse arrays are supported; the default element must be 0 for numerical and False for boolean arrays."
+MSet::sparse = "Unsupported sparse array; sparse arrays must be one or two dimensional, and must have either only numerical or only logical (True|False) elements."
+MSet::spdef = "Unsupported sparse array; the default element in numerical sparse arrays must be 0."
 MSet::dupfield = "Duplicate field names not alowed in struct."
 
 SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
@@ -640,15 +641,19 @@ convertToMATLAB[expr_] :=
 				engMakeCell[reshape@arr /. handle -> Identity, Reverse@Dimensions[arr]];
 
 			(* http://mathematica.stackexchange.com/questions/18081/how-to-interpret-the-fullform-of-a-sparsearray *)
-			MSparseArray[HoldPattern@SparseArray[Automatic, {n_, m_}, 0, {1, {jc_, ir_}, values_}]] :=
+			MSparseArray[HoldPattern@SparseArray[Automatic, {n_, m_}, (0|0.), {1, {jc_, ir_}, values_}]] :=
 				If[ complexArrayQ[values],
 					engMakeSparseComplex[Flatten[ir]-1, jc, Re[values], Im[values], m, n],
 					engMakeSparseReal[Flatten[ir]-1, jc, values, m, n]
 				];
-			MSparseArray[_] := (message[MSet::sparse]["error"]; $Failed);
+			MSparseArray[_] := (message[MSet::spdef]["error"]; $Failed);
 
 			MSparseLogical[HoldPattern@SparseArray[Automatic, {n_, m_}, False, {1, {jc_, ir_}, values_}]] :=
 				engMakeSparseLogical[Flatten[ir]-1, jc, Boole[values], m, n];
+
+			(* If the default element of a sparse logical is not False, make it False *)
+			MSparseLogical[arr_SparseArray] :=
+				MSparseLogical[SparseArray[arr, Dimensions[arr], False]];				
 
 			MStruct[rules_] :=
 				If[ !ArrayQ[rules, _, structHandleQ],
@@ -730,7 +735,7 @@ handleSparse[arr_SparseArray ? (VectorQ[#, NumericQ]&) ] := MSparseArray[Transpo
 handleSparse[arr_SparseArray ? (MatrixQ[#, NumericQ]&) ] := MSparseArray[Transpose@SparseArray[arr]] (* the extra SparseArray call gets rid of background elements *)
 handleSparse[arr_SparseArray ? (VectorQ[#, booleanQ]&) ] := MSparseLogical[Transpose@SparseArray[{arr}]]
 handleSparse[arr_SparseArray ? (MatrixQ[#, booleanQ]&) ] := MSparseLogical[Transpose@SparseArray[arr]]
-handleSparse[_] := (message[MSet::sparr]["error"]; Throw[$Failed, $dispTag]) (* higher dim sparse arrays or non-numerical ones are not supported *)
+handleSparse[_] := (message[MSet::sparse]["error"]; Throw[$Failed, $dispTag]) (* higher dim sparse arrays or non-numerical ones are not supported *)
 
 handleStruct[rules_ ? (VectorQ[#, ruleQ]&)] :=
 	If[ Length@Union[rules[[All,1]]] != Length[rules],
