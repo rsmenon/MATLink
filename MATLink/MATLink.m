@@ -234,6 +234,16 @@ errorsInMATLABCode[cmd_String] :=
 		{If[result =!= {}, "message" /. Flatten@result, None], file}
 	]
 
+cleanOutput[str_String, file_String] :=
+	FixedPoint[
+		StringReplace[#,
+			{file -> "input",
+			"[\.08" ~~ Shortest[x__] ~~ "]" :> x,
+			StartOfString ~~ ">> ".. :> ">> "}
+		]&,
+		str
+	]
+
 validOptionsQ[func_Symbol, opts_List] :=
 	With[{o = FilterRules[opts, Options[func]], patt = validOptionPatterns[func]},
 		If[o =!= opts,
