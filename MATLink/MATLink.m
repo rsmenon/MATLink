@@ -383,7 +383,7 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 				"NoCheck", {error, file} = {None, {cmd}},
 				_, Message[MEvaluate::unkw, mlint];Throw[$Failed,$error]
 			];
-			If[TrueQ[error === None],
+			If[error === None,
 				result = eval@StringJoin["
 					try
 						", First@file, "
@@ -401,11 +401,11 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 				]
 			];
 			If[StringFreeQ[result,id],
-				StringReplace[result, StartOfString~~">> ".. -> ">> "],
+				cleanOutput[result, First@file],
 
 				First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
 					Block[{$MessagePrePrint = Identity},
-						Message[MATLink::errx, x];
+						Message[MATLink::errx, cleanOutput[x, First@file]];
 						Throw[$Failed, $error]
 					]
 				]
@@ -469,7 +469,7 @@ MScript /: DeleteFile[MScript[name_String]] :=
 
 Options[MFunction] = {"Overwrite" -> False, "Output" -> True, "OutputArguments" -> 1};
 validOptionPatterns[MFunction] = {"Overwrite" -> True | False, "Output" -> True | False, "OutputArguments" -> _Integer?Positive};
-(* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, 
+(* Since MATLAB allows arbitrary function definitions depending on the number of output arguments,
 	we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
 
 SyntaxInformation[MFunction] = {"ArgumentsPattern" -> {_, _., OptionsPattern[]}}
@@ -660,7 +660,7 @@ convertToMATLAB[expr_] :=
 
 			(* If the default element of a sparse logical is not False, make it False *)
 			MSparseLogical[arr_SparseArray] :=
-				MSparseLogical[SparseArray[arr, Dimensions[arr], False]];				
+				MSparseLogical[SparseArray[arr, Dimensions[arr], False]];
 
 			MStruct[rules_] :=
 				If[ !ArrayQ[rules, _, structHandleQ],
