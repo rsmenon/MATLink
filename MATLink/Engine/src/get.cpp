@@ -30,7 +30,10 @@ void toMma(const mxArray *var, MLINK link) {
 
     // handle zero-size arrays
     if (mxIsEmpty(var)) {
-        MLPutFunction(link, "List", 0);
+        if (mxIsChar(var))
+            MLPutString(link, "");
+        else
+            MLPutFunction(link, "List", 0);
         return;
     }
 
