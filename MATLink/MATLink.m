@@ -373,7 +373,7 @@ MSet::sparse = "Unsupported sparse array; sparse arrays must be one or two dimen
 MSet::spdef = "Unsupported sparse array; the default element in numerical sparse arrays must be 0."
 MSet::dupfield = "Duplicate field names not alowed in struct."
 
-SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
+SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _, OptionsPattern[]}};
 
 iMSet[var_String, expr_] :=
 	Internal`WithLocalSettings[
@@ -382,7 +382,16 @@ iMSet[var_String, expr_] :=
 		cleanHandles[]	(* prevent memory leaks *)
 	]
 
-MSet[var_String, expr_] /; MATLABInstalledQ[] := iMSet[var, expr] /; engineOpenQ[]
+Options[MSet] = {"ShowErrors" -> True}
+MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
+	If[(result = iMSet[var, expr]) === Null,
+		result,
+		Switch[OptionValue["ShowErrors"],
+			True, checkExpression[expr],
+			False, result
+		]
+	] /; engineOpenQ[]
+
 MSet[___] /; MATLABInstalledQ[] := message[MSet::wspc]["warning"] /; !engineOpenQ[]
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
