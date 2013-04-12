@@ -748,7 +748,7 @@ handleSparse[_] := (message[MSet::sparse]["error"]; Throw[$Failed, $dispTag]) (*
 handleStruct[rules_ ? (VectorQ[#, ruleQ]&), throwOpt_] :=
 	If[ Length@Union[rules[[All,1]]] != Length[rules],
 		message[MSet::dupfield]["error"]; $Failed,
-		Thread[rules[[All, 1]] -> dispatcher[#, throwOpt]& /@ rules[[All, 2]]]
+		Thread[rules[[All, 1]] -> (dispatcher[#, throwOpt]& /@ rules[[All, 2]])]
 	]
 
 handleStruct[_] := $Failed (* TODO multi-element struct *)
