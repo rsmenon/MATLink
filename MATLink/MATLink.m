@@ -666,7 +666,8 @@ convertToMATLAB[expr_] :=
 
 restructure[expr_] := Catch[dispatcher[expr], $dispTag]
 
-dispatcher[expr_] :=
+Options[dispatcher] = {"Throw" -> True};
+dispatcher[expr_, opts : OptionsPattern[]] :=
 	Switch[
 		expr,
 
@@ -706,28 +707,27 @@ dispatcher[expr_] :=
 		(* _?(ArrayQ[#, _, StringQ] &),
 		MString[expr], *)
 
-		(* struct -- may need recursion *)
-		(*MStruct[_],
-		MStruct[handleStruct@First[expr]],*)
-
 		(* struct *)
 		_?(VectorQ[#, ruleQ] &),
-		MStruct[handleStruct[expr]],
+		MStruct[handleStruct[expr, {opts}]],
 
 		(* cell -- may need recursion *)
 		MCell[_],
-		MCell[handleCell@First[expr]],
+		MCell[handleCell[First[expr], {opts}]],
 
 		(* cell *)
 		_List,
-		MCell[handleCell[expr]],
+		MCell[handleCell[expr, {opts}]],
 
 		(* assumed already handled, no recursion needed; only MCell and MStruct may need recursion *)
 		_MArray | _MLogical | _MSparseArray | _MSparseLogical | _MString,
 		expr,
 
 		_,
-		Throw[$Failed, $dispTag]
+		If[OptionValue["Throw"],
+			Throw[$Failed, $dispTag],
+			$Failed -> expr
+		]
 	]
 
 handleSparse[arr_SparseArray ? (VectorQ[#, NumericQ]&) ] := MSparseArray[Transpose@SparseArray[{arr}]] (* convert to matrix *)
@@ -736,16 +736,16 @@ handleSparse[arr_SparseArray ? (VectorQ[#, booleanQ]&) ] := MSparseLogical[Trans
 handleSparse[arr_SparseArray ? (MatrixQ[#, booleanQ]&) ] := MSparseLogical[Transpose@SparseArray[arr]]
 handleSparse[_] := (message[MSet::sparse]["error"]; Throw[$Failed, $dispTag]) (* higher dim sparse arrays or non-numerical ones are not supported *)
 
-handleStruct[rules_ ? (VectorQ[#, ruleQ]&)] :=
+handleStruct[rules_ ? (VectorQ[#, ruleQ]&), throwOpt_] :=
 	If[ Length@Union[rules[[All,1]]] != Length[rules],
 		message[MSet::dupfield]["error"]; $Failed,
-		Thread[rules[[All, 1]] -> dispatcher /@ rules[[All, 2]]]
+		Thread[rules[[All, 1]] -> dispatcher[#, throwOpt]& /@ rules[[All, 2]]]
 	]
 
 handleStruct[_] := $Failed (* TODO multi-element struct *)
 
-handleCell[list_List] := dispatcher /@ list
-handleCell[expr_] := dispatcher[expr]
+handleCell[list_List, throwOpt_] := dispatcher[#, throwOpt]& /@ list
+handleCell[expr_, throwOpt_] := dispatcher[expr, throwOpt]
 
 End[] (* MATLink`Engine` *)
 
