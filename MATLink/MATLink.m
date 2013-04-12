@@ -177,6 +177,7 @@ AppendTo[$ContextPath, "MATLink`Developer`"];
 (* Common error messages *)
 MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
 MATLink::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
+MATLink::noerr = "No errors were found in the input expression. Check for possible invalid MATLAB assignments."
 MATLink::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
@@ -256,6 +257,14 @@ validOptionsQ[func_Symbol, opts_List] :=
 		If[o =!= opts,
 			message[func::optx, First@FilterRules[opts, Except[Options@func]], func]["error"]; False,
 			FreeQ[If[MatchQ[#2, #1], True, message[func::badval, #2, func, #1]["error"];False] & @@@ (opts /. patt), False]
+		]
+	]
+
+checkExpression[expr_] :=
+	With[{invalid = Cases[MATLink`Engine`dispatcher[expr, "Throw" -> False], HoldPattern[$Failed -> x_] :> x, Infinity]},
+		If[invalid === {},
+			message[MATLink::noerr]["error"],
+			message[MATLink::errx, "The following sub-expressions are invalid: " <> ToString@invalid <> ". Check to see if they are supported by MATLink and/or if the dimensions are consistent"]["error"];
 		]
 	]
 
