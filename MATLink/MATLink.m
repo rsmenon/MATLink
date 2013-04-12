@@ -767,7 +767,7 @@ handleCell[expr_, throwOpt_] := dispatcher[expr, throwOpt]
 
 End[] (* MATLink`Engine` *)
 
-Begin["Experimental`"]
+Begin["`Experimental`"]
 
 MATLABCell[] :=
 	Module[{},
