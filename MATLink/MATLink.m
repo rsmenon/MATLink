@@ -47,7 +47,7 @@ MATLink::usage =
 
 MCell::usage = "MCell[list] forces list to be interpreted as a MATLAB cell in MSet, MFunction, etc."
 
-mcell::usage = "mcell[] creates a code cell that is evaluated using MATLAB." (* TODO Make this private before release *)
+MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MATLAB." (* TODO Make this private before release *)
 
 Begin["`Developer`"]
 
@@ -531,21 +531,6 @@ MFunction /: DeleteFile[MFunction[name_String, ___]] :=
 MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := message[MFunction::wspc]["warning"] /; !engineOpenQ[]
 MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
 
-mcell[] :=
-	Module[{},
-		CellPrint@Cell[
-			TextData[""],
-			"Program",
-			Evaluatable->True,
-			CellEvaluationFunction -> (MEvaluate@First@FrontEndExecute[FrontEnd`ExportPacket[Cell[#], "InputText"]] &),
-			CellGroupingRules -> "InputGrouping",
-			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
-		];
-		SelectionMove[EvaluationNotebook[], All, EvaluationCell];
-		NotebookDelete[];
-		SelectionMove[EvaluationNotebook[], Next, CellContents]
-	]
-
 End[] (* MATLink`Private` *)
 
 (* Low level functions strongly tied with the C++ code are part of this context *)
@@ -763,5 +748,24 @@ handleCell[list_List] := dispatcher /@ list
 handleCell[expr_] := dispatcher[expr]
 
 End[] (* MATLink`Engine` *)
+
+Begin["Experimental`"]
+
+MATLABCell[] :=
+	Module[{},
+		CellPrint@Cell[
+			TextData[""],
+			"Program",
+			Evaluatable->True,
+			CellEvaluationFunction -> (MEvaluate@First@FrontEndExecute[FrontEnd`ExportPacket[Cell[#], "InputText"]] &),
+			CellGroupingRules -> "InputGrouping",
+			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
+		];
+		SelectionMove[EvaluationNotebook[], All, EvaluationCell];
+		NotebookDelete[];
+		SelectionMove[EvaluationNotebook[], Next, CellContents]
+	]
+
+End[] (* MATLink`Experimental` *)
 
 EndPackage[] (* MATLink` *)
