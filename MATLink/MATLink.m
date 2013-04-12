@@ -162,6 +162,13 @@ CleanupTemporaryDirectories[] :=
 randomString[n_Integer:50] :=
 	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
 
+FileHashList[] :=
+	With[{dir = $ApplicationDirectory},
+		{ StringTrim[#, dir], FileHash@#} & /@ Select[FileNames["*", dir <> "*", Infinity],
+			Not@DirectoryQ@# && StringFreeQ[#, {".git", ".DS_Store"}] &
+		]
+	] // TableForm
+
 End[] (* `Developer` *)
 
 Begin["`Private`"]
