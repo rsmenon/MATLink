@@ -584,7 +584,11 @@ engineOpenQ[] /; MATLABInstalledQ[] :=
 		Catch[
 			Check[
 				engOpenQ[],
-				message[MATLink::noconn]["fatal"];Throw[$Failed, $error],
+
+				message[MATLink::noconn]["fatal"];
+				MATLABInstalledQ[] = False;
+				Throw[$Failed, $error],
+
 				msgs
 			] ~Quiet~ msgs,
 			$error
