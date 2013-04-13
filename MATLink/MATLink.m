@@ -365,8 +365,18 @@ SetAttributes[MGet,Listable]
 
 iMGet[var_String] := convertToMathematica@get@var
 
-MGet[var_String] /; MATLABInstalledQ[] := iMGet@var /; engineOpenQ[]
-MGet[_String] /; MATLABInstalledQ[] := message[MGet::wspc]["warning"] /; !engineOpenQ[]
+MGet[var_String] /; MATLABInstalledQ[] :=
+	Switch[engineOpenQ[],
+		True,
+		iMGet@var,
+
+		False,
+		message[MGet::wspc]["warning"],
+
+		$Failed,
+		Abort[]
+	]
+
 MGet[_String] /; !MATLABInstalledQ[] := message[MGet::engc]["warning"]
 
 (* MSet *)
