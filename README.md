@@ -199,6 +199,100 @@ The following can only be transferred from MATLAB to Mathematica:
  - numerical arrays with the following types: single, int16, int32
  - structs with any number of elements 
 
+##Reference
+
+Each function _MATLink_ exposes is documented in this section.
+
+####`MEvaluate`
+
+`MEvaluate[command]` evaluates `command` in MATLAB and returns the output as text.
+
+**Examples:**
+
+```
+In[]:= MEvaluate["1+1"]
+Out[]=
+      ans =
+
+           2
+```
+
+**Possible issues:**
+
+ * `MEvaluate` performance suffers if the output is not suppressed in MATLAB code.  If you do not need to see the output of `MEvaluate`, use `MEvaluate["command;"]` instead of `MEvaluate["command"];`.
+
+ * The output length of `MEvaluate` is limited to approximatey 100,000 characters.  The rest will be truncated.
+
+
+####`MGet`
+
+`MGet["x"]` will return the value of the variable `x` from the MATLAB workspace.  Data structures are translated into a Mathematica-compatible format.
+
+```
+In[]:= MEvaluate["x = 1:10;"]
+
+In[]:= MGet["x"]
+Out[]= {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.}
+```
+
+**Possible issues:**
+
+ * Do not attempt to use `MGet` on objects (`classdef` objects) or data structures which contain objects.  This will crash MATLAB because of a MATLAB bug.  See the "Known issues" section for additional details.
+
+**See also:** `MSet`
+
+
+####`MSet`
+
+`MSet["x", value]` will assign `value` to variable `x` in the MATLAB workspace.  `value` must be in the same format as would be returned by `MGet`.
+
+**Examples:**
+
+```
+In[]:= MSet["a", {1,2,3}]
+       MEvaluate["a"]
+       
+Out[]= a =
+
+          1     2     3
+          
+In[]:= MSet["b", {"one" -> {1, 2, 3}, "two" -> {4, "five"}}]
+       MEvaluate["b"]
+       
+Out[]= b =
+
+         one: [1 2 3]
+         two: {[4]  'five'}
+```
+
+To force a list to be sent as a cell, wrap it in the `MCell` head:
+
+```
+In[]:= MSet["a", MCell[{1, 2, 3}]]
+       MEvaluate["a"]
+       
+Out[]= a =
+
+          [1] [2] [3]
+```
+
+**See also:** `MGet`
+
+
+####`ShowMATLAB`
+
+`ShowMATLAB[]` will show the MATLAB command window.  When an evaluation is not in progress, this window can be used to input MATLAB commands independently of _MATLink_.  This function only works on Windows.
+
+**See also:** `HideMATLAB`
+
+
+####`HideMATLAB`
+
+`HideMATLAB[]` will hide the MATLAB command window.  This function only works on Windows.
+
+**See also:** `ShowMATLAB`
+
+
 
 ##Known issues and limitations
 
