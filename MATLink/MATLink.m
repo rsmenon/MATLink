@@ -320,21 +320,23 @@ OpenMATLAB::noopen = "Could not open a connection to MATLAB."
 SyntaxInformation[OpenMATLAB] = {"ArgumentsPattern" -> {}}
 
 OpenMATLAB[] /; MATLABInstalledQ[] :=
-	Catch[
-		Module[{},
-			openEngine[];
-			If[engineOpenQ[],
-				writeLog["Opened MATLAB workspace"];
-				MFunction["addpath", "Output" -> False][$sessionTemporaryDirectory];
-				MFunction["cd", "Output" -> False][Directory[]],
+	switchAbort[engineOpenQ[],
+		message[OpenMATLAB::wspo]["warning"],
 
-				message[OpenMATLAB::noopen]["fatal"];Throw[$Failed, $error]
-			];
-		],
-		$error
-	] /; !engineOpenQ[];
+		Catch[
+			Module[{},
+				openEngine[];
+				If[engineOpenQ[],
+					writeLog["Opened MATLAB workspace"];
+					MFunction["addpath", "Output" -> False][$sessionTemporaryDirectory];
+					MFunction["cd", "Output" -> False][Directory[]],
 
-OpenMATLAB[] /; MATLABInstalledQ[] := message[OpenMATLAB::wspo]["warning"] /; engineOpenQ[];
+					message[OpenMATLAB::noopen]["fatal"];Throw[$Failed, $error]
+				];
+			],
+			$error
+		]
+	]
 
 OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
@@ -345,12 +347,14 @@ OpenMATLAB[] /; !MATLABInstalledQ[] :=
 SyntaxInformation[CloseMATLAB] = {"ArgumentsPattern" -> {}}
 
 CloseMATLAB[] /; MATLABInstalledQ[] :=
-	Module[{},
-		writeLog["Closed MATLAB workspace"];
-		closeEngine[]
-	] /; engineOpenQ[] ;
+	switchAbort[engineOpenQ[],
+		Module[{},
+			writeLog["Closed MATLAB workspace"];
+			closeEngine[]
+		],
+		message[CloseMATLAB::wspc]["warning"]
+	]
 
-CloseMATLAB[] /; MATLABInstalledQ[] := message[CloseMATLAB::wspc]["warning"] /; !engineOpenQ[];
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
 (* Show or hide MATLAB command windows --- works on Windows only *)
