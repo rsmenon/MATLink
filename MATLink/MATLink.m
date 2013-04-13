@@ -370,15 +370,9 @@ SetAttributes[MGet,Listable]
 iMGet[var_String] := convertToMathematica@get@var
 
 MGet[var_String] /; MATLABInstalledQ[] :=
-	Switch[engineOpenQ[],
-		True,
+	switchAbort[engineOpenQ[],
 		iMGet@var,
-
-		False,
-		message[MGet::wspc]["warning"],
-
-		$Failed,
-		Abort[]
+		message[MGet::wspc]["warning"]
 	]
 
 MGet[_String] /; !MATLABInstalledQ[] := message[MGet::engc]["warning"]
@@ -399,8 +393,7 @@ iMSet[var_String, expr_] :=
 
 Options[MSet] = {"ShowErrors" -> True}
 MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
-	Switch[engineOpenQ[],
-		True,
+	switchAbort[engineOpenQ[],
 		If[(result = iMSet[var, expr]) === Null,
 			result,
 			Switch[OptionValue["ShowErrors"],
@@ -409,11 +402,7 @@ MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
 			]
 		],
 
-		False,
-		message[MSet::wspc]["warning"],
-
-		$Failed,
-		Abort[]
+		message[MSet::wspc]["warning"]
 	]
 
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
