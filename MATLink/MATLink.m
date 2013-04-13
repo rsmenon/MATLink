@@ -523,32 +523,36 @@ SyntaxInformation[MFunction] = {"ArgumentsPattern" -> {_, _., OptionsPattern[]}}
 MFunction::args = "The arguments at positions `1` to \"`2`\" could not be translated to MATLAB."
 
 MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
-	Switch[OptionValue["Output"],
-		True,
-		Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output, fails},
-			vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
-			fails = Thread[iMSet[vars[[;;nIn]], {args}]];
-			If[MemberQ[fails, $Failed],
-				message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
-				output = ConstantArray[$Failed, nOut];,
+	switchAbort[engineOpenQ[],
+		Switch[OptionValue["Output"],
+			True,
+			Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output, fails},
+				vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
+				fails = Thread[iMSet[vars[[;;nIn]], {args}]];
+				If[MemberQ[fails, $Failed],
+					message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
+					output = ConstantArray[$Failed, nOut];,
 
-				iMEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
-				output = iMGet /@ vars[[-nOut;;]];
-			];
-			iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
-			If[nOut == 1, First@output, output]
+					iMEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
+					output = iMGet /@ vars[[-nOut;;]];
+				];
+				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
+				If[nOut == 1, First@output, output]
+			],
+
+			False,
+			With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
+				fails = Thread[iMSet[vars, {args}]];
+				If[MemberQ[fails, $Failed],
+					message[MFunction::args, Position[fails, $Failed]]["error"],
+					iMEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
+				];
+				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
+			]
 		],
 
-		False,
-		With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
-			fails = Thread[iMSet[vars, {args}]];
-			If[MemberQ[fails, $Failed],
-				message[MFunction::args, Position[fails, $Failed]]["error"],
-				iMEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
-			];
-			iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
-		]
-	] /; engineOpenQ[]
+		message[MFunction::wspc]["warning"]
+	]
 
 MFunction[name_String, code_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
 	Module[{},
@@ -559,6 +563,7 @@ MFunction[name_String, code_String, opts : OptionsPattern[]] /; MATLABInstalledQ
 		MFunction[name, Sequence @@ FilterRules[{opts}, Except["Overwrite"]]]
 	]
 
+MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
 MFunction[name_String, code_String, opts: OptionsPattern[]] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
 
 MFunction /: DeleteFile[MFunction[name_String, ___]] :=
@@ -566,9 +571,6 @@ MFunction /: DeleteFile[MFunction[name_String, ___]] :=
 		DeleteFile[MScript[name]["AbsolutePath"]],
 		$error
 	]
-
-MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := message[MFunction::wspc]["warning"] /; !engineOpenQ[]
-MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
 
 End[] (* MATLink`Private` *)
 
