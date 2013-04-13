@@ -559,11 +559,14 @@ AppendTo[$ContextPath, "MATLink`Private`"]
 (* Assign to symbols defined in `Private` *)
 engineOpenQ[] /; MATLABInstalledQ[] :=
 	With[{msgs = Unevaluated@{LinkObject::linkd, LinkObject::linkn}},
-		Check[
-			engOpenQ[],
-			message[MATLink::noconn]["fatal"],
-			msgs
-		] ~Quiet~ msgs
+		Catch[
+			Check[
+				engOpenQ[],
+				message[MATLink::noconn]["fatal"];Throw[$Failed, $error],
+				msgs
+			] ~Quiet~ msgs,
+			$error
+		]
 	]
 
 engineOpenQ[] /; !MATLABInstalledQ[] := False
