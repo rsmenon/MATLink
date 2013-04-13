@@ -463,15 +463,20 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	]
 
 MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
-	iMEvaluate[cmd, mlint] /; engineOpenQ[]
+	switchAbort[engineOpenQ[],
+		iMEvaluate[cmd, mlint],
+		message[MEvaluate::wspc]["warning"]
+	]
 
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
-	eval[name] /; engineOpenQ[]
+	switchAbort[engineOpenQ[],
+		eval[name],
+		message[MEvaluate::wspc]["warning"]
+	]
 
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
 	message[MEvaluate::nofn,"MScript", name]["error"]
 
-MEvaluate[___] /; MATLABInstalledQ[] := message[MEvaluate::wspc]["warning"] /; !engineOpenQ[]
 MEvaluate[___] /; !MATLABInstalledQ[] := message[MEvaluate::engc]["warning"]
 
 (* MScript & MFunction *)
