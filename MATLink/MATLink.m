@@ -326,7 +326,7 @@ OpenMATLAB[] /; MATLABInstalledQ[] :=
 		Catch[
 			Module[{},
 				openEngine[];
-				If[engineOpenQ[],
+				switchAbort[engineOpenQ[],
 					writeLog["Opened MATLAB workspace"];
 					MFunction["addpath", "Output" -> False][$sessionTemporaryDirectory];
 					MFunction["cd", "Output" -> False][Directory[]],
