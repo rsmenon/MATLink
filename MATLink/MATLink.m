@@ -269,6 +269,10 @@ checkExpression[expr_] :=
 		]
 	]
 
+SetAttributes[switchAbort, HoldRest]
+switchAbort[cond_, expr_, failExpr_] :=
+	Switch[cond, True, expr, False, failExpr, $Failed, Abort[]]
+
 (* Connect/Disconnect MATLAB engine *)
 SyntaxInformation[ConnectMATLAB] = {"ArgumentsPattern" -> {}}
 
