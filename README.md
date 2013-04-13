@@ -210,30 +210,46 @@ As a reference point, a double precision array with the maximum number of allowe
 
 ###Inf and NaN
 
-Inf and Nan are not supported at the moment.
+Inf and Nan are not supported at the moment.  The values returned to Mathematica are not safe to use: operations on them give unpredictable results.
 
 ###Multiple instances of MATLAB
 
 On OS X, if a MATLAB background process has already been started by _MATLink_, it will not be possible to launch another instance of MATLAB by clicking on its icon.  As a workaround, either start MATLAB before you call `OpenMATLAB[]`or start MATLAB from the terminal as
 
 ```bash
-open -n /Applications/MATLAB_R2012b.app
+open -n /Applications/MATLAB_R2013a.app
 ```
 You can also open it by directly executing the binary from the command line:
 
 ```bash
- /Applications/MATLAB_R2012b.app/bin/matlab
+ /Applications/MATLAB_R2013a.app/bin/matlab
 ```
 
-###`MGet`ting custom classes
+###`MGet`ting objects
 
-Do not use `MGet` on custom classes (things for which `isobject` is true), or data structures that contain custom classes as elements.  On OS X and Unix this will crash the MATLAB process because of a bug in the MATLAB Engine interface.
+Do not use `MGet` on MATLAB objects, or data structures that contain custom classes as elements.  On OS X and Unix this will crash the MATLAB process because of a bug in the MATLAB Engine interface.
+
+Example:
+
+```
+m = containers.Map('a',1);
+s = struct('a',1, 'b',m);
+```
+
+`MGet["m"]` will crash MATLAB because `m` is an object.  `MGet["s"]` will crash because `s` contains an object.
+
+Note: This will be fixed by the switch to the MEX interface.
 
 ###Reading HDF5 based `.mat` files
 
 All the limitations of the [MATLAB Engine interface](http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html) apply to MATLink.  The most noticeable of these is that HFD5 based `.mat` files cannot be read.  Quoting the [MATLAB documentation](http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html),
 
 > The MATLAB engine cannot read MAT-files in a format based on HDF5. These are MAT-files saved using the -v7.3 option of the save function or opened using the w7.3 mode argument to the C or Fortran matOpen function.
+
+As of R2013a, MATLAB does not save `.mat` files in this format by default, unless its settings are changed.
+
+Note: This will be fixed by the switch to the MEX interface.
+
 
 ###Unicode support
 
