@@ -385,15 +385,23 @@ iMSet[var_String, expr_] :=
 
 Options[MSet] = {"ShowErrors" -> True}
 MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
-	If[(result = iMSet[var, expr]) === Null,
-		result,
-		Switch[OptionValue["ShowErrors"],
-			True, checkExpression[expr],
-			False, result
-		]
-	] /; engineOpenQ[]
+	Switch[engineOpenQ[],
+		True,
+		If[(result = iMSet[var, expr]) === Null,
+			result,
+			Switch[OptionValue["ShowErrors"],
+				True, checkExpression[expr],
+				False, result
+			]
+		],
 
-MSet[___] /; MATLABInstalledQ[] := message[MSet::wspc]["warning"] /; !engineOpenQ[]
+		False,
+		message[MSet::wspc]["warning"],
+
+		$Failed,
+		Abort[]
+	]
+
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
 (* MEvaluate *)
