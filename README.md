@@ -237,7 +237,30 @@ All the limitations of the [MATLAB Engine interface](http://www.mathworks.com/he
 
 ###Unicode support
 
-`MGet` and `MSet` do support Unicode strings.  However, `MEvaluate` and related functions may not handle them correctly depending on operating system and MATLAB version.
+`MGet` and `MSet` do support Unicode strings, and will preserve Unicode characters.  However, `MEvaluate` will not preserve unicode characters in its output.  `MEvaluate` should handle Unicode input correctly.  If you discover a situation where it does not, please report it.
+
+The reason unicode output needed to be disabled for `MEvaluate` is that MATLAB's C API is unpredictable and may not produce correct unicode output depending on version and operating system.
+
+Example:
+
+```
+In[]:= MEvaluate["s='Paul Erdős'"] (* Unicode input *)
+
+Out[]= 
+
+s =
+
+Paul Erd!s
+
+In[]:= MGet["s"]
+Out[]= Paul Erdős
+
+```
+
+In `MEvaluate`'s output Unicode in mangled, however, `MGet` trasfers it correctly.
+
+A workaround is using `evalc`.  This is not used in MATLini because of unsolved [issue #29](https://github.com/rsmenon/MATLink/issues/29).
+
 
 ###JIT accelerator
 
