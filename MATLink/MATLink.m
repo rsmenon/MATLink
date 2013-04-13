@@ -177,6 +177,7 @@ AppendTo[$ContextPath, "MATLink`Developer`"];
 (* Common error messages *)
 MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
 MATLink::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
+MATLink::noconn = "MATLink has lost connection to the MATLAB engine; please restart MATLink to create a new connection. If this was a crash, then please try to reproduce it and open a new issue, making sure to provide all the details necessary to reproduce it."
 MATLink::noerr = "No errors were found in the input expression. Check for possible invalid MATLAB assignments."
 MATLink::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
 General::wspo = "The MATLAB workspace is already open."
@@ -556,7 +557,15 @@ Begin["`Engine`"]
 AppendTo[$ContextPath, "MATLink`Private`"]
 
 (* Assign to symbols defined in `Private` *)
-engineOpenQ[] /; MATLABInstalledQ[] := engOpenQ[]
+engineOpenQ[] /; MATLABInstalledQ[] :=
+	With[{msgs = Unevaluated@{LinkObject::linkd, LinkObject::linkn}},
+		Check[
+			engOpenQ[],
+			message[MATLink::noconn]["fatal"],
+			msgs
+		] ~Quiet~ msgs
+	]
+
 engineOpenQ[] /; !MATLABInstalledQ[] := False
 openEngine = engOpen;
 closeEngine = engClose;
