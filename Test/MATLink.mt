@@ -6,5 +6,6 @@ TestSuite[{
 	"Strings.mt",
 	
 	"Roundtripping.mt",
-	"GetSet.mt"
+	"GetSet.mt",
+	"Unicode.mt"
 }]
