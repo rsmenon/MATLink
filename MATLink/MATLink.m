@@ -632,7 +632,7 @@ convertToMathematica[expr_] :=
 		{
 			reshape = Switch[#2,
 				{_,1}, #[[All, 1]],
-				_, Transpose[#, Reverse@Range@ArrayDepth@#]
+				_, Transpose[#, Reverse@Range@Length[#2]]
 			]&,
 			listToArray = First@Fold[Partition, #, Reverse[#2]]&
 		},
