@@ -228,11 +228,21 @@ Out[]=
 
 `MGet["x"]` will return the value of the variable `x` from the MATLAB workspace.  Data structures are translated into a Mathematica-compatible format.
 
+**Examples:**
+
 ```
 In[]:= MEvaluate["x = 1:10;"]
 
 In[]:= MGet["x"]
 Out[]= {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.}
+```
+
+`MGet` is `Listable`:
+
+```
+In[]:= MEvaluate["[v d] = eig(rand(5));"]
+
+In[]:= {v, d} = MGet[{"v", "d"}];
 ```
 
 **Possible issues:**
