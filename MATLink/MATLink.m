@@ -409,6 +409,9 @@ MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
 		message[MSet::wspc]["warning"]
 	]
 
+MSet[_, OptionsPattern[]] := message[MSet::argrx, "MSet", 1, 2]["error"]
+MSet[_, _, __, OptionsPattern[]] := message[MSet::argrx, "MSet", "more than 2", 2]["error"]
+
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
 (* MEvaluate *)
