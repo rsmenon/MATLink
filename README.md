@@ -199,6 +199,119 @@ The following can only be transferred from MATLAB to Mathematica:
  - numerical arrays with the following types: single, int16, int32
  - structs with any number of elements 
 
+##Reference
+
+Each function _MATLink_ exposes is documented in this section.
+
+####`MEvaluate`
+
+`MEvaluate[command]` evaluates `command` in MATLAB and returns the output as text.
+
+**Examples:**
+
+```
+In[]:= MEvaluate["1+1"]
+Out[]=
+      ans =
+
+           2
+```
+
+**Possible issues:**
+
+ * `MEvaluate` performance suffers if the output is not suppressed in MATLAB code.  If you do not need to see the output of `MEvaluate`, use `MEvaluate["command;"]` instead of `MEvaluate["command"];`.
+
+ * The output length of `MEvaluate` is limited to approximatey 100,000 characters.  The rest will be truncated.
+
+
+####`MGet`
+
+`MGet["x"]` will return the value of the variable `x` from the MATLAB workspace.  Data structures are translated into a Mathematica-compatible format.
+
+**Examples:**
+
+```
+In[]:= MEvaluate["x = 1:10;"]
+
+In[]:= MGet["x"]
+Out[]= {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.}
+```
+
+`MGet` is `Listable`:
+
+```
+In[]:= MEvaluate["[v d] = eig(rand(5));"]
+
+In[]:= {v, d} = MGet[{"v", "d"}];
+```
+
+**Possible issues:**
+
+ * MATLAB works with floating point values by default. Even array indices are floating point.  Such values need to be explicitly `Round`ed in Mathematica before they can be used as indices again.  Example:
+ 
+```
+MEvaluate["s = size(zeros(3,4));"]
+s = MGet["s"]
+
+(* ==> {3., 4.} *)
+```
+
+ * Do not attempt to use `MGet` on objects (`classdef` objects) or data structures which contain objects.  This will crash MATLAB because of a MATLAB bug.  See the "Known issues" section for additional details.
+
+**See also:** `MSet`
+
+
+####`MSet`
+
+`MSet["x", value]` will assign `value` to variable `x` in the MATLAB workspace.  `value` must be in the same format as would be returned by `MGet`.
+
+**Examples:**
+
+```
+In[]:= MSet["a", {1,2,3}]
+       MEvaluate["a"]
+       
+Out[]= a =
+
+          1     2     3
+          
+In[]:= MSet["b", {"one" -> {1, 2, 3}, "two" -> {4, "five"}}]
+       MEvaluate["b"]
+       
+Out[]= b =
+
+         one: [1 2 3]
+         two: {[4]  'five'}
+```
+
+To force a list to be sent as a cell, wrap it in the `MCell` head:
+
+```
+In[]:= MSet["a", MCell[{1, 2, 3}]]
+       MEvaluate["a"]
+       
+Out[]= a =
+
+          [1] [2] [3]
+```
+
+**See also:** `MGet`
+
+
+####`ShowMATLAB`
+
+`ShowMATLAB[]` will show the MATLAB command window.  When an evaluation is not in progress, this window can be used to input MATLAB commands independently of _MATLink_.  This function only works on Windows.
+
+**See also:** `HideMATLAB`
+
+
+####`HideMATLAB`
+
+`HideMATLAB[]` will hide the MATLAB command window.  This function only works on Windows.
+
+**See also:** `ShowMATLAB`
+
+
 
 ##Known issues and limitations
 
@@ -210,24 +323,35 @@ As a reference point, a double precision array with the maximum number of allowe
 
 ###Inf and NaN
 
-Inf and Nan are not supported at the moment.
+Inf and Nan are not supported at the moment.  The values returned to Mathematica are not safe to use: operations on them give unpredictable results.
 
 ###Multiple instances of MATLAB
 
 On OS X, if a MATLAB background process has already been started by _MATLink_, it will not be possible to launch another instance of MATLAB by clicking on its icon.  As a workaround, either start MATLAB before you call `OpenMATLAB[]`or start MATLAB from the terminal as
 
 ```bash
-open -n /Applications/MATLAB_R2012b.app
+open -n /Applications/MATLAB_R2013a.app
 ```
 You can also open it by directly executing the binary from the command line:
 
 ```bash
- /Applications/MATLAB_R2012b.app/bin/matlab
+ /Applications/MATLAB_R2013a.app/bin/matlab
 ```
 
-###`MGet`ting custom classes
+###`MGet`ting objects
 
-Do not use `MGet` on custom classes (things for which `isobject` is true), or data structures that contain custom classes as elements.  On OS X and Unix this will crash the MATLAB process because of a bug in the MATLAB Engine interface.
+Do not use `MGet` on MATLAB objects, or data structures that contain custom classes as elements.  On OS X and Unix this will crash the MATLAB process because of a bug in the MATLAB Engine interface.
+
+Example:
+
+```
+m = containers.Map('a',1);
+s = struct('a',1, 'b',m);
+```
+
+`MGet["m"]` will crash MATLAB because `m` is an object.  `MGet["s"]` will crash because `s` contains an object.
+
+Note: This will be fixed by the switch to the MEX interface.
 
 ###Reading HDF5 based `.mat` files
 
@@ -235,9 +359,37 @@ All the limitations of the [MATLAB Engine interface](http://www.mathworks.com/he
 
 > The MATLAB engine cannot read MAT-files in a format based on HDF5. These are MAT-files saved using the -v7.3 option of the save function or opened using the w7.3 mode argument to the C or Fortran matOpen function.
 
+As of R2013a, MATLAB does not save `.mat` files in this format by default, unless its settings are changed.
+
+Note: This will be fixed by the switch to the MEX interface.
+
+
 ###Unicode support
 
-`MGet` and `MSet` do support Unicode strings.  However, `MEvaluate` and related functions may not handle them correctly depending on operating system and MATLAB version.
+`MGet` and `MSet` do support Unicode strings, and will preserve Unicode characters.  However, `MEvaluate` will not preserve unicode characters in its output.  `MEvaluate` should handle Unicode input correctly.  If you discover a situation where it does not, please report it.
+
+The reason unicode output needed to be disabled for `MEvaluate` is that MATLAB's C API is unpredictable and may not produce correct unicode output depending on version and operating system.
+
+Example:
+
+```
+In[]:= MEvaluate["s='Paul Erdős'"] (* Unicode input *)
+
+Out[]= 
+
+s =
+
+Paul Erd!s
+
+In[]:= MGet["s"]
+Out[]= Paul Erdős
+
+```
+
+In `MEvaluate`'s output Unicode in mangled, however, `MGet` trasfers it correctly.
+
+A workaround is using `evalc`.  This is not used in MATLini because of unsolved [issue #29](https://github.com/rsmenon/MATLink/issues/29).
+
 
 ###JIT accelerator
 
