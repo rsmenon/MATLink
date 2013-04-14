@@ -396,7 +396,9 @@ iMSet[var_String, expr_] :=
 	]
 
 Options[MSet] = {"ShowErrors" -> True}
-MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
+validOptionPatterns[MSet] = {"ShowErrors" -> True | False}
+
+MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] && validOptionsQ[MSet, {opts}] :=
 	switchAbort[engineOpenQ[],
 		If[(result = iMSet[var, expr]) === Null,
 			result,
@@ -408,6 +410,9 @@ MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
 
 		message[MSet::wspc]["warning"]
 	]
+
+MSet[_, OptionsPattern[]] := message[MSet::argrx, "MSet", 1, 2]["error"]
+MSet[_, _, __, OptionsPattern[]] := message[MSet::argrx, "MSet", "more than 2", 2]["error"]
 
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
