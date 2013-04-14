@@ -702,6 +702,7 @@ convertToMATLAB[expr_] :=
 			MString[str_String] := engMakeString[str];
 
 			(* TODO allow casting array of 0s and 1s to logical *)
+			MLogical[vec_?VectorQ] := MLogical[{vec}];
 			MLogical[arr_] := engMakeLogical[Boole@reshape@arr, Reverse@Dimensions@arr];
 
 			MCell[vec_?VectorQ] := MCell[{vec}];
