@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Linux 32 bit MATLink start script
+# Modify the variables below to use a custom MATLAB installation:
+
 MATLAB=$(dirname $(readlink -f $(which matlab)))/..
 MATHLINK=$(dirname $(readlink -f $(which math)))/../SystemFiles/Links/MathLink/DeveloperKit/Linux/CompilerAdditions
 

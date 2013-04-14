@@ -4,8 +4,7 @@
 #include <engine.h>
 #include <matrix.h>
 
-// context of all symbols returned
-
+// context of all symbols returned to Mathematica
 #define CONTEXT "MATLink`Engine`"
 
 // the maximum size for MATLAB output
@@ -13,15 +12,15 @@
 
 
 // preprocessor flags for various platforms
-#if WINDOWS_MATHLINK // from mathlink.h
-#define ENGINE_WIN  // compiling on Windows
+#if WINDOWS_MATHLINK  // from mathlink.h
+#define ENGINE_WIN    // compiling on Windows
 #endif
 
 
 class MatlabVariable {
     mxArray *arr;
 
-    MatlabVariable(const MatlabVariable &);     // disallowed
+    MatlabVariable(const MatlabVariable &);   // disallowed
     void operator = (const MatlabVariable &); // disallowed
 public:
     MatlabVariable(mxArray *var) : arr(var) { }
@@ -63,7 +62,8 @@ public:
                 engOutputBuffer(ep, buffer, BUFSIZE);
 
                 // Mathematica will interpret MATLAB's output as UTF-8,
-                // so let's make sure that's what MATLAB is sending
+                // so let's try to get MATLAB to send this encoding.
+                // Note: works in OSX 2012b and Linux 2013a.  Does work in OSX/Windows 2013a
                 engEvalString(ep, "feature('DefaultCharacterSet', 'UTF-8')");
 
                 engSetVisible(ep, 0);

@@ -28,7 +28,7 @@ HideMATLAB::usage =
 	"Hide the MATLAB command window."
 
 MGet::usage =
-	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica. MGet is Listable."
+	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica.  MGet is Listable."
 
 MSet::usage =
 	"MSet[var, expr] exports the value in expr and saves it in a variable named \"var\" in MATLAB's workspace."
@@ -37,33 +37,33 @@ MEvaluate::usage =
 	"MEvaluate[expr] evaluates a valid MATLAB expression (entered as a string) and displays an error otherwise."
 
 MScript::usage =
-	"MScript[filename, expr] creates a MATLAB script named \"filename\" with the contents in expr (string) and stores it on MATLAB's path, but does not evaluate it. These files will be removed when the MATLink engine is closed."
+	"MScript[filename, expr] creates a MATLAB script named \"filename\" with the contents in expr (string) and stores it on MATLAB's path, but does not evaluate it. These files will be removed when the MATLink engine is closed.\nMScript[filename] represents a callable MATLAB script that can be passed to MEvaluate."
 
 MFunction::usage =
-	"MFunction[func] creates a link to a MATLAB function for use from Mathematica."
+	"MFunction[func] creates a link to a MATLAB function for use from Mathematica.\nMFunction[filename, expr] creates a script on MATLAB's path and returns MFunction[filename].  expr (string) must be a valid MATLAB function definition."
 
 MATLink::usage =
 	"MATLink refers to the MATLink package. Set cross-session package options to this symbol."
 
-MATLink::visnowin = "Showing or hiding the MATLAB command window is only supported on Windows."
+MCell::usage = "MCell[list] forces list to be interpreted as a MATLAB cell in MSet, MFunction, etc."
 
-mcell::usage = "" (* TODO Make this private before release *)
+MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MATLAB." (* TODO Make this private before release *)
 
 Begin["`Developer`"]
 
-(*Directories & file paths*)
+(* Directories & file paths *)
 $ApplicationDirectory = DirectoryName@$InputFileName;
 $ApplicationDataDirectory = FileNameJoin[{$UserBaseDirectory, "ApplicationData", "MATLink"}];
 $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
 $BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[$SystemWordLength]}];
 $BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];
 
-(*Log files and related functions *)
+(* Log files and related functions *)
 If[!DirectoryQ@$ApplicationDataDirectory, CreateDirectory@$ApplicationDataDirectory];
 
 $logfile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
 
-(*Log message types:
+(* Log message types:
 	matlink – Standard MATLink` action
 	info    – System info
 	user    – User initiated action
@@ -88,7 +88,7 @@ message[m_MessageName, args___][type_] :=
 		Message[m, args];
 	]
 
-(*Settings file*)
+(* Settings file *)
 $SettingsFile = FileNameJoin[{$ApplicationDataDirectory, "init.m"}];
 
 MATLink /: SetOptions[MATLink, opts_] :=
@@ -111,7 +111,7 @@ If[FileExistsQ@$SettingsFile,
 
 $DefaultMATLABDirectory := OptionValue[MATLink, "DefaultMATLABDirectory"];
 
-(*Other Developer` functions*)
+(* Other Developer` functions *)
 CompileMEngine::unsupp := "Automatically compiling the MATLink Engine from source is not supported on ``. Please compile it manually."
 CompileMEngine::failed := "Automatically compiling the MATLink Engine has failed. Please try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
 
@@ -162,6 +162,13 @@ CleanupTemporaryDirectories[] :=
 randomString[n_Integer:50] :=
 	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
 
+FileHashList[] :=
+	With[{dir = $ApplicationDirectory},
+		{ StringTrim[#, dir], FileHash@#} & /@ Select[FileNames["*", dir <> "*", Infinity],
+			Not@DirectoryQ@# && StringFreeQ[#, {".git", ".DS_Store"}] &
+		]
+	] // TableForm
+
 End[] (* `Developer` *)
 
 Begin["`Private`"]
@@ -170,19 +177,22 @@ AppendTo[$ContextPath, "MATLink`Developer`"];
 (* Common error messages *)
 MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Get.";
 MATLink::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
+MATLink::noconn = "MATLink has lost connection to the MATLAB engine; please restart MATLink to create a new connection. If this was a crash, then please try to reproduce it and open a new issue, making sure to provide all the details necessary to reproduce it."
+MATLink::noerr = "No errors were found in the input expression. Check for possible invalid MATLAB assignments."
+MATLink::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
 General::engc = "Not connected to the MATLAB engine."
 General::nofn = "The `1` \"`2`\" does not exist."
-General::owrt = "An `1` by that name already exists. Use \"Overwrite\" \[Rule] True to overwrite."
+General::owrt = "An `1` by that name already exists. Use \"Overwrite\" -> True to overwrite."
 General::badval = "Invalid option value `1` passed to `2`. Values must match the pattern `3`"
 
 (* Directories and helper functions/variables *)
 EngineBinaryExistsQ[] := FileExistsQ[$BinaryPath];
 
 (* Set these variables only once per session.
-This is to avoid losing connection/changing temporary directory because the user used Get instead of Needs *)
+   This is to avoid losing connection/changing temporary directory because the user used Get instead of Needs *)
 If[!TrueQ[MATLinkLoadedQ[]],
 	MATLinkLoadedQ[] = True;
 	MATLABInstalledQ[] = False;
@@ -212,8 +222,11 @@ cleanupOldLinks[] :=
 MScriptQ[name_String] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
+MScriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
+	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
+
 (* Check MATLAB code for syntax errors before evaluating.
-This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
+   This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
 errorsInMATLABCode[cmd_String] :=
 	Module[
 		{
@@ -227,8 +240,17 @@ errorsInMATLABCode[cmd_String] :=
 		];
 		result = List@@iMGet@First@file;
 		eval@ToString@StringForm["clear `1`", First@file];
-		DeleteFile@file["AbsolutePath"];
-		If[result =!= {}, "message" /. Flatten@result, None]
+		{If[result =!= {}, "message" /. Flatten@result, None], file}
+	]
+
+cleanOutput[str_String, file_String] :=
+	FixedPoint[
+		StringReplace[#,
+			{file -> "input",
+			"[\.08" ~~ Shortest[x__] ~~ "]" :> x,
+			StartOfString ~~ ">> ".. :> ">> "}
+		]&,
+		str
 	]
 
 validOptionsQ[func_Symbol, opts_List] :=
@@ -239,7 +261,21 @@ validOptionsQ[func_Symbol, opts_List] :=
 		]
 	]
 
+checkExpression[expr_] :=
+	With[{invalid = Cases[MATLink`Engine`dispatcher[expr, "Throw" -> False], HoldPattern[$Failed -> x_] :> x, Infinity]},
+		If[invalid === {},
+			message[MATLink::noerr]["error"],
+			message[MATLink::errx, "The following sub-expressions are invalid: " <> ToString@invalid <> ". Check to see if they are supported by MATLink and/or if the dimensions are consistent"]["error"];
+		]
+	]
+
+SetAttributes[switchAbort, HoldRest]
+switchAbort[cond_, expr_, failExpr_] :=
+	Switch[cond, True, expr, False, failExpr, $Failed, Abort[]]
+
 (* Connect/Disconnect MATLAB engine *)
+SyntaxInformation[ConnectMATLAB] = {"ArgumentsPattern" -> {}}
+
 ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
@@ -265,6 +301,8 @@ ConnectMATLAB[] /; !EngineBinaryExistsQ[] :=
 		ConnectMATLAB[];
 	]
 
+SyntaxInformation[DisconnectMATLAB] = {"ArgumentsPattern" -> {}}
+
 DisconnectMATLAB[] /; MATLABInstalledQ[] :=
 	Module[{},
 		LinkClose@$openLink;
@@ -279,41 +317,52 @@ DisconnectMATLAB[] /; !MATLABInstalledQ[] := message[DisconnectMATLAB::engc]["wa
 (* Open/Close MATLAB Workspace *)
 OpenMATLAB::noopen = "Could not open a connection to MATLAB."
 
-OpenMATLAB[] /; MATLABInstalledQ[] :=
-	Catch[
-		Module[{},
-			openEngine[];
-			If[engineOpenQ[],
-				writeLog["Opened MATLAB workspace"],
-				message[OpenMATLAB::noopen]["fatal"];Throw[$Failed, $error]
-			];
-		],
-		$error
-	] /; !engineOpenQ[];
+SyntaxInformation[OpenMATLAB] = {"ArgumentsPattern" -> {}}
 
-OpenMATLAB[] /; MATLABInstalledQ[] := message[OpenMATLAB::wspo]["warning"] /; engineOpenQ[];
+OpenMATLAB[] /; MATLABInstalledQ[] :=
+	switchAbort[engineOpenQ[],
+		message[OpenMATLAB::wspo]["warning"],
+
+		Catch[
+			Module[{},
+				openEngine[];
+				switchAbort[engineOpenQ[],
+					writeLog["Opened MATLAB workspace"];
+					MFunction["addpath", "Output" -> False][$sessionTemporaryDirectory];
+					MFunction["cd", "Output" -> False][Directory[]],
+
+					message[OpenMATLAB::noopen]["fatal"];Throw[$Failed, $error]
+				];
+			],
+			$error
+		]
+	]
 
 OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
 		ConnectMATLAB[];
 		OpenMATLAB[];
-		MFunction["addpath"][$sessionTemporaryDirectory];
-		MFunction["cd"][Directory[]];
 	]
 
-CloseMATLAB[] /; MATLABInstalledQ[] :=
-	Module[{},
-		writeLog["Closed MATLAB workspace"];
-		closeEngine[]
-	] /; engineOpenQ[] ;
+SyntaxInformation[CloseMATLAB] = {"ArgumentsPattern" -> {}}
 
-CloseMATLAB[] /; MATLABInstalledQ[] := message[CloseMATLAB::wspc]["warning"] /; !engineOpenQ[];
+CloseMATLAB[] /; MATLABInstalledQ[] :=
+	switchAbort[engineOpenQ[],
+		Module[{},
+			writeLog["Closed MATLAB workspace"];
+			closeEngine[]
+		],
+		message[CloseMATLAB::wspc]["warning"]
+	]
+
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
-(* Show or hide MATLAB on Windows *)
+(* Show or hide MATLAB command windows --- works on Windows only *)
+SyntaxInformation[ShowMATLAB] = {"ArgumentsPattern" -> {}}
+SyntaxInformation[HideMATLAB] = {"ArgumentsPattern" -> {}}
 
-ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[1])
-HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::visnowin]["warning"]]; setVisible[0])
+ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::noshow]["warning"]]; setVisible[1])
+HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::noshow]["warning"]]; setVisible[0])
 
 
 (* MGet *)
@@ -324,15 +373,20 @@ SetAttributes[MGet,Listable]
 
 iMGet[var_String] := convertToMathematica@get@var
 
-MGet[var_String] /; MATLABInstalledQ[] := iMGet@var /; engineOpenQ[]
-MGet[_String] /; MATLABInstalledQ[] := message[MGet::wspc]["warning"] /; !engineOpenQ[]
+MGet[var_String] /; MATLABInstalledQ[] :=
+	switchAbort[engineOpenQ[],
+		iMGet@var,
+		message[MGet::wspc]["warning"]
+	]
+
 MGet[_String] /; !MATLABInstalledQ[] := message[MGet::engc]["warning"]
 
 (* MSet *)
-MSet::sparse = "Only one and two dimensional sparse arrays are supported; the default element must be 0 for numerical and False for boolean arrays."
+MSet::sparse = "Unsupported sparse array; sparse arrays must be one or two dimensional, and must have either only numerical or only logical (True|False) elements."
+MSet::spdef = "Unsupported sparse array; the default element in numerical sparse arrays must be 0."
 MSet::dupfield = "Duplicate field names not alowed in struct."
 
-SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
+SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _, OptionsPattern[]}};
 
 iMSet[var_String, expr_] :=
 	Internal`WithLocalSettings[
@@ -341,8 +395,20 @@ iMSet[var_String, expr_] :=
 		cleanHandles[]	(* prevent memory leaks *)
 	]
 
-MSet[var_String, expr_] /; MATLABInstalledQ[] := iMSet[var, expr] /; engineOpenQ[]
-MSet[___] /; MATLABInstalledQ[] := message[MSet::wspc]["warning"] /; !engineOpenQ[]
+Options[MSet] = {"ShowErrors" -> True}
+MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
+	switchAbort[engineOpenQ[],
+		If[(result = iMSet[var, expr]) === Null,
+			result,
+			Switch[OptionValue["ShowErrors"],
+				True, checkExpression[expr],
+				False, result
+			]
+		],
+
+		message[MSet::wspc]["warning"]
+	]
+
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
 (* MEvaluate *)
@@ -352,33 +418,44 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	Catch[
-		Module[{result, error, id = randomString[]},
+		Module[{result, error, file, id = randomString[], ex = $temporaryVariablePrefix <> randomString[10]},
 			Switch[mlint,
-				"Check", error = errorsInMATLABCode@cmd,
-				"NoCheck", error = None,
+				"Check", {error, file} = errorsInMATLABCode@cmd,
+				"NoCheck", {error, file} = {None, {cmd}},
 				_, Message[MEvaluate::unkw, mlint];Throw[$Failed,$error]
 			];
-			If[TrueQ[error === None],
+			If[error === None,
 				result = eval@StringJoin["
 					try
-						", cmd, "
-					catch ex
-						sprintf('%s%s%s', '", id, "', ex.getReport,'", id, "')
+						", First@file, "
+					catch ", ex, "
+						sprintf('%s%s%s', '", id, "', ", ex, ".getReport,'", id, "')
 					end
-				"],
+					clear ", ex
+				];
+				If[MScriptQ@file, DeleteFile@file],
 
+				If[MScriptQ@file, DeleteFile@file];
 				Block[{$MessagePrePrint = Identity},
 					Message[MATLink::errx, error];
 					Throw[$Failed, $error]
 				]
 			];
-			If[StringFreeQ[result,id],
-				StringReplace[result, StartOfString~~">> " -> ""],
 
-				First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
-					Block[{$MessagePrePrint = Identity},
-						Message[MATLink::errx, x];
-						Throw[$Failed, $error]
+			Switch[result,
+				$Failed,
+				message[MATLink::noconn]["fatal"];
+				Abort[],
+
+				_,
+				If[StringFreeQ[result,id],
+					cleanOutput[result, First@file],
+
+					First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
+						Block[{$MessagePrePrint = Identity},
+							Message[MATLink::errx, cleanOutput[x, First@file]];
+							Throw[$Failed, $error]
+						]
 					]
 				]
 			]
@@ -387,27 +464,34 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	]
 
 MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
-	iMEvaluate[cmd, mlint] /; engineOpenQ[]
+	switchAbort[engineOpenQ[],
+		iMEvaluate[cmd, mlint],
+		message[MEvaluate::wspc]["warning"]
+	]
 
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
-	eval[name] /; engineOpenQ[]
+	switchAbort[engineOpenQ[],
+		eval[name],
+		message[MEvaluate::wspc]["warning"]
+	]
 
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
 	message[MEvaluate::nofn,"MScript", name]["error"]
 
-MEvaluate[___] /; MATLABInstalledQ[] := message[MEvaluate::wspc]["warning"] /; !engineOpenQ[]
 MEvaluate[___] /; !MATLABInstalledQ[] := message[MEvaluate::engc]["warning"]
 
 (* MScript & MFunction *)
 Options[MScript] = {"Overwrite" -> False};
 validOptionPatterns[MScript] = {"Overwrite" -> True | False};
 
+SyntaxInformation[MScript] = {"ArgumentsPattern" -> {_, _., OptionsPattern[]}}
+
 iMScript[name_String, cmd_String, opts : OptionsPattern[]] :=
 	Module[{file},
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
 		WriteString[file, cmd];
 		Close[file];
-		MEvaluate["rehash", "NoCheck"];
+		MEvaluate["rehash", "NoCheck"]; (* necessary on Windows for MATLAB to pick up new script *)
 		MScript[name]
 	]
 
@@ -437,64 +521,63 @@ MScript /: DeleteFile[MScript[name_String]] :=
 		$error
 	]
 
-Options[MFunction] = {"NewFunction" -> False, "Output" -> True, "OutputArguments" -> 1};
-validOptionPatterns[MFunction] = {"NewFunction" -> True | False, "Output" -> True | False, "OutputArguments" -> _Integer?Positive};
-(* Since MATLAB allows arbitrary function definitions depending on the number of output arguments, we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
+Options[MFunction] = {"Overwrite" -> False, "Output" -> True, "OutputArguments" -> 1};
+validOptionPatterns[MFunction] = {"Overwrite" -> True | False, "Output" -> True | False, "OutputArguments" -> _Integer?Positive};
+(* Since MATLAB allows arbitrary function definitions depending on the number of output arguments,
+	we force the user to explicitly specify the number of outputs if it is different from the default value of 1. *)
+
+SyntaxInformation[MFunction] = {"ArgumentsPattern" -> {_, _., OptionsPattern[]}}
 
 MFunction::args = "The arguments at positions `1` to \"`2`\" could not be translated to MATLAB."
-MFunction::nfun = "To define a new function, use the \"NewFunction\" \[Rule] True option."
 
 MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
-	Switch[OptionValue["Output"],
-		True,
-		Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output, fails},
-			vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
-			fails = Thread[iMSet[vars[[;;nIn]], {args}]];
-			If[MemberQ[fails, $Failed],
-				message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
-				output = ConstantArray[$Failed, nOut];,
+	switchAbort[engineOpenQ[],
+		Switch[OptionValue["Output"],
+			True,
+			Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output, fails},
+				vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
+				fails = Thread[iMSet[vars[[;;nIn]], {args}]];
+				If[MemberQ[fails, $Failed],
+					message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
+					output = ConstantArray[$Failed, nOut];,
 
-				iMEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
-				output = iMGet /@ vars[[-nOut;;]];
-			];
-			iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
-			If[nOut == 1, First@output, output]
+					iMEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
+					output = iMGet /@ vars[[-nOut;;]];
+				];
+				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
+				If[nOut == 1, First@output, output]
+			],
+
+			False,
+			With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
+				fails = Thread[iMSet[vars, {args}]];
+				If[MemberQ[fails, $Failed],
+					message[MFunction::args, Position[fails, $Failed]]["error"],
+					iMEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
+				];
+				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
+			]
 		],
 
-		False,
-		With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
-			fails = Thread[iMSet[vars, {args}]];
-			If[MemberQ[fails, $Failed],
-				message[MFunction::args, Position[fails, $Failed]]["error"],
-				iMEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
-			];
-			iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
-		]
-	] /; engineOpenQ[]
-
-MFunction[name_String, code_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
-	If[OptionValue["NewFunction"] === True,
-		MScript[name, code, "Overwrite" -> True];
-		MFunction[name, Sequence @@ FilterRules[{opts}, Except["NewFunction"]]],
-		message[MFunction::nfun]["error"]
+		message[MFunction::wspc]["warning"]
 	]
 
-MFunction[name_String, OptionsPattern[]][args___] /; MATLABInstalledQ[] := message[MFunction::wspc]["warning"] /; !engineOpenQ[]
-MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
-
-mcell[] :=
+MFunction[name_String, code_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
 	Module[{},
-		CellPrint@Cell[
-			TextData[""],
-			"Program",
-			Evaluatable->True,
-			CellEvaluationFunction -> (MEvaluate@First@FrontEndExecute[FrontEnd`ExportPacket[Cell[#], "InputText"]] &), (* TODO figure out how to avoid conversion to \[AAcute], \[UDoubleAcute], etc. forms *)
-			CellGroupingRules -> "InputGrouping",
-			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
+		If[!MScriptQ[name] || OptionValue["Overwrite"],
+			MScript[name, code, "Overwrite" -> True],
+			message[MFunction::owrt, "MFunction"]["warning"]
 		];
-		SelectionMove[EvaluationNotebook[], All, EvaluationCell];
-		NotebookDelete[];
-		SelectionMove[EvaluationNotebook[], Next, CellContents]
+		MFunction[name, Sequence @@ FilterRules[{opts}, Except["Overwrite"]]]
+	]
+
+MFunction[name_String, OptionsPattern[]][args___] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
+MFunction[name_String, code_String, opts: OptionsPattern[]] /; !MATLABInstalledQ[] := message[MFunction::engc]["warning"]
+
+MFunction /: DeleteFile[MFunction[name_String, ___]] :=
+	Catch[
+		DeleteFile[MScript[name]["AbsolutePath"]],
+		$error
 	]
 
 End[] (* MATLink`Private` *)
@@ -504,7 +587,22 @@ Begin["`Engine`"]
 AppendTo[$ContextPath, "MATLink`Private`"]
 
 (* Assign to symbols defined in `Private` *)
-engineOpenQ[] /; MATLABInstalledQ[] := engOpenQ[]
+engineOpenQ[] /; MATLABInstalledQ[] :=
+	With[{msgs = Unevaluated@{LinkObject::linkd, LinkObject::linkn}},
+		Catch[
+			Check[
+				engOpenQ[],
+
+				message[MATLink::noconn]["fatal"];
+				MATLABInstalledQ[] = False;
+				Throw[$Failed, $error],
+
+				msgs
+			] ~Quiet~ msgs,
+			$error
+		]
+	]
+
 engineOpenQ[] /; !MATLABInstalledQ[] := False
 openEngine = engOpen;
 closeEngine = engClose;
@@ -606,15 +704,19 @@ convertToMATLAB[expr_] :=
 				engMakeCell[reshape@arr /. handle -> Identity, Reverse@Dimensions[arr]];
 
 			(* http://mathematica.stackexchange.com/questions/18081/how-to-interpret-the-fullform-of-a-sparsearray *)
-			MSparseArray[HoldPattern@SparseArray[Automatic, {n_, m_}, 0, {1, {jc_, ir_}, values_}]] :=
+			MSparseArray[HoldPattern@SparseArray[Automatic, {n_, m_}, def_ /; def==0, {1, {jc_, ir_}, values_}]] :=
 				If[ complexArrayQ[values],
 					engMakeSparseComplex[Flatten[ir]-1, jc, Re[values], Im[values], m, n],
 					engMakeSparseReal[Flatten[ir]-1, jc, values, m, n]
 				];
-			MSparseArray[_] := (message[MSet::sparse]["error"]; $Failed);
+			MSparseArray[_] := (message[MSet::spdef]["error"]; $Failed);
 
 			MSparseLogical[HoldPattern@SparseArray[Automatic, {n_, m_}, False, {1, {jc_, ir_}, values_}]] :=
 				engMakeSparseLogical[Flatten[ir]-1, jc, Boole[values], m, n];
+
+			(* If the default element of a sparse logical is not False, make it False *)
+			MSparseLogical[arr_SparseArray] :=
+				MSparseLogical[SparseArray[arr, Dimensions[arr], False]];
 
 			MStruct[rules_] :=
 				If[ !ArrayQ[rules, _, structHandleQ],
@@ -628,7 +730,8 @@ convertToMATLAB[expr_] :=
 
 restructure[expr_] := Catch[dispatcher[expr], $dispTag]
 
-dispatcher[expr_] :=
+Options[dispatcher] = {"Throw" -> True};
+dispatcher[expr_, opts : OptionsPattern[]] :=
 	Switch[
 		expr,
 
@@ -668,47 +771,65 @@ dispatcher[expr_] :=
 		(* _?(ArrayQ[#, _, StringQ] &),
 		MString[expr], *)
 
-		(* struct -- may need recursion *)
-		(*MStruct[_],
-		MStruct[handleStruct@First[expr]],*)
-
 		(* struct *)
 		_?(VectorQ[#, ruleQ] &),
-		MStruct[handleStruct[expr]],
+		MStruct[handleStruct[expr, {opts}]],
 
 		(* cell -- may need recursion *)
 		MCell[_],
-		MCell[handleCell@First[expr]],
+		MCell[handleCell[First[expr], {opts}]],
 
 		(* cell *)
 		_List,
-		MCell[handleCell[expr]],
+		MCell[handleCell[expr, {opts}]],
 
 		(* assumed already handled, no recursion needed; only MCell and MStruct may need recursion *)
 		_MArray | _MLogical | _MSparseArray | _MSparseLogical | _MString,
 		expr,
 
 		_,
-		Throw[$Failed, $dispTag]
+		If[OptionValue["Throw"],
+			Throw[$Failed, $dispTag],
+			$Failed -> expr
+		]
 	]
 
 handleSparse[arr_SparseArray ? (VectorQ[#, NumericQ]&) ] := MSparseArray[Transpose@SparseArray[{arr}]] (* convert to matrix *)
 handleSparse[arr_SparseArray ? (MatrixQ[#, NumericQ]&) ] := MSparseArray[Transpose@SparseArray[arr]] (* the extra SparseArray call gets rid of background elements *)
 handleSparse[arr_SparseArray ? (VectorQ[#, booleanQ]&) ] := MSparseLogical[Transpose@SparseArray[{arr}]]
 handleSparse[arr_SparseArray ? (MatrixQ[#, booleanQ]&) ] := MSparseLogical[Transpose@SparseArray[arr]]
-handleSparse[_] := (message[MSet::sparr]["error"]; Throw[$Failed, $dispTag]) (* higher dim sparse arrays or non-numerical ones are not supported *)
+handleSparse[_] := (message[MSet::sparse]["error"]; Throw[$Failed, $dispTag]) (* higher dim sparse arrays or non-numerical ones are not supported *)
 
-handleStruct[rules_ ? (VectorQ[#, ruleQ]&)] :=
+handleStruct[rules_ ? (VectorQ[#, ruleQ]&), throwOpt_] :=
 	If[ Length@Union[rules[[All,1]]] != Length[rules],
 		message[MSet::dupfield]["error"]; $Failed,
-		Thread[rules[[All, 1]] -> dispatcher /@ rules[[All, 2]]]
+		Thread[rules[[All, 1]] -> (dispatcher[#, throwOpt]& /@ rules[[All, 2]])]
 	]
 
 handleStruct[_] := $Failed (* TODO multi-element struct *)
 
-handleCell[list_List] := dispatcher /@ list
-handleCell[expr_] := dispatcher[expr]
+handleCell[list_List, throwOpt_] := dispatcher[#, throwOpt]& /@ list
+handleCell[expr_, throwOpt_] := dispatcher[expr, throwOpt]
 
 End[] (* MATLink`Engine` *)
+
+Begin["`Experimental`"]
+
+MATLABCell[] :=
+	Module[{},
+		CellPrint@Cell[
+			TextData[""],
+			"Program",
+			Evaluatable->True,
+			CellEvaluationFunction -> (MEvaluate@First@FrontEndExecute[FrontEnd`ExportPacket[Cell[#], "InputText"]] &),
+			CellGroupingRules -> "InputGrouping",
+			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
+		];
+		SelectionMove[EvaluationNotebook[], All, EvaluationCell];
+		NotebookDelete[];
+		SelectionMove[EvaluationNotebook[], Next, CellContents]
+	]
+
+End[] (* MATLink`Experimental` *)
 
 EndPackage[] (* MATLink` *)

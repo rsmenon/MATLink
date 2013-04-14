@@ -28,7 +28,8 @@ void eng_close() {
 
 
 void eng_getbuffer() {
-    MLPutUTF8String(stdlink, (const unsigned char*) engine.getBuffer(), strlen(engine.getBuffer()));
+    MLPutString(stdlink, engine.getBuffer()); // temporarily disable sending engEvaluate[] output as unicode to avoid crashes
+    //MLPutUTF8String(stdlink, (const unsigned char*) engine.getBuffer(), strlen(engine.getBuffer()));
 }
 
 

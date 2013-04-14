@@ -1,5 +1,3 @@
-# Copyright 2013 The MathWorks, Inc.
-
 0AGROW
 0ALIGN
 0AND2
