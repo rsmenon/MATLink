@@ -441,13 +441,21 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 					Throw[$Failed, $error]
 				]
 			];
-			If[StringFreeQ[result,id],
-				cleanOutput[result, First@file],
 
-				First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
-					Block[{$MessagePrePrint = Identity},
-						Message[MATLink::errx, cleanOutput[x, First@file]];
-						Throw[$Failed, $error]
+			Switch[result,
+				$Failed,
+				message[MATLink::noconn]["fatal"];
+				Abort[],
+
+				_,
+				If[StringFreeQ[result,id],
+					cleanOutput[result, First@file],
+
+					First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
+						Block[{$MessagePrePrint = Identity},
+							Message[MATLink::errx, cleanOutput[x, First@file]];
+							Throw[$Failed, $error]
+						]
 					]
 				]
 			]
