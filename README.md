@@ -247,6 +247,15 @@ In[]:= {v, d} = MGet[{"v", "d"}];
 
 **Possible issues:**
 
+ * MATLAB works with floating point values by default. Even array indices are floating point.  Such values need to be explicitly `Round`ed in Mathematica before they can be used as indices again.  Example:
+ 
+```
+MEvaluate["s = size(zeros(3,4));"]
+s = MGet["s"]
+
+(* ==> {3., 4.} *)
+```
+
  * Do not attempt to use `MGet` on objects (`classdef` objects) or data structures which contain objects.  This will crash MATLAB because of a MATLAB bug.  See the "Known issues" section for additional details.
 
 **See also:** `MSet`
