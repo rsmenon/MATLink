@@ -1,7 +1,5 @@
 (* Mathematica Test File *)
 
-Needs["MATLink`"]
-
 Quiet@OpenMATLAB[]
 
 (* s(2).b is not a special case internally *)
@@ -211,3 +209,5 @@ Test[
 ]
 
 (* TODO higher dimensional struct *)
+
+Quiet@CloseMATLAB[]

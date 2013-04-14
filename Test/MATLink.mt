@@ -1,9 +1,10 @@
 (* Test suite for MATLink` *)
 
-Needs["MATLink`"];
-
 TestSuite[{
 	"Connection.mt",
 	"Arrays.mt",
-	"Strings.mt"
+	"Strings.mt",
+	
+	"Roundtripping.mt",
+	"GetSet.mt"
 }]

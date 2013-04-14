@@ -10,8 +10,6 @@
 
 (* MATLAB -> Mathematica -> MATLAB roundtripping is not feasible so it's a non-goal *)
 
-Needs["MATLink`"]
-
 Quiet@OpenMATLAB[]
 
 
@@ -656,4 +654,6 @@ Test[
 	TestID->"Roundtripping-20130414-R5G5N9"
  ]
  
+ 
+ Quiet@CloseMATLAB[]
  
