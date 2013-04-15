@@ -6,6 +6,8 @@ size = Composition[Round, MFunction["size"]]
 
 
 (* Latin 1 only *)
+(* There was a crash that appeared when _only_ character codes 128-255 were present,
+   but not if other unicode characters were included as well. *)
 Test[
 	size["áéí"]
 	,
@@ -64,5 +66,28 @@ Test[
 	TestID -> "Unicode-20130414-S8C4W6"
 ]
 
+
+(* MEvaluate unicode input -- NoCheck version *)
+Test[
+	s = "áéí őű aɪpʰiːeɪ Ελληνικά 汉语";
+	MEvaluate["clear s; s = '"<> s <>"'", "NoCheck"];
+	MGet["s"]
+	,
+	s
+	,
+	TestID -> "Unicode-20130414-C0I6D8"
+]
+
+
+(* MScript unicode input (currently identical to MEvaluate) *)
+Test[
+	s = "áéí őű aɪpʰiːeɪ Ελληνικά 汉语";
+	MEvaluate@MScript["mltest", "clear s; s = '"<> s <>"'"];
+	MGet["s"]
+	,
+	s
+	,
+	TestID -> "Unicode-20130414-F2F4H5"
+]
 
 Quiet@CloseMATLAB[]
