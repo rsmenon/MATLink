@@ -9,11 +9,11 @@
 
 BeginPackage["MATLink`"]
 
-ConnectMATLAB::usage =
-	"ConnectMATLAB[] establishes a connection with the MATLink engine, but does not open an instance of MATLAB."
+ConnectEngine::usage =
+	"ConnectEngine[] establishes a connection with the MATLink engine, but does not open an instance of MATLAB."
 
-DisconnectMATLAB::usage =
-	"DisconnectMATLAB[] closes an existing connection with the MATLink engine."
+DisconnectEngine::usage =
+	"DisconnectEngine[] closes an existing connection with the MATLink engine."
 
 OpenMATLAB::usage =
 	"OpenMATLAB[] opens an instance of MATLAB and allows you to access its workspace."
@@ -274,9 +274,9 @@ switchAbort[cond_, expr_, failExpr_] :=
 	Switch[cond, True, expr, False, failExpr, $Failed, Abort[]]
 
 (* Connect/Disconnect MATLAB engine *)
-SyntaxInformation[ConnectMATLAB] = {"ArgumentsPattern" -> {}}
+SyntaxInformation[ConnectEngine] = {"ArgumentsPattern" -> {}}
 
-ConnectMATLAB[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
+ConnectEngine[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
 		$openLink = Switch[link,
@@ -295,18 +295,18 @@ ConnectMATLAB[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[]
 		writeLog["Connected to the MATLink Engine"];
 	]
 
-ConnectMATLAB[] /; EngineBinaryExistsQ[] && MATLABInstalledQ[] := message[ConnectMATLAB::engo]["warning"]
+ConnectEngine[] /; EngineBinaryExistsQ[] && MATLABInstalledQ[] := message[ConnectEngine::engo]["warning"]
 
-ConnectMATLAB[] /; !EngineBinaryExistsQ[] :=
+ConnectEngine[] /; !EngineBinaryExistsQ[] :=
 	Module[{},
 		writeLog["Compiled MATLink Engine on " <> $OperatingSystem, "matlink"];
 		CompileMEngine[$OperatingSystem];
-		ConnectMATLAB[];
+		ConnectEngine[];
 	]
 
-SyntaxInformation[DisconnectMATLAB] = {"ArgumentsPattern" -> {}}
+SyntaxInformation[DisconnectEngine] = {"ArgumentsPattern" -> {}}
 
-DisconnectMATLAB[] /; MATLABInstalledQ[] :=
+DisconnectEngine[] /; MATLABInstalledQ[] :=
 	Module[{},
 		LinkClose@$openLink;
 		$openLink = {};
@@ -315,7 +315,7 @@ DisconnectMATLAB[] /; MATLABInstalledQ[] :=
 		writeLog["Disconnected from the MATLink Engine"];
 	]
 
-DisconnectMATLAB[] /; !MATLABInstalledQ[] := message[DisconnectMATLAB::engc]["warning"]
+DisconnectEngine[] /; !MATLABInstalledQ[] := message[DisconnectEngine::engc]["warning"]
 
 (* Open/Close MATLAB Workspace *)
 OpenMATLAB::noopen = "Could not open a connection to MATLAB."
@@ -343,7 +343,7 @@ OpenMATLAB[] /; MATLABInstalledQ[] :=
 
 OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
-		ConnectMATLAB[];
+		ConnectEngine[];
 		OpenMATLAB[];
 	]
 
