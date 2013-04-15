@@ -21,11 +21,8 @@ OpenMATLAB::usage =
 CloseMATLAB::usage =
 	"CloseMATLAB[] closes a previously opened instance of MATLAB (opened via MATLink)."
 
-ShowMATLAB::usage =
-	"Show the MATLAB command window."
-
-HideMATLAB::usage =
-	"Hide the MATLAB command window."
+CommandWindow::usage =
+	"CommandWindow[\"Show\"] displays the MATLAB command window.\nCommandWindow[\"Hide\"] hides the MATLAB command window.\nThis function works only on Windows."
 
 MGet::usage =
 	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica.  MGet is Listable."
@@ -179,7 +176,6 @@ MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Ge
 MATLink::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
 MATLink::noconn = "MATLink has lost connection to the MATLAB engine; please restart MATLink to create a new connection. If this was a crash, then please try to reproduce it and open a new issue, making sure to provide all the details necessary to reproduce it."
 MATLink::noerr = "No errors were found in the input expression. Check for possible invalid MATLAB assignments."
-MATLink::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
@@ -187,6 +183,7 @@ General::engc = "Not connected to the MATLAB engine."
 General::nofn = "The `1` \"`2`\" does not exist."
 General::owrt = "An `1` by that name already exists. Use \"Overwrite\" -> True to overwrite."
 General::badval = "Invalid option value `1` passed to `2`. Values must match the pattern `3`"
+General::unkw = "`1` is an unrecognized argument"
 
 (* Directories and helper functions/variables *)
 EngineBinaryExistsQ[] := FileExistsQ[$BinaryPath];
@@ -361,12 +358,13 @@ CloseMATLAB[] /; MATLABInstalledQ[] :=
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
 (* Show or hide MATLAB command windows --- works on Windows only *)
-SyntaxInformation[ShowMATLAB] = {"ArgumentsPattern" -> {}}
-SyntaxInformation[HideMATLAB] = {"ArgumentsPattern" -> {}}
+CommandWindow::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
+SyntaxInformation[CommandWindow] = {"ArgumentsPattern" -> {_}}
 
-ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::noshow]["warning"]]; setVisible[1])
-HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::noshow]["warning"]]; setVisible[0])
-
+CommandWindow["Show"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[1])
+CommandWindow["Hide"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[0])
+CommandWindow[x_] := message[CommandWindow::unkw, x]["error"]
+CommandWindow[_, x__] := message[CommandWindow::argx, "CommandWindow", Length@{x} + 1]["error"]
 
 (* MGet *)
 MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
@@ -422,8 +420,6 @@ MSet[_, _, __, OptionsPattern[]] := message[MSet::argrx, "MSet", "more than 2", 
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
 (* MEvaluate *)
-MEvaluate::unkw = "`1` is an unrecognized argument"
-
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, mlint_String : "Check"] :=
