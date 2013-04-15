@@ -276,10 +276,13 @@ switchAbort[cond_, expr_, failExpr_] :=
 (* Connect/Disconnect MATLAB engine *)
 SyntaxInformation[ConnectMATLAB] = {"ArgumentsPattern" -> {}}
 
-ConnectMATLAB[] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
+ConnectMATLAB[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
-		$openLink = Install@FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine.sh"]}];
+		$openLink = Switch[link,
+			Automatic, Install@FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine.sh"]}],
+			_, Install@LinkConnect@link
+		];
 		$sessionID = StringJoin[
 			IntegerString[{Most@DateList[]}, 10, 2],
 			IntegerString[List @@ Rest@$openLink],
