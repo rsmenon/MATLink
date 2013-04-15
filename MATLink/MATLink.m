@@ -58,7 +58,7 @@ $BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows",
 (* Log files and related functions *)
 If[!DirectoryQ@$ApplicationDataDirectory, CreateDirectory@$ApplicationDataDirectory];
 
-$logfile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
+$LogFile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
 
 (* Log message types:
 	matlink - Standard MATLink` action
@@ -68,14 +68,14 @@ $logfile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
 	error   - MATLink` error
 	fatal   - Fatal error; cannot recover *)
 writeLog[message_, type_:"matlink"] :=
-	Module[{str = OpenAppend[$logfile], date = DateString[]},
+	Module[{str = OpenAppend[$LogFile], date = DateString[]},
 		WriteString[str, StringJoin @@ Riffle[{date, type, message, "\n"}, "\t"]];
 		Close[str];
 	]
 
-clearLog[] := Module[{str = OpenWrite[$logfile]}, Close@str;]
+ClearLog[] := Module[{str = OpenWrite[$LogFile]}, Close@str;]
 
-ShowLog[] := FilePrint@$logfile
+ShowLog[] := FilePrint@$LogFile
 
 SetAttributes[message, HoldFirst]
 message[m_MessageName, args___][type_] :=
@@ -156,9 +156,6 @@ CleanupTemporaryDirectories[] :=
 		DeleteDirectory[#, DeleteContents -> True] & /@ dirs;
 	]
 
-randomString[n_Integer:50] :=
-	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
-
 FileHashList[] :=
 	With[{dir = $ApplicationDirectory},
 		{ StringTrim[#, dir], FileHash@#} & /@ Select[FileNames["*", dir <> "*", Infinity],
@@ -206,21 +203,24 @@ If[!TrueQ[MATLinkLoadedQ[]],
 	message[MATLink::needs]["warning"]
 ]
 
-EngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mengine.sh"];
+engineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mengine.sh"];
 
 (* To close previously opened links that were not terminated properly (possibly from a crash) *)
 cleanupOldLinks[] :=
-	Module[{links = Select[Links[], EngineLinkQ]},
+	Module[{links = Select[Links[], engineLinkQ]},
 		writeLog[ToString@StringForm["Closed `` old link objects.", Length@links]];
 		LinkClose /@ links;
 		MATLABInstalledQ[] = False;
 	]
 
-MScriptQ[name_String] /; MATLABInstalledQ[] :=
+mscriptQ[name_String] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
-MScriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
+mscriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
+
+randomString[n_Integer:50] :=
+	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
 
 (* Check MATLAB code for syntax errors before evaluating.
    This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
@@ -439,9 +439,9 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 					end
 					clear ", ex
 				];
-				If[MScriptQ@file, DeleteFile@file],
+				If[mscriptQ@file, DeleteFile@file],
 
-				If[MScriptQ@file, DeleteFile@file];
+				If[mscriptQ@file, DeleteFile@file];
 				Block[{$MessagePrePrint = Identity},
 					Message[MATLink::errx, error];
 					Throw[$Failed, $error]
@@ -475,13 +475,13 @@ MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
 		message[MEvaluate::wspc]["warning"]
 	]
 
-MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
+MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && mscriptQ[name] :=
 	switchAbort[engineOpenQ[],
 		eval[name],
 		message[MEvaluate::wspc]["warning"]
 	]
 
-MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
+MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !mscriptQ[name] :=
 	message[MEvaluate::nofn,"MScript", name]["error"]
 
 MEvaluate[___] /; !MATLABInstalledQ[] := message[MEvaluate::engc]["warning"]
@@ -502,20 +502,20 @@ iMScript[name_String, cmd_String, opts : OptionsPattern[]] :=
 	]
 
 MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
-	iMScript[name, cmd, opts] /; (!MScriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
+	iMScript[name, cmd, opts] /; (!mscriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
 
 MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Module[{},
 		message[MScript::owrt, "MScript"]["warning"];
 		MScript@name
-	]  /; MScriptQ[name] && !OptionValue["Overwrite"] && validOptionsQ[MScript, {opts}]
+	]  /; mscriptQ[name] && !OptionValue["Overwrite"] && validOptionsQ[MScript, {opts}]
 
 MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := message[MScript::engc]["warning"]
 
-MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
+MScript[name_String]["AbsolutePath"] /; mscriptQ[name] :=
 	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
 
-MScript[name_String]["AbsolutePath"] /; !MScriptQ[name] :=
+MScript[name_String]["AbsolutePath"] /; !mscriptQ[name] :=
 	Module[{},
 		message[MScript::nofn, "MScript", name]["error"];
 		Throw[$Failed, $error]
@@ -570,7 +570,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 
 MFunction[name_String, code_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
 	Module[{},
-		If[!MScriptQ[name] || OptionValue["Overwrite"],
+		If[!mscriptQ[name] || OptionValue["Overwrite"],
 			MScript[name, code, "Overwrite" -> True],
 			message[MFunction::owrt, "MFunction"]["warning"]
 		];
