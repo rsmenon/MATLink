@@ -211,7 +211,7 @@ Test[
    In other words: do not include anything that's encoded as 4 bytes
    instead of 2 bytes in UTF-16. *)
 Test[
-	x = "øåæ őú Ελληνικά 中文 aɪpʰiːeɪ";
+	x = "\[OSlash]\[ARing]\[AE] \[ODoubleAcute]\[UAcute] \[CapitalEpsilon]\[Lambda]\[Lambda]\[Eta]\[Nu]\[Iota]\[Kappa]\:03ac \:4e2d\:6587 a\:026ap\:02b0i\:02d0e\:026a";
 	MSet["x", x];
 	MGet["x"]
 	,

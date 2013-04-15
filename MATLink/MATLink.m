@@ -64,12 +64,12 @@ If[!DirectoryQ@$ApplicationDataDirectory, CreateDirectory@$ApplicationDataDirect
 $logfile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
 
 (* Log message types:
-	matlink – Standard MATLink` action
-	info    – System info
-	user    – User initiated action
-	warning – MATLink` warning
-	error   – MATLink` error
-	fatal   – Fatal error; cannot recover *)
+	matlink - Standard MATLink` action
+	info    - System info
+	user    - User initiated action
+	warning - MATLink` warning
+	error   - MATLink` error
+	fatal   - Fatal error; cannot recover *)
 writeLog[message_, type_:"matlink"] :=
 	Module[{str = OpenAppend[$logfile], date = DateString[]},
 		WriteString[str, StringJoin @@ Riffle[{date, type, message, "\n"}, "\t"]];

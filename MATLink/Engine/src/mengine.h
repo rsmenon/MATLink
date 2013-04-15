@@ -1,4 +1,7 @@
 
+#ifndef MENGINE_H
+#define MENGINE_H
+
 #include "mlp.h"
 
 #include <engine.h>
@@ -121,3 +124,4 @@ public:
 
 extern MatlabEngine engine;
 
+#endif // MENGINE_H
