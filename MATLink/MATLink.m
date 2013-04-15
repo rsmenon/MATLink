@@ -158,7 +158,7 @@ CleanupTemporaryDirectories[] :=
 
 FileHashList[] :=
 	With[{dir = $ApplicationDirectory},
-		{ StringTrim[#, dir], FileHash@#} & /@ Select[FileNames["*", dir <> "*", Infinity],
+		{ StringTrim[#, dir], FileHash@#} & /@ Select[FileNames["*", dir, Infinity],
 			Not@DirectoryQ@# && StringFreeQ[#, {".git", ".DS_Store"}] &
 		]
 	] // TableForm
