@@ -9,7 +9,7 @@ size = Composition[Round, MFunction["size"]]
 (* There was a crash that appeared when _only_ character codes 128-255 were present,
    but not if other unicode characters were included as well. *)
 Test[
-	size["áéí"]
+	size["\[AAcute]\[EAcute]\[IAcute]"]
 	,
 	{1,3}
 	,
@@ -19,7 +19,7 @@ Test[
 
 (* Lots of non-Latin-1 *)
 Test[
-	s = "áéí őű aɪpʰiːeɪ Ελληνικά 汉语";
+	s = "\[AAcute]\[EAcute]\[IAcute] \[ODoubleAcute]\[UDoubleAcute] a\:026ap\:02b0i\:02d0e\:026a \[CapitalEpsilon]\[Lambda]\[Lambda]\[Eta]\[Nu]\[Iota]\[Kappa]\:03ac \:6c49\:8bed";
 	size[s]
 	,
 	{1,StringLength[s]}
@@ -28,9 +28,9 @@ Test[
 ]
 
 
-(* in case Mathematica fails to interpret this file as UTF-8 *)
+(* in case Mathematica fails to interpret this as a two-character string *)
 Test[
-	s = "汉语";
+	s = "\:6c49\:8bed";
 	size[s]
 	,
 	{1,2}
@@ -43,7 +43,7 @@ Test[
 (* this would fail because currently unicode is disabled in MEvaluate's output *)
 (*
 Test[
-	s="汉语";
+	s="\:6c49\:8bed";
 	MEvaluate["clear s"];
 	MSet["s", s];
 	StringMatchQ[MEvaluate["s"], s]
@@ -57,7 +57,7 @@ Test[
 
 (* MEvaluate unicode input *)
 Test[
-	s = "áéí őű aɪpʰiːeɪ Ελληνικά 汉语";
+	s = "\[AAcute]\[EAcute]\[IAcute] \[ODoubleAcute]\[UDoubleAcute] a\:026ap\:02b0i\:02d0e\:026a \[CapitalEpsilon]\[Lambda]\[Lambda]\[Eta]\[Nu]\[Iota]\[Kappa]\:03ac \:6c49\:8bed";
 	MEvaluate["clear s; s = '"<> s <>"'"];
 	MGet["s"]
 	,
@@ -69,7 +69,7 @@ Test[
 
 (* MEvaluate unicode input -- NoCheck version *)
 Test[
-	s = "áéí őű aɪpʰiːeɪ Ελληνικά 汉语";
+	s = "\[AAcute]\[EAcute]\[IAcute] \[ODoubleAcute]\[UDoubleAcute] a\:026ap\:02b0i\:02d0e\:026a \[CapitalEpsilon]\[Lambda]\[Lambda]\[Eta]\[Nu]\[Iota]\[Kappa]\:03ac \:6c49\:8bed";
 	MEvaluate["clear s; s = '"<> s <>"'", "NoCheck"];
 	MGet["s"]
 	,
@@ -81,7 +81,7 @@ Test[
 
 (* MScript unicode input (currently identical to MEvaluate) *)
 Test[
-	s = "áéí őű aɪpʰiːeɪ Ελληνικά 汉语";
+	s = "\[AAcute]\[EAcute]\[IAcute] \[ODoubleAcute]\[UDoubleAcute] a\:026ap\:02b0i\:02d0e\:026a \[CapitalEpsilon]\[Lambda]\[Lambda]\[Eta]\[Nu]\[Iota]\[Kappa]\:03ac \:6c49\:8bed";
 	MEvaluate@MScript["mltest", "clear s; s = '"<> s <>"'"];
 	MGet["s"]
 	,
