@@ -128,7 +128,7 @@ CompileMEngine["MacOSX"] :=
 		PrintTemporary["Compiling the MATLink Engine from source...\n"];
 		If[ Run["make -f Makefile.osx"] != 0,
 			SetDirectory[dir];
-			message[CompileMEngine::failed]["error"];
+			message[CompileMEngine::failed]["fatal"];
 			Abort[];
 		];
 		Run["mv mengine " <> $BinaryPath];
@@ -143,7 +143,7 @@ CompileMEngine["Unix"] :=
 		PrintTemporary["Compiling the MATLink Engine from source...\n"];
 		If[ Run["make -f " <> makefile] != 0,
 			SetDirectory[dir];
-			message[CompileMEngine::failed]["error"];
+			message[CompileMEngine::failed]["fatal"];
 			Abort[];
 		];
 		Run["mv mengine " <> $BinaryPath];
@@ -151,7 +151,7 @@ CompileMEngine["Unix"] :=
 		SetDirectory[dir];
 	]
 
-CompileMEngine[os_] := (message[CompileMEngine::unsupp, os]["error"]; Abort[])
+CompileMEngine[os_] := (message[CompileMEngine::unsupp, os]["fatal"]; Abort[])
 
 CleanupTemporaryDirectories[] :=
 	Module[{dirs = FileNames@FileNameJoin[{$TemporaryDirectory,"MATLink*"}]},
