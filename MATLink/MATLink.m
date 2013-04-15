@@ -384,6 +384,8 @@ MGet[var_String] /; MATLABInstalledQ[] :=
 
 MGet[_String] /; !MATLABInstalledQ[] := message[MGet::engc]["warning"]
 
+MGet[_, x__] := message[MGet::argx, "MGet", Length@{x} + 1]["error"]
+
 (* MSet *)
 MSet::sparse = "Unsupported sparse array; sparse arrays must be one or two dimensional, and must have either only numerical or only logical (True|False) elements."
 MSet::spdef = "Unsupported sparse array; the default element in numerical sparse arrays must be 0."
