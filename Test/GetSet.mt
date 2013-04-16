@@ -182,9 +182,11 @@ Test[
    this will need to be changed. *)
 Test[
 	MEvaluate["x = uint8(7);"];
-	Quiet@Check[MGet["x"], "unimplemented", MGet::unimpl]	
+	MGet["x"]	
 	,
-	"unimplemented"
+	$Failed
+	,
+	{MGet::unimpl}
 	,
 	TestID -> "GetSet-20130416-N5U8J6"
 ]
@@ -409,7 +411,7 @@ Test[
 (* check that no stray temporary variables are left
    in the MATLAB workspace *)
 Test[
-	Select[First@Transpose@MFunction["who"][], StringMatchQ[#, "MATLink*"] &]
+	Select[Flatten[{MFunction["who"][]}], StringMatchQ[#, "MATLink*"] &]
 	,
 	{}
 	,

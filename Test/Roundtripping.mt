@@ -690,7 +690,7 @@ Test[
 (* check that no stray temporary variables are left
    in the MATLAB workspace *)
 Test[
-	Select[First@Transpose@MFunction["who"][], StringMatchQ[#, "MATLink*"] &]
+	Select[Flatten[{MFunction["who"][]}], StringMatchQ[#, "MATLink*"] &]
 	,
 	{}
 	,
