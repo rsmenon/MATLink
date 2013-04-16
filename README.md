@@ -199,9 +199,24 @@ The following can only be transferred from MATLAB to Mathematica:
  - numerical arrays with the following types: single, int16, int32
  - structs with any number of elements 
 
+
+----
+
 ##Reference
 
-Each function _MATLink_ exposes is documented in this section.
+Each public function _MATLink_ is briefly documented in this section.
+
+####`OpenMATLAB`
+
+`OpenMATLAB[]` will start the MATLAB process and connect to it.  Use `CloseMATlAB[]` to close the running MATLAB session.
+
+**See also:** `CloseMATLAB`
+
+####`CloseMATLAB`
+
+`CloseMATLAB[]` closes an open MATLAB session.
+
+**See also:** `OpenMATLAB`
 
 ####`MEvaluate`
 
@@ -222,6 +237,8 @@ Out[]=
  * `MEvaluate` performance suffers if the output is not suppressed in MATLAB code.  If you do not need to see the output of `MEvaluate`, use `MEvaluate["command;"]` instead of `MEvaluate["command"];`.
 
  * The output length of `MEvaluate` is limited to approximatey 100,000 characters.  The rest will be truncated.
+ 
+**See also:** `MScript`
 
 
 ####`MGet`
@@ -298,13 +315,96 @@ Out[]= a =
 **See also:** `MGet`
 
 
+####`MFunction`
+
+`MFunction["func"]` represents the MATLAB function `func`.  It can be called directly from within Mathematica.
+
+`MFunction["func", "body"]` creates a new `.m` file with the contents `body` and returns `MFunction["func"]`.  This is analogous to how `MScript` works.
+
+By default, `func` is expected to have a single output.  To call it with no output arguments, use `MFunction["func", "Output" -> False]`.  To specify more than one output argument, use the `"OutputArguments"` option: `MFunction["func", "OutputArguments" -> 2]`.
+
+When creating new functions using the syntax `MFunction["func", "body"]`, `MFunction` does not overwrite exsiting `.m` files.  To force overwriting an existing `.m` file, use the option `"Overwrite" -> True`. See `MScript` for more details.
+
+**Examples:**
+
+Wrap a MATLAB function to make it directly callable from Mathematica:
+
+```
+In[]:= eig = MFunction["eig"]
+Out[]= MFunction["eig"]
+
+In[]:= eig[{{1, 2}, {3, 4}}]
+Out[]= {{-0.372281}, {5.37228}}
+```
+
+Use two output arguments instead of one:
+
+```
+In[]:= eig = MFunction["eig", "OutputArguments" -> 2]
+Out[]= MFunction["eig", "OutputArguments" -> 2]
+
+In[]:= eig[{{1, 2}, {3, 4}}]
+Out[]= {{{-0.824565, -0.415974}, {0.565767, -0.909377}}, 
+          {{-0.372281, 0.}, {0., 5.37228}}}
+```
+
+Write a custom function:
+
+```
+In[]:= add = MFunction["add", "
+  function res = add(x,y)
+  res = x+y
+  end"]
+
+Out[]= MFunction["add"]
+
+In[]:= add[3, 4]
+Out[]= 7.
+```
+
+**Possible issues:**
+
+Bye default `MFunction` assumes a single output argument.  This causes errors in some MATLAB functions:
+
+```
+In[]:= MFunction["disp"]["Hello"]
+
+MATLink::errx: Error using disp
+Too many output arguments.
+
+Out[]= $Failed
+```
+
+Use `"Output" -> False` to indicate that the function cannot have any output arguments: `MFunction["disp", "Output" -> False]["Hello"]`
+
+**See also:** `MScript`.
+
+####`MScript`
+
+`MScript["scriptname", "commands"]` will create a MATLAB script with the contents `commands`.  It returns `MScript["scriptname"]` which can be evaluated using `MEvaluate`.
+
+If a script with the specified name already exists, `MScript` will issue a message and it will not overwrite it by default.  To force overwriting the existing script, use `MScript["scriptname", "commands", "Overwrite" -> True]`.
+
+**Examples:**
+
+```
+In[]:= hello = MScript["hello", "disp('Hello world!')"]
+Out[]= MScript["hello"]
+
+In[]:= MEvaluate[hello]
+Out[]=
+"Hello world!"
+```
+
+**See also:** `MFunction`, `MEvaluate`
+
 ####`CommandWindow`
 
 `CommandWindow["Show"]` will show the MATLAB command window.  When an evaluation is not in progress, this window can be used to input MATLAB commands independently of _MATLink_.   Use `CommandWindow["Hide"]` to hide the window again. 
 
 This functionanilty is only available on Windows.
 
-
+---
 
 ##Known issues and limitations
 
