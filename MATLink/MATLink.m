@@ -497,7 +497,11 @@ iMScript[name_String, cmd_String, opts : OptionsPattern[]] :=
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
 		WriteString[file, cmd];
 		Close[file];
-		MEvaluate["rehash", "NoCheck"]; (* necessary on Windows for MATLAB to pick up new script *)
+		(* The follosing is necessary on Windows for MATLAB to pick up new script *)
+		MEvaluate["rehash", "NoCheck"];
+		(* The following clears the script from memory to ensure MATLAB will reload it
+		   exist() is used to avoid clearing variables of the same name by accident. *)
+		If[MFunction["exist"][name] == 2, MFunction["clear", "Output"->False][name]];
 		MScript[name]
 	]
 
