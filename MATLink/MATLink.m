@@ -9,11 +9,11 @@
 
 BeginPackage["MATLink`"]
 
-ConnectMATLAB::usage =
-	"ConnectMATLAB[] establishes a connection with the MATLink engine, but does not open an instance of MATLAB."
+ConnectEngine::usage =
+	"ConnectEngine[] establishes a connection with the MATLink engine, but does not open an instance of MATLAB."
 
-DisconnectMATLAB::usage =
-	"DisconnectMATLAB[] closes an existing connection with the MATLink engine."
+DisconnectEngine::usage =
+	"DisconnectEngine[] closes an existing connection with the MATLink engine."
 
 OpenMATLAB::usage =
 	"OpenMATLAB[] opens an instance of MATLAB and allows you to access its workspace."
@@ -21,11 +21,8 @@ OpenMATLAB::usage =
 CloseMATLAB::usage =
 	"CloseMATLAB[] closes a previously opened instance of MATLAB (opened via MATLink)."
 
-ShowMATLAB::usage =
-	"Show the MATLAB command window."
-
-HideMATLAB::usage =
-	"Hide the MATLAB command window."
+CommandWindow::usage =
+	"CommandWindow[\"Show\"] displays the MATLAB command window.\nCommandWindow[\"Hide\"] hides the MATLAB command window.\nThis function works only on Windows."
 
 MGet::usage =
 	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica.  MGet is Listable."
@@ -61,7 +58,7 @@ $BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows",
 (* Log files and related functions *)
 If[!DirectoryQ@$ApplicationDataDirectory, CreateDirectory@$ApplicationDataDirectory];
 
-$logfile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
+$LogFile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
 
 (* Log message types:
 	matlink - Standard MATLink` action
@@ -71,14 +68,14 @@ $logfile = FileNameJoin[{$ApplicationDataDirectory, "MATLink.log"}]
 	error   - MATLink` error
 	fatal   - Fatal error; cannot recover *)
 writeLog[message_, type_:"matlink"] :=
-	Module[{str = OpenAppend[$logfile], date = DateString[]},
+	Module[{str = OpenAppend[$LogFile], date = DateString[]},
 		WriteString[str, StringJoin @@ Riffle[{date, type, message, "\n"}, "\t"]];
 		Close[str];
 	]
 
-clearLog[] := Module[{str = OpenWrite[$logfile]}, Close@str;]
+ClearLog[] := Module[{str = OpenWrite[$LogFile]}, Close@str;]
 
-ShowLog[] := FilePrint@$logfile
+ShowLog[] := FilePrint@$LogFile
 
 SetAttributes[message, HoldFirst]
 message[m_MessageName, args___][type_] :=
@@ -128,7 +125,7 @@ CompileMEngine["MacOSX"] :=
 		PrintTemporary["Compiling the MATLink Engine from source...\n"];
 		If[ Run["make -f Makefile.osx"] != 0,
 			SetDirectory[dir];
-			message[CompileMEngine::failed]["error"];
+			message[CompileMEngine::failed]["fatal"];
 			Abort[];
 		];
 		Run["mv mengine " <> $BinaryPath];
@@ -143,7 +140,7 @@ CompileMEngine["Unix"] :=
 		PrintTemporary["Compiling the MATLink Engine from source...\n"];
 		If[ Run["make -f " <> makefile] != 0,
 			SetDirectory[dir];
-			message[CompileMEngine::failed]["error"];
+			message[CompileMEngine::failed]["fatal"];
 			Abort[];
 		];
 		Run["mv mengine " <> $BinaryPath];
@@ -151,7 +148,7 @@ CompileMEngine["Unix"] :=
 		SetDirectory[dir];
 	]
 
-CompileMEngine[os_] := (message[CompileMEngine::unsupp, os]["error"]; Abort[])
+CompileMEngine[os_] := (message[CompileMEngine::unsupp, os]["fatal"]; Abort[])
 
 CleanupTemporaryDirectories[] :=
 	Module[{dirs = FileNames@FileNameJoin[{$TemporaryDirectory,"MATLink*"}]},
@@ -159,12 +156,9 @@ CleanupTemporaryDirectories[] :=
 		DeleteDirectory[#, DeleteContents -> True] & /@ dirs;
 	]
 
-randomString[n_Integer:50] :=
-	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
-
 FileHashList[] :=
 	With[{dir = $ApplicationDirectory},
-		{ StringTrim[#, dir], FileHash@#} & /@ Select[FileNames["*", dir <> "*", Infinity],
+		{ StringTrim[#, dir], FileHash@#} & /@ Select[FileNames["*", dir, Infinity],
 			Not@DirectoryQ@# && StringFreeQ[#, {".git", ".DS_Store"}] &
 		]
 	] // TableForm
@@ -179,7 +173,6 @@ MATLink::needs = "MATLink is already loaded. Remember to use Needs instead of Ge
 MATLink::errx = "``" (* Fill in when necessary with the error that MATLAB reports *)
 MATLink::noconn = "MATLink has lost connection to the MATLAB engine; please restart MATLink to create a new connection. If this was a crash, then please try to reproduce it and open a new issue, making sure to provide all the details necessary to reproduce it."
 MATLink::noerr = "No errors were found in the input expression. Check for possible invalid MATLAB assignments."
-MATLink::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
 General::wspo = "The MATLAB workspace is already open."
 General::wspc = "The MATLAB workspace is already closed."
 General::engo = "There is an existing connection to the MATLAB engine."
@@ -187,6 +180,7 @@ General::engc = "Not connected to the MATLAB engine."
 General::nofn = "The `1` \"`2`\" does not exist."
 General::owrt = "An `1` by that name already exists. Use \"Overwrite\" -> True to overwrite."
 General::badval = "Invalid option value `1` passed to `2`. Values must match the pattern `3`"
+General::unkw = "`1` is an unrecognized argument"
 
 (* Directories and helper functions/variables *)
 EngineBinaryExistsQ[] := FileExistsQ[$BinaryPath];
@@ -209,21 +203,24 @@ If[!TrueQ[MATLinkLoadedQ[]],
 	message[MATLink::needs]["warning"]
 ]
 
-EngineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mengine.sh"];
+engineLinkQ[LinkObject[link_String, _, _]] := ! StringFreeQ[link, "mengine.sh"];
 
 (* To close previously opened links that were not terminated properly (possibly from a crash) *)
 cleanupOldLinks[] :=
-	Module[{links = Select[Links[], EngineLinkQ]},
+	Module[{links = Select[Links[], engineLinkQ]},
 		writeLog[ToString@StringForm["Closed `` old link objects.", Length@links]];
 		LinkClose /@ links;
 		MATLABInstalledQ[] = False;
 	]
 
-MScriptQ[name_String] /; MATLABInstalledQ[] :=
+mscriptQ[name_String] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
-MScriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
+mscriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
+
+randomString[n_Integer:50] :=
+	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
 
 (* Check MATLAB code for syntax errors before evaluating.
    This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
@@ -274,9 +271,9 @@ switchAbort[cond_, expr_, failExpr_] :=
 	Switch[cond, True, expr, False, failExpr, $Failed, Abort[]]
 
 (* Connect/Disconnect MATLAB engine *)
-SyntaxInformation[ConnectMATLAB] = {"ArgumentsPattern" -> {}}
+SyntaxInformation[ConnectEngine] = {"ArgumentsPattern" -> {}}
 
-ConnectMATLAB[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
+ConnectEngine[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[] :=
 	Module[{},
 		cleanupOldLinks[];
 		$openLink = Switch[link,
@@ -295,18 +292,18 @@ ConnectMATLAB[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[]
 		writeLog["Connected to the MATLink Engine"];
 	]
 
-ConnectMATLAB[] /; EngineBinaryExistsQ[] && MATLABInstalledQ[] := message[ConnectMATLAB::engo]["warning"]
+ConnectEngine[] /; EngineBinaryExistsQ[] && MATLABInstalledQ[] := message[ConnectEngine::engo]["warning"]
 
-ConnectMATLAB[] /; !EngineBinaryExistsQ[] :=
+ConnectEngine[] /; !EngineBinaryExistsQ[] :=
 	Module[{},
 		writeLog["Compiled MATLink Engine on " <> $OperatingSystem, "matlink"];
 		CompileMEngine[$OperatingSystem];
-		ConnectMATLAB[];
+		ConnectEngine[];
 	]
 
-SyntaxInformation[DisconnectMATLAB] = {"ArgumentsPattern" -> {}}
+SyntaxInformation[DisconnectEngine] = {"ArgumentsPattern" -> {}}
 
-DisconnectMATLAB[] /; MATLABInstalledQ[] :=
+DisconnectEngine[] /; MATLABInstalledQ[] :=
 	Module[{},
 		LinkClose@$openLink;
 		$openLink = {};
@@ -315,7 +312,7 @@ DisconnectMATLAB[] /; MATLABInstalledQ[] :=
 		writeLog["Disconnected from the MATLink Engine"];
 	]
 
-DisconnectMATLAB[] /; !MATLABInstalledQ[] := message[DisconnectMATLAB::engc]["warning"]
+DisconnectEngine[] /; !MATLABInstalledQ[] := message[DisconnectEngine::engc]["warning"]
 
 (* Open/Close MATLAB Workspace *)
 OpenMATLAB::noopen = "Could not open a connection to MATLAB."
@@ -343,7 +340,7 @@ OpenMATLAB[] /; MATLABInstalledQ[] :=
 
 OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
-		ConnectMATLAB[];
+		ConnectEngine[];
 		OpenMATLAB[];
 	]
 
@@ -361,12 +358,13 @@ CloseMATLAB[] /; MATLABInstalledQ[] :=
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 
 (* Show or hide MATLAB command windows --- works on Windows only *)
-SyntaxInformation[ShowMATLAB] = {"ArgumentsPattern" -> {}}
-SyntaxInformation[HideMATLAB] = {"ArgumentsPattern" -> {}}
+CommandWindow::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
+SyntaxInformation[CommandWindow] = {"ArgumentsPattern" -> {_}}
 
-ShowMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::noshow]["warning"]]; setVisible[1])
-HideMATLAB[] := (If[$OperatingSystem =!= "Windows", message[MATLink::noshow]["warning"]]; setVisible[0])
-
+CommandWindow["Show"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[1])
+CommandWindow["Hide"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[0])
+CommandWindow[x_] := message[CommandWindow::unkw, x]["error"]
+CommandWindow[_, x__] := message[CommandWindow::argx, "CommandWindow", Length@{x} + 1]["error"]
 
 (* MGet *)
 MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
@@ -383,6 +381,8 @@ MGet[var_String] /; MATLABInstalledQ[] :=
 	]
 
 MGet[_String] /; !MATLABInstalledQ[] := message[MGet::engc]["warning"]
+
+MGet[_, x__] := message[MGet::argx, "MGet", Length@{x} + 1]["error"]
 
 (* MSet *)
 MSet::sparse = "Unsupported sparse array; sparse arrays must be one or two dimensional, and must have either only numerical or only logical (True|False) elements."
@@ -420,8 +420,6 @@ MSet[_, _, __, OptionsPattern[]] := message[MSet::argrx, "MSet", "more than 2", 
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
 (* MEvaluate *)
-MEvaluate::unkw = "`1` is an unrecognized argument"
-
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, mlint_String : "Check"] :=
@@ -441,9 +439,9 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 					end
 					clear ", ex
 				];
-				If[MScriptQ@file, DeleteFile@file],
+				If[mscriptQ@file, DeleteFile@file],
 
-				If[MScriptQ@file, DeleteFile@file];
+				If[mscriptQ@file, DeleteFile@file];
 				Block[{$MessagePrePrint = Identity},
 					Message[MATLink::errx, error];
 					Throw[$Failed, $error]
@@ -477,13 +475,13 @@ MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
 		message[MEvaluate::wspc]["warning"]
 	]
 
-MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && MScriptQ[name] :=
+MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && mscriptQ[name] :=
 	switchAbort[engineOpenQ[],
 		eval[name],
 		message[MEvaluate::wspc]["warning"]
 	]
 
-MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !MScriptQ[name] :=
+MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && !mscriptQ[name] :=
 	message[MEvaluate::nofn,"MScript", name]["error"]
 
 MEvaluate[___] /; !MATLABInstalledQ[] := message[MEvaluate::engc]["warning"]
@@ -504,20 +502,20 @@ iMScript[name_String, cmd_String, opts : OptionsPattern[]] :=
 	]
 
 MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
-	iMScript[name, cmd, opts] /; (!MScriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
+	iMScript[name, cmd, opts] /; (!mscriptQ[name] || OptionValue["Overwrite"]) && validOptionsQ[MScript, {opts}]
 
 MScript[name_String, cmd_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] :=
 	Module[{},
 		message[MScript::owrt, "MScript"]["warning"];
 		MScript@name
-	]  /; MScriptQ[name] && !OptionValue["Overwrite"] && validOptionsQ[MScript, {opts}]
+	]  /; mscriptQ[name] && !OptionValue["Overwrite"] && validOptionsQ[MScript, {opts}]
 
 MScript[name_String, cmd_String, OptionsPattern[]] /; !MATLABInstalledQ[] := message[MScript::engc]["warning"]
 
-MScript[name_String]["AbsolutePath"] /; MScriptQ[name] :=
+MScript[name_String]["AbsolutePath"] /; mscriptQ[name] :=
 	FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]
 
-MScript[name_String]["AbsolutePath"] /; !MScriptQ[name] :=
+MScript[name_String]["AbsolutePath"] /; !mscriptQ[name] :=
 	Module[{},
 		message[MScript::nofn, "MScript", name]["error"];
 		Throw[$Failed, $error]
@@ -572,7 +570,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 
 MFunction[name_String, code_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
 	Module[{},
-		If[!MScriptQ[name] || OptionValue["Overwrite"],
+		If[!mscriptQ[name] || OptionValue["Overwrite"],
 			MScript[name, code, "Overwrite" -> True],
 			message[MFunction::owrt, "MFunction"]["warning"]
 		];

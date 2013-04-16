@@ -11,7 +11,7 @@ Test[
 	TestID->"Connection-20130222-O9F3F2"
 ]
 
-ConnectMATLAB[];
+ConnectEngine[];
 Test[
 	{MATLink`Private`EngineBinaryExistsQ[], MATLink`Private`MATLABInstalledQ[], MATLink`Private`engineOpenQ[]}
 	,
@@ -39,7 +39,7 @@ Test[
 	TestID->"Connection-20130223-I6W6A1"
 ]
 
-DisconnectMATLAB[];
+DisconnectEngine[];
 Test[
 	{MATLink`Private`EngineBinaryExistsQ[], MATLink`Private`MATLABInstalledQ[], MATLink`Private`engineOpenQ[]}
 	,
