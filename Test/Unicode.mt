@@ -90,4 +90,26 @@ Test[
 	TestID -> "Unicode-20130414-F2F4H5"
 ]
 
+
+(* after all the tests have run, check that there are no
+   stray handles left in the mengine process *)
+Test[
+	MATLink`Engine`engGetHandles[]
+	,
+	{}
+	,
+	TestID -> "Unicode-20130416-R5H5G8"	
+]
+
+
+(* check that no stray temporary variables are left
+   in the MATLAB workspace *)
+Test[
+	Select[First@Transpose@MFunction["who"][], StringMatchQ[#, "MATLink*"] &]
+	,
+	{}
+	,
+	TestID -> "Unicode-20130416-Q1J8H1"
+]
+
 Quiet@CloseMATLAB[]

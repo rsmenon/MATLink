@@ -261,9 +261,9 @@ Test[
 Test[
 	x = SparseArray[{i_, j_} /; 5 < Norm[{i, j}] < 8 :> N[i/j], {7, 8}];
 	MSet["x", x];
-	Normal@MGet["x"]
+	MGet["x"] == N[x]
 	,
-	Normal@N[x]
+	True
 	,
 	TestID->"Roundtripping-20130414-T2J0O5"
 ]
@@ -273,9 +273,9 @@ Test[
 Test[
 	x = SparseArray[{i_, j_} :> i/j, {4, 6}];
 	MSet["x", x];
-	Normal@MGet["x"]
+	MGet["x"] == N[x]
 	,
-	Normal@N[x]
+	True
 	,
 	TestID->"Roundtripping-20130414-X1C0F6"
 ]
@@ -293,7 +293,29 @@ Test[
 ]
 
 
-(* TODO investiage if SparseArray[] has a canonical representation and whether this can be obtained easily *)
+(* empty sparse array *)
+Test[
+	x = SparseArray@ConstantArray[0, {17,23}];
+	MSet["x", x];
+	MGet["x"] == x
+	,
+	True
+	,
+	TestID->"Roundtripping-20130415-F8L4M1"
+]
+
+
+(* full sparse array *)
+Test[
+	x = N@SparseArray@RandomReal[1, {17,23}];
+	MSet["x", x];
+	MGet["x"]
+	,
+	x
+	,
+	TestID->"Roundtripping-20130415-K4J9S3"
+]
+
 
 (* sparse complex matrix *)
 Test[
@@ -396,15 +418,13 @@ Test[
 ]
 
 
-(* TODO sparse logical *)
-
 (* Sparse logical matrix, False default element *)
 Test[
 	x = SparseArray[{i_, j_} :> PrimeQ[i + j], {13, 27}, False];
 	MSet["x", x];
-	Normal@MGet["x"]
+	MGet["x"] == x
 	,
-	Normal[x]
+	True
 	,
 	TestID->"Roundtripping-20130414-T1V8B8"
 ]
@@ -414,9 +434,9 @@ Test[
 Test[
 	x = SparseArray[{i_, j_} :> PrimeQ[i + j], {13, 27}];
 	MSet["x", x];
-	Normal@MGet["x"]
+	MGet["x"] == x
 	,
-	Normal[x]
+	True
 	,
 	TestID->"Roundtripping-20130414-Y8M0D0"
 ]
@@ -467,7 +487,7 @@ Test[
 	,
 	x
 	,
-	TestID->"Roundtripping-20130414-X3D8J3"
+	TestID->"Roundtripping-20130415-M1G7C3"
 ]
 
 
@@ -654,6 +674,28 @@ Test[
 	TestID->"Roundtripping-20130414-R5G5N9"
  ]
  
+ 
+ 
+(* after all the tests have run, check that there are no
+   stray handles left in the mengine process *)
+Test[
+	MATLink`Engine`engGetHandles[]
+	,
+	{}
+	,
+	TestID -> "Roundtripping-20130416-P9Z2R3"	
+]
+
+
+(* check that no stray temporary variables are left
+   in the MATLAB workspace *)
+Test[
+	Select[First@Transpose@MFunction["who"][], StringMatchQ[#, "MATLink*"] &]
+	,
+	{}
+	,
+	TestID -> "Roundtripping-20130416-H3I4I1"
+]
  
  Quiet@CloseMATLAB[]
  
