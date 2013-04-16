@@ -298,18 +298,11 @@ Out[]= a =
 **See also:** `MGet`
 
 
-####`ShowMATLAB`
+####`CommandWindow`
 
-`ShowMATLAB[]` will show the MATLAB command window.  When an evaluation is not in progress, this window can be used to input MATLAB commands independently of _MATLink_.  This function only works on Windows.
+`CommandWindow["Show"]` will show the MATLAB command window.  When an evaluation is not in progress, this window can be used to input MATLAB commands independently of _MATLink_.   Use `CommandWindow["Hide"]` to hide the window again. 
 
-**See also:** `HideMATLAB`
-
-
-####`HideMATLAB`
-
-`HideMATLAB[]` will hide the MATLAB command window.  This function only works on Windows.
-
-**See also:** `ShowMATLAB`
+This functionanilty is only available on Windows.
 
 
 
