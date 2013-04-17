@@ -1,3 +1,9 @@
+/* mengine.tm
+ *
+ * Copyright (c) 2013 Sz. Horvát and R. Menon
+ *
+ * See the file LICENSE.txt for copying permission.
+ */
 
 :Evaluate:		Begin["MATLink`Engine`"]
 

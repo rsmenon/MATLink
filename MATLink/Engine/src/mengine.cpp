@@ -1,3 +1,9 @@
+/* mengine.cpp
+ *
+ * Copyright (c) 2013 Sz. Horvát and R. Menon
+ *
+ * See the file LICENSE.txt for copying permission.
+ */
 
 #include "mengine.h"
 

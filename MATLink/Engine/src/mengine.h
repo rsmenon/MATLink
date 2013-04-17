@@ -1,3 +1,9 @@
+/* mengine.h
+ *
+ * Copyright (c) 2013 Sz. Horvát and R. Menon
+ *
+ * See the file LICENSE.txt for copying permission.
+ */
 
 #ifndef MENGINE_H
 #define MENGINE_H

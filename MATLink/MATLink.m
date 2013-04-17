@@ -4,6 +4,8 @@
 	R. Menon (rsmenon@icloud.com)
 	Sz. Horvát (szhorvat@gmail.com)
 *)
+(* :Copyright: 2013 R. Menon and Sz. Horvát
+    See the file LICENSE.txt for copying permission. *)
 (* :Package Version: 0.1 *)
 (* :Mathematica Version: 9.0 *)
 

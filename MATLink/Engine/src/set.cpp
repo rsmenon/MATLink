@@ -1,3 +1,9 @@
+/* set.cpp -- transfer data from Mathematica to MATLAB
+ *
+ * Copyright (c) 2013 Sz. Horvát and R. Menon
+ *
+ * See the file LICENSE.txt for copying permission.
+ */
 
 #include "mengine.h"
 
