@@ -397,6 +397,89 @@ Test[
 ]
 
 
+(* MGet should only return packed arrays *)
+
+(* vector *)
+Test[
+	MEvaluate["x=1:100;"];
+	Developer`PackedArrayQ@MGet["x"]
+	,
+	True
+	,
+	TestID -> "GetSet-20130416-R0I5J8"
+]
+
+(* single precision *)
+Test[
+	MEvaluate["x=1:100; x=single(x);"];
+	Developer`PackedArrayQ@MGet["x"]
+	,
+	True
+	,
+	TestID -> "GetSet-20130416-G6Y7C8"
+]
+
+(* int16 *)
+Test[
+	MEvaluate["x=1:100; x=int16(x);"];
+	Developer`PackedArrayQ@MGet["x"]
+	,
+	True
+	,
+	TestID -> "GetSet-20130416-B5R9T2"
+]
+
+(* int32 *)
+Test[
+	MEvaluate["x=1:100; x=int32(x);"];
+	Developer`PackedArrayQ@MGet["x"]
+	,
+	True
+	,
+	TestID -> "GetSet-20130416-K2F6H0"
+]
+
+(* matrix *)
+Test[
+	MEvaluate["x=rand(27,43);"];
+	Developer`PackedArrayQ@MGet["x"]
+	,
+	True
+	,
+	TestID -> "GetSet-20130416-L7U6P9"
+]
+
+(* higer dimensional *)
+Test[
+	MEvaluate["x=rand(27,43,19);"];
+	Developer`PackedArrayQ@MGet["x"]
+	,
+	True
+	,
+	TestID -> "GetSet-20130416-V5P0V8"
+]
+
+(* complex matrix *)
+Test[
+	MEvaluate["x=rand(51) + i*rand(51);"];
+	Developer`PackedArrayQ@MGet["x"]
+	,
+	True
+	,
+	TestID -> "GetSet-20130416-Z0O1G5"
+]
+
+(* complex vector *)
+Test[
+	MEvaluate["x=rand(1,151) + i*rand(1,151);"];
+	Developer`PackedArrayQ@MGet["x"]
+	,
+	True
+	,
+	TestID -> "GetSet-20130416-U3G0C5"
+]
+
+
 
 (* after all the tests have run, check that there are no
    stray handles left in the mengine process *)
