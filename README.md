@@ -202,7 +202,7 @@ The following can only be transferred from MATLAB to Mathematica:
 
 ----
 
-##Reference
+##Reference documentation
 
 Each public function _MATLink_ is briefly documented in this section.
 
@@ -418,7 +418,7 @@ As a reference point, a double precision array with the maximum number of allowe
 
 Inf and Nan are not supported at the moment.  The values returned to Mathematica are not safe to use: operations on them give unpredictable results.
 
-###Multiple instances of MATLAB
+###Multiple instances of MATLAB on OS X
 
 On OS X, if a MATLAB background process has already been started by _MATLink_, it will not be possible to launch another instance of MATLAB by clicking on its icon.  As a workaround, either start MATLAB before you call `OpenMATLAB[]`or start MATLAB from the terminal as
 
@@ -481,29 +481,8 @@ Out[]= Paul Erdős
 
 In `MEvaluate`'s output Unicode in mangled, however, `MGet` trasfers it correctly.
 
-A workaround is using `evalc`.  This is not used in MATLini because of unsolved [issue #29](https://github.com/rsmenon/MATLink/issues/29).
+A workaround is using `evalc`.  This is not used in MATLink because of unsolved [issue #29](https://github.com/rsmenon/MATLink/issues/29).
 
-
-###JIT accelerator
-
-The JIT accelerator does not work for commands submitted using `MEvaluate` on Windows (as of R2013a).  This means that the same MATLAB program may run much faster when submitted using `MScript` than when using `MEvaluate`.   However, the performance difference will only be significant for certain types of code, and is usually non-existent when using simple commands.  Scripts or functions defined in .m files *will* still use the JIT accelerator when called from `MEvaluate`, and vectorized code is not affected much by the JIT.  The only case when you can expect bad performance from `MEvaluate` is if you submit a longer piece of non-vectorized code which heavily relies on loops (`for`, `while`, etc.).
-
-Example of the type of code that will be affected by the lack of acceleration (it relies on explicit loops):
-
-```
-x=zeros(1e7,1);
-for i=1:length(x)
-  x(i)=rand();
-end
-```
-
-Example of the type of code that will *not* be affected (relying on built-in or custom functions and vectorization):
-
-```
-x = rand(1e7,1)
-```
-
-Currently only Windows is affected, but future versions of MATLink may lose support for JIT acceleration with `MEvaluate` on all platforms, so please consider using `MScript` for your projects when appropriate.
 
 ---
 
