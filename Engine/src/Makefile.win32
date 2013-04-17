@@ -1,0 +1,24 @@
+# Makefile for building on Windows 32 bit using the Microsoft C++ compiler
+
+# Set path to MATLAB and MathLink here:
+MATLABDIR   = D:\Progra~1\MATLAB\R2013a
+MATHLINKDIR = D:\Progra~1\Wolfra~1\Mathematica\9.0\SystemFiles\Links\MathLink\DeveloperKit
+
+SYS = Windows
+CADDSDIR = $(MATHLINKDIR)\$(SYS)\CompilerAdditions
+
+MPREP = $(CADDSDIR)\mldev32\bin\mprep.exe
+
+
+all: mengine.exe
+
+menginetm.cpp: mengine.tm
+	$(MPREP) mengine.tm -o menginetm.cpp
+
+mengine.exe: main.cpp get.cpp set.cpp mengine.cpp mengine.h mlp.h menginetm.cpp
+	cl /O2 /EHsc /DENGINE_32 /I$(CADDSDIR)\mldev32\include /I$(MATLABDIR)\extern\include /DMX_COMPAT_32 /DWIN32 /D_WINDOWS menginetm.cpp mengine.cpp set.cpp get.cpp main.cpp /Femengine.exe /link /NOLOGO /INCREMENTAL:no /PDB:NONE /SUBSYSTEM:windows /LIBPATH:$(CADDSDIR)\mldev32\lib ml32i3m.lib /LIBPATH:$(MATLABDIR)\extern\lib\win32\microsoft libmx.lib libmat.lib libeng.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+
+
+clean:
+	@ del *.obj mengine.exe menginetm.cpp
+
