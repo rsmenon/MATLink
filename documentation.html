@@ -56,10 +56,10 @@
 								<h1>MATLink</h1>
 								<p>A <i>Mathematica</i> application for seamless two-way communication and data transfer with MATLAB. Harness the computational power of both systems efficiently using MATLink. </p>
 								<div class="actions">
-									<a class="btn btn-primary" href="https://github.com/rsmenon/MATLink/archive/develop.zip"
+									<a class="btn btn-primary" href="https://github.com/rsmenon/MATLink/archive/latest.zip"
 										onClick="_gaq.push(['_trackEvent', 'Outbound Link', 'Download on GitHub']);">
 										<i class="icon-cloud-download"></i>
-										Download 0.9 beta</a>
+										Download 0.1 alpha</a>
 								</div>
 							</div>
 						</div>
@@ -71,17 +71,54 @@
 </div>
 
 <div class="container">
-<h1>MATLink Documentation</h1>
-<h2>Public functions</h2>
+<h1>Documentation</h1>
+<h2>Reference</h2>
+<section id="connection">
+	<h3>Connecting to MATLAB</h3>
+	<ul id="install-tabs" class="nav nav-tabs">
+		<li class="active"><a href="#connection-introduction" data-toggle="tab">Introduction</a></li>
+		<li><a href="#ConnectEngine" data-toggle="tab">ConnectEngine</a></li>
+		<li><a href="#DisconnectEngine" data-toggle="tab">DisconnectEngine</a></li>
+		<li><a href="#OpenMATLAB" data-toggle="tab">OpenMATLAB</a></li>
+		<li><a href="#CloseMATLAB" data-toggle="tab">CloseMATLAB</a></li>
+	</ul>
+
+	<div id="install-tabs-content" class="tab-content">
+		<div class="tab-pane fade in active" id="connection-introduction">
+		</div>
+
+		<div class="tab-pane fade" id="ConnectEngine">
+			<blockquote><code>ConnectEngine[]</code> will open a connection to the MATLAB engine.</blockquote>
+
+			<h4>Details & Options</h4>
+			<ul>
+				<li>
+			</ul>
+		</div>
+
+		<div class="tab-pane fade" id="DisconnectEngine">
+		</div>
+
+		<div class="tab-pane fade" id="OpenMATLAB">
+		</div>
+
+		<div class="tab-pane fade" id="CloseMATLAB">
+		</div>
+	</div>
+</section>
+
 	<section id="evaluation">
-		<h3 class="page-header">Evaluating MATLAB commands</h3>
+		<h3>Evaluating MATLAB commands</h3>
 		<ul id="install-tabs" class="nav nav-tabs">
-			<li class="active"><a href="#MEvaluate" data-toggle="tab">MEvaluate</a></li>
+			<li class="active"><a href="#evaluation-introduction" data-toggle="tab">Introduction</a></li>
+			<li><a href="#MEvaluate" data-toggle="tab">MEvaluate</a></li>
 			<li><a href="#CommandWindow" data-toggle="tab">CommandWindow</a></li>
 		</ul>
 
 		<div id="install-tabs-content" class="tab-content">
-			<div class="tab-pane fade in active" id="MEvaluate">
+			<div class="tab-pane fade in active" id="evaluation-introduction">
+			</div>
+			<div class="tab-pane fade" id="MEvaluate">
 				<blockquote><code>MEvaluate["code"]</code> will execute <code>code</code> in MATLAB as if it were entered at the command prompt and returns the output as text.</blockquote>
 
 				<h4>Details & Options</h4>
@@ -112,14 +149,18 @@
 
 <div class="container">
 	<section id="transferring-variables">
-		<h3 class="page-header">Transferring variables</h3>
+		<h3>Transferring variables</h3>
 		<ul id="install-tabs" class="nav nav-tabs">
-			<li class="active"><a href="#MGet" data-toggle="tab">MGet</a></li>
+			<li class="active"><a href="#transferring-introduction" data-toggle="tab">Introduction</a></li>
+			<li><a href="#MGet" data-toggle="tab">MGet</a></li>
 			<li><a href="#MSet" data-toggle="tab">MSet</a></li>
 		</ul>
 
 		<div id="install-tabs-content" class="tab-content">
-			<div class="tab-pane fade in active" id="MGet">
+			<div class="tab-pane fade in active" id="connection-introduction">
+			</div>
+
+			<div class="tab-pane fade" id="MGet">
 				<blockquote><code>MGet["var"]</code> will return the value of the variable <code>var</code> from the MATLAB workspace. Data structures are translated into a <i>Mathematica</i> compatible format.</blockquote>
 
 				<h4>Details & Options</h4>
@@ -192,17 +233,21 @@ s = MGet["s"]
 
 	</section>
 </div>
+</div>
 
 <div class="container">
 	<section id="scripts-functions">
-		<h3 class="page-header">Scripts & Functions</h3>
+		<h3>Scripts & Functions</h3>
 		<ul id="install-tabs" class="nav nav-tabs">
-			<li class="active"><a href="#MScript" data-toggle="tab">MScript</a></li>
+			<li class="active"><a href="#scripts-introduction" data-toggle="tab">Introduction</a></li>
+			<li><a href="#MScript" data-toggle="tab">MScript</a></li>
 			<li><a href="#MFunction" data-toggle="tab">MFunction</a></li>
 		</ul>
 
 		<div id="install-tabs-content" class="tab-content">
-			<div class="tab-pane fade in active" id="MScript">
+			<div class="tab-pane fade in active" id="scripts-introduction">
+			</div>
+			<div class="tab-pane fade" id="MScript">
 				<blockquote><code>MScript["scriptname", "commands"]</code> will create a MATLAB script containing <code>commands</code>.
 				</blockquote>
 
@@ -281,6 +326,80 @@ Too many output arguments.
 			</div>
 		</div>
 	</section>
+</div>
+
+<div class="container">
+	<h2>Known Issues</h2>
+	<ul>
+		<li>
+		<h4>Large array support</h4>
+
+		<p>At the moment, only arrays with less than <code>2^31-1</code> elements are supported.  Note that this is true for matrices and multidimensional arrays as well: the <em>total number</em> of matrix elements may not excede <code>2^31-1</code> even if the matrix has fewer rows and columns than this.  As an example, the largest supported square matrix can be of size 46341 by 46341.</p>
+
+		<p>As a reference point, a double precision array with the maximum number of allowed elements would take up 16 GB of memory, so this limit should be more than sufficient for most applications.</p></li>
+
+		<li><h4>Inf and NaN</h4>
+
+		<p>Inf and Nan are not supported at the moment. The values returned to Mathematica are not safe to use: operations on them give unpredictable results.</p></li>
+
+		<li><h4>Multiple instances of MATLAB on OS X</h4>
+
+		<p>On OS X, if a MATLAB background process has already been started by <em>MATLink</em>, it will not be possible to launch another instance of MATLAB by clicking on its icon. As a workaround, either start MATLAB before you call <code>OpenMATLAB[]</code>or start MATLAB from the terminal as</p>
+
+<pre>
+open -n /Applications/MATLAB_R2013a.app
+</pre>
+
+<p>You can also open it by directly executing the binary from the command line:</p>
+
+<pre>
+/Applications/MATLAB_R2013a.app/bin/matlab
+</pre>
+</li>
+
+<li><h4>Transferring MATLAB objects</h4>
+
+<p>Do not use <code>MGet</code> on MATLAB objects, or data structures that contain custom classes as elements. On OS X and Unix this will crash the MATLAB process because of a bug in the MATLAB Engine interface. For example,</p>
+
+<pre class="prettyprint lang-matlab">
+m = containers.Map('a',1);
+s = struct('a',1, 'b',m);
+</pre>
+
+<p>Now running <code>MGet["m"]</code> will crash MATLAB because <code>m</code> is an object. <code>MGet["s"]</code> will crash because <code>s</code> contains an object.</p>
+
+</li>
+
+<li><h4>Reading HDF5 based .mat files</h4>
+
+<p>All the limitations of the <a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">MATLAB Engine interface</a> apply to MATLink.  The most noticeable of these is that HFD5 based <code>.mat</code> files cannot be read.  Quoting the <a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">MATLAB documentation</a>,</p>
+
+<div class="quote">
+The MATLAB engine cannot read MAT-files in a format based on HDF5. These are MAT-files saved using the -v7.3 option of the save function or opened using the w7.3 mode argument to the C or Fortran matOpen function.
+</div>
+
+<p>As of R2013a, MATLAB does not save <code>.mat</code> files in this format by default, unless its settings are changed.</p>
+</li>
+
+<li><h4>Unicode support</h4>
+
+<p><code>MGet</code> and <code>MSet</code> do support Unicode strings, and will preserve Unicode characters. However, <code>MEvaluate</code> will not preserve unicode characters in its output. <code>MEvaluate</code> should handle Unicode input correctly.  If you discover a situation where it does not, please report it.</p>
+
+<p>The reason unicode output needed to be disabled for <code>MEvaluate</code> is that MATLAB's C API is unpredictable and may not produce correct unicode output depending on version and operating system.</p>
+
+<pre class="prettyprint lang-mma">
+MEvaluate["s='Paul Erdős'"] (* Unicode input *)
+(* Out: s = Paul Erd!s *)
+
+MGet["s"]
+(* Out: Paul Erdős *)
+</pre>
+
+<p>In <code>MEvaluate</code>'s output Unicode in mangled, however, <code>MGet</code> trasfers it correctly.</p>
+
+<p>A workaround is using <code>evalc</code>.  This is not used in MATLink because of unsolved <a href="https://github.com/rsmenon/MATLink/issues/29">issue #29</a>.</p>
+</li>
+</ul>
 
 <footer class="footer">
 	<div class="container">

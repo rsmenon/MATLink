@@ -7,6 +7,13 @@ code {
   color: #000;
 }
 
+.quote {
+  padding: 10px;
+  margin: 0 0 26px;
+  border-left: 5px solid #ddd;
+  background-color: #f6f6f6;
+}
+
 blockquote code {
   /*color: #0063ac;*/
   padding: 2px 0px 2px 4px;
