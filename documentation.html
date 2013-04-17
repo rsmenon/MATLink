@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8" />
+<title>MATLink — Documentation</title>
+<meta name="description" content="">
+<meta name="author" content="R. Menon, Sz. Horvát">
+
+<link rel="stylesheet" href="assets/css/bootstrap.css">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="stylesheet" href="assets/css/prettify.css">
+<link rel="stylesheet" href="assets/css/lang-matlab.css">
+<link rel="stylesheet" href="assets/css/lang-mma.css">
+<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+
+</head>
+<body>
+
+<!--navigation bar-->
+<div class="navbar navbar-inverse navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			<a class="brand" href="#">MATLink</a>
+			<ul class="nav">
+				<li><a href="#installation">Installation</a></li>
+				<li class="dropdown">
+				<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+					Getting started
+					<i class="icon-caret-down"></i>
+				</a>
+				<ul class="dropdown-menu" role="menu">
+					<li class=""><a href="#connecting">Connecting to MATLink</a></li>
+					<li class=""><a href="#executing-matlab">Executing MATLAB commands</a></li>
+					<li class=""><a href="#transferring-data">Transferring data</a></li>
+					<li class=""><a href="#scripts-functions">Working with scripts and functions</a></li>
+				</ul>
+				</li>
+				<li><a href="documentation.html">Documentation</a></li>
+				<li><a href="#examples">Examples</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<!--Main MATLink banner-->
+<div class="jumbotron">
+	<div class="container">
+		<div class="row">
+			<div class="span12">
+				<div class="hero-unit">
+					<div class="container">
+						<div class="row">
+							<div class="span6 text-center">
+								<img src="assets/img/logo.png" width=400px>
+							</div>
+							<div class="span5 center-all">
+								<h1>MATLink</h1>
+								<p>A <i>Mathematica</i> application for seamless two-way communication and data transfer with MATLAB. Harness the computational power of both systems efficiently using MATLink. </p>
+								<div class="actions">
+									<a class="btn btn-primary" href="https://github.com/rsmenon/MATLink/archive/develop.zip"
+										onClick="_gaq.push(['_trackEvent', 'Outbound Link', 'Download on GitHub']);">
+										<i class="icon-cloud-download"></i>
+										Download 0.9 beta</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container">
+<h1>MATLink Documentation</h1>
+<h2>Public functions</h2>
+	<section id="evaluation">
+		<h3 class="page-header">Evaluating MATLAB commands</h3>
+		<ul id="install-tabs" class="nav nav-tabs">
+			<li class="active"><a href="#MEvaluate" data-toggle="tab">MEvaluate</a></li>
+			<li><a href="#CommandWindow" data-toggle="tab">CommandWindow</a></li>
+		</ul>
+
+		<div id="install-tabs-content" class="tab-content">
+			<div class="tab-pane fade in active" id="MEvaluate">
+				<blockquote><code>MEvaluate["code"]</code> will execute <code>code</code> in MATLAB as if it were entered at the command prompt and returns the output as text.</blockquote>
+
+				<h4>Details & Options</h4>
+				<ul>
+					<li></li>
+				</ul>
+
+				<h4>Possible issues</h4>
+				<ul>
+					<li><code>MEvaluate</code> performance suffers if the output is not suppressed in MATLAB code. If you do not need to see the output of <code>MEvaluate</code>, use <code>MEvaluate["command;"]</code> instead of <code>MEvaluate["command"];</code>.
+					</li>
+					<li>The output length of <code>MEvaluate</code> is limited to approximatey 100,000 characters. The rest will be truncated.</li>
+				</ul>
+			</div>
+
+			<div class="tab-pane fade" id="CommandWindow">
+				<blockquote><code>CommandWindow["action"]</code> will perform <code>"action"</code> on MATLAB's built-in command window. This function works only on Windows.</blockquote>
+
+				<h4>Details & Options</h4>
+				<ul>
+					<li><code>CommandWindow["Show"]</code> displays the command window. When an evaluation is not in progress, this window can be used to input MATLAB commands independently of MATLink.</li>
+					<li><code>CommandWindow["Hide"]</code> hides the command window.</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+</div>
+
+<div class="container">
+	<section id="transferring-variables">
+		<h3 class="page-header">Transferring variables</h3>
+		<ul id="install-tabs" class="nav nav-tabs">
+			<li class="active"><a href="#MGet" data-toggle="tab">MGet</a></li>
+			<li><a href="#MSet" data-toggle="tab">MSet</a></li>
+		</ul>
+
+		<div id="install-tabs-content" class="tab-content">
+			<div class="tab-pane fade in active" id="MGet">
+				<blockquote><code>MGet["var"]</code> will return the value of the variable <code>var</code> from the MATLAB workspace. Data structures are translated into a <i>Mathematica</i> compatible format.</blockquote>
+
+				<h4>Details & Options</h4>
+				<ul>
+					<li><code>var</code> must be a string denoting the name of the variable in MATLAB
+<pre class="prettyprint lang-mma">
+MEvaluate["x = 1:10;"]
+MGet["x"]
+(* Out[1]= {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.} *)
+</pre></li>
+
+					<li><code>MGet</code> is <code>Listable</code>
+<pre class="prettyprint lang-mma">
+MEvaluate["[v, e] = eig(rand(5));"]
+{v, e} = MGet[{"v", "e"}]
+</pre>
+					</li>
+				</ul>
+
+				<h4>Possible issues</h4>
+				<ul>
+					<li>MATLAB works with floating point values by default. Even array indices are floating point, and such values need to be explicitly rounded in <i>Mathematica</i> before they can be used as indices again.
+<pre class="prettyprint lang-mma">
+MEvaluate["s = size(zeros(3,4));"]
+s = MGet["s"]
+(* Out: {3., 4.} *)
+</pre>
+</li>
+<li>Do not attempt to use <code>MGet</code> on objects (<code>classdef</code> objects) or data structures which contain objects. This will crash MATLAB because of a MATLAB bug. See the "Known issues" section for additional details.</li>
+</ul>
+			</div>
+
+			<div class="tab-pane fade" id="MSet">
+				<blockquote><code>MSet["var", value]</code> will assign value to variable <code>var</code> in the MATLAB workspace.</blockquote>
+				<h4>Examples</h4>
+				<ul>
+					<li>
+<pre class="prettyprint lang-mma">
+MSet["a", {1,2,3}]
+MEvaluate["a"]
+(* Out: a = 1  2  3 *)
+</pre></li>
+</ul>
+
+				<h4>Details & Options</h4>
+				<ul>
+					<li><code>var</code> must be a string denoting the name of the variable in MATLAB</li>
+					<li><code>value</code> must be in a MATLink compatible format.</li>
+
+					<li>To force a list to be interpreted as a MATLAB cell, wrap it in the <code>MCell</code> head:
+<pre class="prettyprint lang-mma">
+MSet["a", MCell[{1, 2, 3}]]
+MEvaluate["a"]
+(* Out: a = [1] [2] [3] *)
+</pre></li>
+				</ul>
+
+				<h4>Possible issues</h4>
+				<ul>
+					<li>MATLAB works with floating point values by default. Even array indices are floating point, and such values need to be explicitly rounded in <i>Mathematica</i> before they can be used as indices again.
+<pre class="prettyprint lang-mma">
+MEvaluate["s = size(zeros(3,4));"]
+s = MGet["s"]
+(* Out: {3., 4.} *)
+</pre>
+</li>
+<li>Do not attempt to use <code>MGet</code> on objects (<code>classdef</code> objects) or data structures which contain objects. This will crash MATLAB because of a MATLAB bug. See the "Known issues" section for additional details.</li>
+</ul>
+			</div>
+
+	</section>
+</div>
+
+<div class="container">
+	<section id="scripts-functions">
+		<h3 class="page-header">Scripts & Functions</h3>
+		<ul id="install-tabs" class="nav nav-tabs">
+			<li class="active"><a href="#MScript" data-toggle="tab">MScript</a></li>
+			<li><a href="#MFunction" data-toggle="tab">MFunction</a></li>
+		</ul>
+
+		<div id="install-tabs-content" class="tab-content">
+			<div class="tab-pane fade in active" id="MScript">
+				<blockquote><code>MScript["scriptname", "commands"]</code> will create a MATLAB script containing <code>commands</code>.
+				</blockquote>
+
+				<h4>Details & Options</h4>
+				<ul>
+					<li><code>MScript["scriptname", "commands"]</code> returns <code>MScript["scriptname"]</code>, which can be evaluated using <code>MEvaluate</code>.
+
+<pre class="prettyprint lang-mma">
+hello = MScript["hello", "disp('Hello world!')"];
+MEvaluate@hello
+(* Out[1] = "Hello world!" *)
+</pre>
+					</li>
+					<li>When creating new scripts, <code>MScript</code> will not overwrite exsiting <code>.m</code> files. To force overwrite an existing file, use the option <code>"Overwrite" -> True</code> (default value for <code>"Overwrite"</code> is <code>False</code>).</li>
+			</div>
+
+			<div class="tab-pane fade" id="MFunction">
+				<blockquote>
+					<code>MFunction["func"]</code> represents a MATLAB function <code>func</code> (that is on MATLAB's path), and can be called directly from within <i>Mathematica</i>.<br>
+					<code>MFunction["func", "body"]</code> creates a new <code>.m</code> file with the contents <code>body</code> and returns <code>MFunction["func"]</code>.
+				</blockquote>
+
+				<h4>Examples</h4>
+				<ul>
+					<li>Calling a built-in MATLAB function
+<pre class="prettyprint lang-mma">
+eig = MFunction["eig"];
+eig[{{1, 2}, {3, 4}}]
+(* Out[1]= {{-0.372281}, {5.37228}} *)
+</pre></li>
+					<li>Creating a custom function and using it
+<pre class="prettyprint lang-mma">
+add = MFunction["add", "
+	function res = add(x,y)
+		res = x+y
+	end "];
+add[3, 4]
+(* Out[1] = 7 *)
+</pre>
+					</li>
+				</ul>
+
+				<h4>Details & Options</h4>
+				<ul>
+					<li>Use <code>MFunction["func", "OutputArguments" -> n]</code> when <code>func</code> returns more than one argument (default value for <code>"OutputArguments"</code> is 1).
+
+<pre class="prettyprint lang-mma">
+eigsys = MFunction["eig", "OutputArguments" -> 2];
+eigsys[{{1, 2}, {3, 4}}]
+(* Out[1]= {{{-0.824565, -0.415974}, {0.565767, -0.909377}}, {{-0.372281, 0.}, {0., 5.37228}}} *)
+</pre>
+					</li>
+					<li>If <code>func</code> returns no outputs (or to suppress output), use <code>MFunction["func", "Output" -> False]</code> (default value for <code>"Output"</code> is <code>True</code>).
+<pre class="prettyprint lang-mma">
+imagesc = MFunction["imagesc", "Output" -> False];
+data = Import["ExampleData/ozonemap.hdf", {"Datasets", "TOTAL_OZONE"}][[20 ;;, All]];
+imagesc[data];
+</pre>
+					</li>
+					<li>When creating new functions using the syntax <code>MFunction["func", "body"]</code>, <code>MFunction</code> will not overwrite exsiting <code>.m</code> files. To force overwrite an existing file, use the option <code>"Overwrite" -> True</code> (default value for <code>"Overwrite"</code> is <code>False</code>).</li>
+				</ul>
+
+				<h4>Possible issues</h4>
+				<ul>
+					<li>By default <code>MFunction</code> assumes a single output argument, which causes errors in some MATLAB functions that return no output.
+<pre class="prettyprint lang-mma">
+MFunction["disp"]["Hello"]
+
+MATLink::errx: Error using disp
+Too many output arguments.
+
+(* Out[1]= $Failed *)
+</pre>
+					Use <code>"Output" -> False</code> in such situations.</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+<footer class="footer">
+	<div class="container">
+		<ul class="footer-links">
+			<li>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></li>
+			<li class="muted">·</li>
+			<li>Licensed under the <a href="http://opensource.org/licenses/mit-license.html">MIT License</a></li>
+		</ul>
+		<p><i>Mathematica</i> is a registered trademark of <a href="http://wolfram.com">Wolfram Research, Inc.</a> and MATLAB is a registered trademark of <a href="http://mathworks.com/">The MathWorks, Inc.</a></p>
+	</div>
+</footer>
+</div>
+
+<script src="assets/js/jquery-1.9.1.min.js"></script>
+<script src="assets/js/underscore.min.js"></script>
+<script src="assets/js/backbone.min.js"></script>
+<script src="assets/js/bootstrap-222.min.js"></script>
+<script src="assets/js/prettify.js"></script>
+<script src="assets/js/lang-matlab.js"></script>
+<script src="assets/js/lang-mma.js"></script>
+<script type="text/javascript">
+jQuery(document).ready(function () {
+		// apply syntax highlighting
+		prettyPrint();
+
+		// add language selection menus (after a small delay)
+		setTimeout(function () {
+			add_language_selection_menu();
+			}, 300);
+		});
+</script>
+
+<script>
+$(function () {
+		$('#install-tabs a:first').tab('show');
+		})
+</script>
+</body>
+</html>

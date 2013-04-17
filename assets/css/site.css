@@ -7,6 +7,13 @@ code {
   color: #000;
 }
 
+blockquote code {
+  /*color: #0063ac;*/
+  padding: 2px 0px 2px 4px;
+  /*background-color: none;*/
+  border: none;
+}
+
 .alert-info code {
   color: #0063ac;
   padding: 2px 0px 2px 4px;

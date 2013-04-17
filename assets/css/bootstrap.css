@@ -919,9 +919,11 @@ abbr.initialism {
 }
 
 blockquote {
-  padding: 0 0 0 15px;
+  padding: 15px;
   margin: 0 0 26px;
-  border-left: 5px solid #eeeeee;
+  border: 1px solid #ddd;
+  border-top: none;
+  background-color: #f6f6f6;
 }
 
 blockquote p {
@@ -3943,7 +3945,7 @@ input[type="submit"].btn.btn-mini {
 }
 
 .nav {
-  margin-bottom: 26px;
+  margin-bottom: 0px;
   margin-left: 0;
   list-style: none;
 }
