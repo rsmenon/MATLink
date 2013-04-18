@@ -548,7 +548,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 		Switch[OptionValue["Output"],
 			True,
 			Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output, fails},
-				vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
+				vars = Table[randomString[], {nIn + nOut}];
 				fails = Thread[iMSet[vars[[;;nIn]], {args}]];
 				If[MemberQ[fails, $Failed],
 					message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
@@ -562,7 +562,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 			],
 
 			False,
-			With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
+			With[{vars = Table[randomString[], {Length[{args}]}]},
 				fails = Thread[iMSet[vars, {args}]];
 				If[MemberQ[fails, $Failed],
 					message[MFunction::args, Position[fails, $Failed]]["error"],
