@@ -406,6 +406,12 @@ Out[]=
 
 This functionanilty is only available on Windows.
 
+####`MATLABCell`
+
+`MATLABCell[]` creates a code cell that will be evaluated using MATLAB.  This is a convenient alternative for `MEvaluate` when writning a longer sequence of commands.
+
+It is convenient to set an easy to type shortcut such as `mc = MATLABCell`, then use `mc[]` to create new MATLAB cells.
+
 ---
 
 ##Known issues and limitations
