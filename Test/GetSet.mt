@@ -2,7 +2,81 @@
 
 Quiet@OpenMATLAB[]
 
-(* s(2).b is a special case internally *)
+(* Get and Set failures *)
+Test[
+	MEvaluate["clear nonexistent;"];
+	MGet["nonexistent"]
+	,
+	$Failed
+	,
+	TestID->"GetSet-20130418-X3Z1Z8"
+]
+
+Test[
+	Clear[symbol];
+	MSet["x", symbol]
+	,
+	$Failed
+	,
+	{MATLink::errx}
+	,
+	TestID->"GetSet-20130418-J1V0P7"
+]
+
+Test[
+	Clear[symbol];
+	MSet["x", {symbol}]
+	,
+	$Failed
+	,
+	{MATLink::errx}
+	,
+	TestID->"GetSet-20130418-Q1I3B2"
+]
+
+Test[
+	Clear[symbol];
+	MSet["x", 1/symbol]
+	,
+	$Failed
+	,
+	{MATLink::errx}
+	,
+	TestID->"GetSet-20130418-U6V1A1"
+]
+
+Test[
+	Clear[symbol];
+	MSet["x", {"field" -> symbol}]
+	,
+	$Failed
+	,
+	{MATLink::errx}
+	,
+	TestID->"GetSet-20130418-G8W1O4"
+]
+
+Test[
+	MSet["x", 1]
+	,
+	Null
+	,
+	TestID->"GetSet-20130418-L7Q2O4"
+]
+
+(* Pi is a symbol, but it's numeric.  MSet must not throw an error *)
+Test[
+	MSet["x", Pi];
+	MGet["x"]
+	,
+	N[Pi]
+	,
+	TestID->"GetSet-20130418-M4Y7C2"
+]
+
+
+(* NULL mxArray pointer *)
+(* s(2).b is a special case internally (not repreented the same way as []) *)
 Test[
 	MEvaluate["s=struct('a', 1); s = [s s]; s(1).b=2;"];
 	MGet["s"]
