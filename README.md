@@ -5,7 +5,7 @@ It uses [_MathLink_](http://reference.wolfram.com/mathematica/tutorial/MathLinkA
 
 ##System requirements
 
-MATLink is compatible with Mathematica 8 or later and MATLAB R2011b or later.  
+MATLink is compatible with Mathematica 8 or later and MATLAB R2011b or later.
 
 On Linux systems, the C shell `csh` must be installed at `/bin/csh` [for MATLAB Engine applications to work](http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html).  Also on Linux, very old versions of gcc can't be used to compile MATLink.  Please check if your compiler is supported by the version of MATLAB you have.  [For MATLAB R2013a it is gcc 4.4.](http://www.mathworks.com/support/compilers/R2013a/index.html?sec=glnxa64)
 
@@ -128,21 +128,21 @@ MFunction["add2"][3, 4]
 > **Also see:** "Handling functions with multiple outputs (and no outputs)" under the **Advanded usage** section.
 
 ###Closing MATLAB
-To completely disconnect from the MATLAB engine, call `DisconnectMATLAB[]`. This will also delete all scripts that were defined for the current _MATLink_ session.
+To completely disconnect from the MATLAB engine, call `DisconnectEngine[]`. This will also delete all scripts that were defined for the current _MATLink_ session.
 
 ##Advanced usage
 
 ###Properly starting and closing MATLAB
 There are in fact, four functions that provide different functionality associated with starting and closing MATLAB:
 
- - `ConnectMATLAB[]` establishes a _MathLink_ connection to the low level C functions and the MATLAB engine, sets various session specific variables, but does not launch MATLAB.
+ - `ConnectEngine[]` establishes a _MathLink_ connection to the low level C functions and the MATLAB engine, sets various session specific variables, but does not launch MATLAB.
  - `OpenMATLAB[]` launches the MATLAB application in the background.
  - `CloseMATLAB[]` closes the MATLAB application, but keeps the connection to the MATLAB engine open.
- - `DisconnectMATLAB[]` closes the MATLAB engine, terminates the _MathLink_ connection and clears session variables and temporary folders.
+ - `DisconnectEngine[]` closes the MATLAB engine, terminates the _MathLink_ connection and clears session variables and temporary folders.
 
-For convenience, directly calling `OpenMATLAB[]` automatically calls `ConnectMATLAB[]`, but it is possible to only call `ConnectMATLAB[]` without actually opening MATLAB. One can then call `OpenMATLAB[]` and `CloseMATLAB[]` several times (assuming other external factors such as kernel/front end crashes haven't terminated the _MathLink_ connection) and it is still considered to be the same "session".
+For convenience, directly calling `OpenMATLAB[]` automatically calls `ConnectEngine[]`, but it is possible to only call `ConnectEngine[]` without actually opening MATLAB. One can then call `OpenMATLAB[]` and `CloseMATLAB[]` several times (assuming other external factors such as kernel/front end crashes haven't terminated the _MathLink_ connection) and it is still considered to be the same "session".
 
-The scripts defined during the session are saved in in a session specific folder in the user's `$TemporaryDirectory`. This directory and its contents are removed only when `DisconectMATLAB[]` is called. Hence it is always preferable (and recommended) to call `DisconnectMATLAB[]` when done with using _MATLink_. If the application terminates due to forced kernel quits or crashes, the temporary directory remains, and a new one is created for the next session.
+The scripts defined during the session are saved in in a session specific folder in the user's `$TemporaryDirectory`. This directory and its contents are removed only when `DisconectMATLAB[]` is called. Hence it is always preferable (and recommended) to call `DisconnectEngine[]` when done with using _MATLink_. If the application terminates due to forced kernel quits or crashes, the temporary directory remains, and a new one is created for the next session.
 
 Over prolonged use, these session specific directories can accumulate (since _Mathematica_ crashes are inevitable), if one is not meticulous about regularly clearing their `$TemporaryDirectory`. In such cases, the user can load the package as follows, before connecting to MATLAB:
 
