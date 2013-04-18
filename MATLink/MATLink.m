@@ -364,8 +364,8 @@ CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 CommandWindow::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
 SyntaxInformation[CommandWindow] = {"ArgumentsPattern" -> {_}}
 
-CommandWindow["Show"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[1])
-CommandWindow["Hide"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[0])
+CommandWindow["Show"] := If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"], setVisible[1]]
+CommandWindow["Hide"] := If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"], setVisible[0]]
 CommandWindow[x_] := message[CommandWindow::unkw, x]["error"]
 CommandWindow[_, x__] := message[CommandWindow::argx, "CommandWindow", Length@{x} + 1]["error"]
 
