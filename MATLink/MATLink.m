@@ -6,7 +6,7 @@
 *)
 (* :Copyright: 2013 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
-(* :Package Version: 0.1 *)
+(* :Package Version: 0.2a *)
 (* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
@@ -48,6 +48,8 @@ MATLink::usage =
 	"MATLink refers to the MATLink package. Set cross-session package options to this symbol."
 
 MCell::usage = "MCell[list] forces list to be interpreted as a MATLAB cell in MSet, MFunction, etc."
+
+MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MATLAB."
 
 Begin["`Developer`"]
 
@@ -837,7 +839,7 @@ MATLABCell[] :=
 		CellPrint@Cell[
 			TextData[""],
 			"Program",
-			Evaluatable->True,
+			Evaluatable -> True,
 			CellEvaluationFunction -> (MEvaluate@First@FrontEndExecute[FrontEnd`ExportPacket[Cell[#], "InputText"]] &),
 			CellGroupingRules -> "InputGrouping",
 			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
@@ -849,6 +851,7 @@ MATLABCell[] :=
 
 End[] (* MATLink`Experimental` *)
 
-SetAttributes[#,{Protected,ReadProtected}]& /@ Names["`*"];
+SetAttributes[#, {Protected,ReadProtected}]& /@ Names["`*"];
+SetAttributes[#, {ReadProtected}]& /@ Names["`*`*"];
 
 EndPackage[] (* MATLink` *)
