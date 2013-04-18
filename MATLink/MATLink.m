@@ -265,7 +265,8 @@ checkExpression[expr_] :=
 		If[invalid === {},
 			message[MATLink::noerr]["error"],
 			message[MATLink::errx, "The following sub-expressions are invalid: " <> ToString@invalid <> ". Check to see if they are supported by MATLink and/or if the dimensions are consistent"]["error"];
-		]
+		];
+		$Failed
 	]
 
 SetAttributes[switchAbort, HoldRest]
