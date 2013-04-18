@@ -210,6 +210,8 @@ Each public function _MATLink_ is briefly documented in this section.
 
 `OpenMATLAB[]` will start the MATLAB process and connect to it.  Use `CloseMATlAB[]` to close the running MATLAB session.
 
+**Possible issues:**  If `OpenMATLAB[]` hangs (never returns) on OS X, it may indicate that MATLink cannot find MATLAB.  Please edit the file `MATLink/Engine/bin/MacOSX64/mengine.sh` and follow the instructions within to set the path to your MATLAB installation.
+
 **See also:** `CloseMATLAB`
 
 ####`CloseMATLAB`
