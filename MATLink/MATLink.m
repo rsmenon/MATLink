@@ -11,6 +11,9 @@
 
 BeginPackage["MATLink`"]
 
+Unprotect@"`*"
+ClearAll@"`*"
+
 ConnectEngine::usage =
 	"ConnectEngine[] establishes a connection with the MATLink engine, but does not open an instance of MATLAB."
 
@@ -45,8 +48,6 @@ MATLink::usage =
 	"MATLink refers to the MATLink package. Set cross-session package options to this symbol."
 
 MCell::usage = "MCell[list] forces list to be interpreted as a MATLAB cell in MSet, MFunction, etc."
-
-MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MATLAB." (* TODO Make this private before release *)
 
 Begin["`Developer`"]
 
@@ -364,8 +365,8 @@ CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 CommandWindow::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
 SyntaxInformation[CommandWindow] = {"ArgumentsPattern" -> {_}}
 
-CommandWindow["Show"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[1])
-CommandWindow["Hide"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[0])
+CommandWindow["Show"] := If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"], setVisible[1]]
+CommandWindow["Hide"] := If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"], setVisible[0]]
 CommandWindow[x_] := message[CommandWindow::unkw, x]["error"]
 CommandWindow[_, x__] := message[CommandWindow::argx, "CommandWindow", Length@{x} + 1]["error"]
 
@@ -548,7 +549,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 		Switch[OptionValue["Output"],
 			True,
 			Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output, fails},
-				vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
+				vars = Table[randomString[], {nIn + nOut}];
 				fails = Thread[iMSet[vars[[;;nIn]], {args}]];
 				If[MemberQ[fails, $Failed],
 					message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
@@ -562,7 +563,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 			],
 
 			False,
-			With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
+			With[{vars = Table[randomString[], {Length[{args}]}]},
 				fails = Thread[iMSet[vars, {args}]];
 				If[MemberQ[fails, $Failed],
 					message[MFunction::args, Position[fails, $Failed]]["error"],
@@ -847,5 +848,7 @@ MATLABCell[] :=
 	]
 
 End[] (* MATLink`Experimental` *)
+
+SetAttributes[#,{Protected,ReadProtected}]& /@ Names["`*"];
 
 EndPackage[] (* MATLink` *)
