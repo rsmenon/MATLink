@@ -284,6 +284,8 @@ s = MGet["s"]
 
 `MSet["x", value]` will assign `value` to variable `x` in the MATLAB workspace.  `value` must be in the same format as would be returned by `MGet`.
 
+Use `MSet["x", value, "ShowErrors" -> False]` to disable error reporting and diagnosis.  If an error occurs, `MSet` will simply return `$Failed` without issuing any message.
+
 **Examples:**
 
 ```
