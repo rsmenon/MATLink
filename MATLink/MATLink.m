@@ -261,7 +261,7 @@ validOptionsQ[func_Symbol, opts_List] :=
 	]
 
 checkExpression[expr_] :=
-	With[{invalid = Cases[MATLink`Engine`dispatcher[expr, "Throw" -> False], HoldPattern[$Failed -> x_] :> x, Infinity]},
+	With[{invalid = Cases[MATLink`Engine`dispatcher[expr, "Throw" -> False], HoldPattern[$Failed -> x_] :> x, {0, Infinity}]},
 		If[invalid === {},
 			message[MATLink::noerr]["error"],
 			message[MATLink::errx, "The following sub-expressions are invalid: " <> ToString@invalid <> ". Check to see if they are supported by MATLink and/or if the dimensions are consistent"]["error"];
