@@ -2,7 +2,187 @@
 
 Quiet@OpenMATLAB[]
 
-(* s(2).b is a special case internally *)
+(* Get and Set failures *)
+Test[
+	MEvaluate["clear nonexistent;"];
+	MGet["nonexistent"]
+	,
+	$Failed
+	,
+	TestID->"GetSet-20130418-X3Z1Z8"
+]
+
+Test[
+	Clear[symbol];
+	MSet["x", symbol]
+	,
+	$Failed
+	,
+	{MSet::unsupp}
+	,
+	TestID->"GetSet-20130418-J1V0P7"
+]
+
+Test[
+	Clear[symbol];
+	MSet["x", {symbol}]
+	,
+	$Failed
+	,
+	{MSet::unsupp}
+	,
+	TestID->"GetSet-20130418-Q1I3B2"
+]
+
+Test[
+	Clear[symbol];
+	MSet["x", 1/symbol]
+	,
+	$Failed
+	,
+	{MSet::unsupp}
+	,
+	TestID->"GetSet-20130418-U6V1A1"
+]
+
+Test[
+	Clear[symbol];
+	MSet["x", {"field" -> symbol}]
+	,
+	$Failed
+	,
+	{MSet::unsupp}
+	,
+	TestID->"GetSet-20130418-G8W1O4"
+]
+
+Test[
+	MSet["x", {"field_1" -> 1}]
+	,
+	Null
+	,
+	TestID->"GetSet-20130419-G2Z3C1"
+]
+
+Test[
+	MSet["x", {"1field" -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldnm}
+	,
+	TestID->"GetSet-20130419-B4C2W2"
+]
+
+Test[
+	MSet["x", {"_field" -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldnm}
+	,
+	TestID->"GetSet-20130419-G6H9L1"
+]
+
+Test[
+	MSet["x", {"*" -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldnm}
+	,
+	TestID->"GetSet-20130419-A1F7R6"
+]
+
+Test[
+	Clear[field];
+	MSet["x", {field -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldstr}
+	,
+	TestID->"GetSet-20130419-Q4B7U8"
+]
+
+Test[
+	MSet["x", {1 -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldstr}
+	,
+	TestID->"GetSet-20130419-F1Y6I7"
+]
+
+Test[
+	MSet["x", {"a" -> 1, "b" -> 0, "a" -> 1}]
+	,
+	$Failed
+	,
+	{MSet::flddup}
+	,
+	TestID->"GetSet-20130419-M2O9V8"
+]
+
+
+(* struct rules must be enclosed in a list 
+   otherwise it's not clear if {"a" -> 1, "b" -> 1} 
+   represents one or two structs *)
+Test[
+	MSet["x", "field" -> 1]
+	,
+	$Failed
+	,
+	{MSet::unsupp}
+	,
+	TestID->"GetSet-20130419-P6M2J4"
+]
+
+(* MATLAB doesn't support multidimensional sparse arrays *)
+Test[
+	MSet["x", SparseArray@RandomReal[1,{3,3,3}]]
+	,
+	$Failed
+	,
+	{MSet::sparse}
+	,
+	TestID->"GetSet-20130419-D3I6T9"
+]
+
+(* MATLAB doesn't support sparse arrays with a nonzero default element *)
+Test[
+	MSet["x", SparseArray[{1,0,1,0}, {4}, 1]]
+	,
+	$Failed
+	,
+	{MSet::spdef}
+	,
+	TestID->"GetSet-20130419-Z5Y0O8"
+]
+
+
+Test[
+	MSet["x", 1]
+	,
+	Null
+	,
+	TestID->"GetSet-20130418-L7Q2O4"
+]
+
+(* Pi is a symbol, but it's numeric.  MSet must not throw an error *)
+Test[
+	MSet["x", Pi];
+	MGet["x"]
+	,
+	N[Pi]
+	,
+	TestID->"GetSet-20130418-M4Y7C2"
+]
+
+
+(* NULL mxArray pointer *)
+(* s(2).b is a special case internally (not repreented the same way as []) *)
 Test[
 	MEvaluate["s=struct('a', 1); s = [s s]; s(1).b=2;"];
 	MGet["s"]
