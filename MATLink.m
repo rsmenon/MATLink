@@ -6,10 +6,13 @@
 *)
 (* :Copyright: 2013 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
-(* :Package Version: 0.1 *)
+(* :Package Version: 0.5a *)
 (* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
+
+Unprotect@"`*"
+ClearAll@"`*"
 
 ConnectEngine::usage =
 	"ConnectEngine[] establishes a connection with the MATLink engine, but does not open an instance of MATLAB."
@@ -46,7 +49,7 @@ MATLink::usage =
 
 MCell::usage = "MCell[list] forces list to be interpreted as a MATLAB cell in MSet, MFunction, etc."
 
-MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MATLAB." (* TODO Make this private before release *)
+MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MATLAB."
 
 Begin["`Developer`"]
 
@@ -194,7 +197,6 @@ If[!TrueQ[MATLinkLoadedQ[]],
 	MATLABInstalledQ[] = False;
 	$openLink = {};
 	$sessionID = "";
-	$temporaryVariablePrefix = "";
 	$sessionTemporaryDirectory = "";
 	writeLog["Loaded MATLink`", "user"];
 	writeLog["Version: " <> $Version, "info"];
@@ -260,14 +262,6 @@ validOptionsQ[func_Symbol, opts_List] :=
 		]
 	]
 
-checkExpression[expr_] :=
-	With[{invalid = Cases[MATLink`Engine`dispatcher[expr, "Throw" -> False], HoldPattern[$Failed -> x_] :> x, Infinity]},
-		If[invalid === {},
-			message[MATLink::noerr]["error"],
-			message[MATLink::errx, "The following sub-expressions are invalid: " <> ToString@invalid <> ". Check to see if they are supported by MATLink and/or if the dimensions are consistent"]["error"];
-		]
-	]
-
 SetAttributes[switchAbort, HoldRest]
 switchAbort[cond_, expr_, failExpr_] :=
 	Switch[cond, True, expr, False, failExpr, $Failed, Abort[]]
@@ -287,7 +281,6 @@ ConnectEngine[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[]
 			IntegerString[List @@ Rest@$openLink],
 			randomString[10]
 		];
-		$temporaryVariablePrefix = "MATLink" <> $sessionID;
 		$sessionTemporaryDirectory = FileNameJoin[{$TemporaryDirectory, "MATLink" <> $sessionID}];
 		CreateDirectory@$sessionTemporaryDirectory;
 		MATLABInstalledQ[] = True;
@@ -363,8 +356,8 @@ CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
 CommandWindow::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
 SyntaxInformation[CommandWindow] = {"ArgumentsPattern" -> {_}}
 
-CommandWindow["Show"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[1])
-CommandWindow["Hide"] := (If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"]]; setVisible[0])
+CommandWindow["Show"] := If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"], setVisible[1]]
+CommandWindow["Hide"] := If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"], setVisible[0]]
 CommandWindow[x_] := message[CommandWindow::unkw, x]["error"]
 CommandWindow[_, x__] := message[CommandWindow::argx, "CommandWindow", Length@{x} + 1]["error"]
 
@@ -389,9 +382,12 @@ MGet[_, x__] := message[MGet::argx, "MGet", Length@{x} + 1]["error"]
 (* MSet *)
 MSet::sparse = "Unsupported sparse array; sparse arrays must be one or two dimensional, and must have either only numerical or only logical (True|False) elements."
 MSet::spdef = "Unsupported sparse array; the default element in numerical sparse arrays must be 0."
-MSet::dupfield = "Duplicate field names not alowed in struct."
+MSet::flddup = "Duplicate field names not alowed in struct. The following duplicates were found: ``."
+MSet::fldnm = "Struct field names must start with a letter and contain only letters, numbers or the _ character. The following struct field names are not valid: ``."
+MSet::fldstr = "Struct field names must be strings. The following invalid field names were found: ``."
+MSet::unsupp = "Unsupported data type. The expression \"``\" can't be converted."
 
-SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _, OptionsPattern[]}};
+SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
 
 iMSet[var_String, expr_] :=
 	Internal`WithLocalSettings[
@@ -400,24 +396,14 @@ iMSet[var_String, expr_] :=
 		cleanHandles[]	(* prevent memory leaks *)
 	]
 
-Options[MSet] = {"ShowErrors" -> True}
-validOptionPatterns[MSet] = {"ShowErrors" -> True | False}
-
-MSet[var_String, expr_, opts : OptionsPattern[]] /; MATLABInstalledQ[] && validOptionsQ[MSet, {opts}] :=
+MSet[var_String, expr_] /; MATLABInstalledQ[] :=
 	switchAbort[engineOpenQ[],
-		If[(result = iMSet[var, expr]) === Null,
-			result,
-			Switch[OptionValue["ShowErrors"],
-				True, checkExpression[expr],
-				False, result
-			]
-		],
-
+		iMSet[var, expr],
 		message[MSet::wspc]["warning"]
 	]
 
-MSet[_, OptionsPattern[]] := message[MSet::argrx, "MSet", 1, 2]["error"]
-MSet[_, _, __, OptionsPattern[]] := message[MSet::argrx, "MSet", "more than 2", 2]["error"]
+MSet[_] := message[MSet::argrx, "MSet", 1, 2]["error"]
+MSet[_, _, __] := message[MSet::argrx, "MSet", "more than 2", 2]["error"]
 
 MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 
@@ -426,7 +412,7 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	Catch[
-		Module[{result, error, file, id = randomString[], ex = $temporaryVariablePrefix <> randomString[10]},
+		Module[{result, error, file, id = randomString[], ex = randomString[]},
 			Switch[mlint,
 				"Check", {error, file} = errorsInMATLABCode@cmd,
 				"NoCheck", {error, file} = {None, {cmd}},
@@ -547,7 +533,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 		Switch[OptionValue["Output"],
 			True,
 			Module[{nIn = Length[{args}], nOut = OptionValue["OutputArguments"], vars, output, fails},
-				vars = Table[ToString@Unique[$temporaryVariablePrefix], {nIn + nOut}];
+				vars = Table[randomString[], {nIn + nOut}];
 				fails = Thread[iMSet[vars[[;;nIn]], {args}]];
 				If[MemberQ[fails, $Failed],
 					message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
@@ -561,7 +547,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 			],
 
 			False,
-			With[{vars = Table[ToString@Unique[$temporaryVariablePrefix], {Length[{args}]}]},
+			With[{vars = Table[randomString[], {Length[{args}]}]},
 				fails = Thread[iMSet[vars, {args}]];
 				If[MemberQ[fails, $Failed],
 					message[MFunction::args, Position[fails, $Failed]]["error"],
@@ -745,8 +731,7 @@ convertToMATLAB[expr_] :=
 
 restructure[expr_] := Catch[dispatcher[expr], $dispTag]
 
-Options[dispatcher] = {"Throw" -> True};
-dispatcher[expr_, opts : OptionsPattern[]] :=
+dispatcher[expr_] :=
 	Switch[
 		expr,
 
@@ -788,25 +773,24 @@ dispatcher[expr_, opts : OptionsPattern[]] :=
 
 		(* struct *)
 		_?(VectorQ[#, ruleQ] &),
-		MStruct[handleStruct[expr, {opts}]],
+		MStruct[handleStruct[expr]],
 
 		(* cell -- may need recursion *)
 		MCell[_],
-		MCell[handleCell[First[expr], {opts}]],
+		MCell[handleCell@First[expr]],
 
 		(* cell *)
 		_List,
-		MCell[handleCell[expr, {opts}]],
+		MCell[handleCell[expr]],
 
 		(* assumed already handled, no recursion needed; only MCell and MStruct may need recursion *)
 		_MArray | _MLogical | _MSparseArray | _MSparseLogical | _MString,
 		expr,
 
 		_,
-		If[OptionValue["Throw"],
-			Throw[$Failed, $dispTag],
-			$Failed -> expr
-		]
+
+		message[MSet::unsupp, expr]["error"];  (* consider Style[expr, Blue] *)
+		Throw[$Failed, $dispTag]
 	]
 
 handleSparse[arr_SparseArray ? (VectorQ[#, NumericQ]&) ] := MSparseArray[Transpose@SparseArray[{arr}]] (* convert to matrix *)
@@ -815,16 +799,38 @@ handleSparse[arr_SparseArray ? (VectorQ[#, booleanQ]&) ] := MSparseLogical[Trans
 handleSparse[arr_SparseArray ? (MatrixQ[#, booleanQ]&) ] := MSparseLogical[Transpose@SparseArray[arr]]
 handleSparse[_] := (message[MSet::sparse]["error"]; Throw[$Failed, $dispTag]) (* higher dim sparse arrays or non-numerical ones are not supported *)
 
-handleStruct[rules_ ? (VectorQ[#, ruleQ]&), throwOpt_] :=
-	If[ Length@Union[rules[[All,1]]] != Length[rules],
-		message[MSet::dupfield]["error"]; $Failed,
-		Thread[rules[[All, 1]] -> (dispatcher[#, throwOpt]& /@ rules[[All, 2]])]
+handleStruct[rules_ ? (VectorQ[#, ruleQ]&)] :=
+	With[{fields = rules[[All,1]]},
+		If[ Not@MatchQ[fields, {___String}]
+			,
+			message[MSet::fldstr,
+				Select[fields, Not@StringQ[#]&]
+				]["error"];
+			Return[$Failed]
+		];
+		With[{patt = RegularExpression["[a-zA-Z][a-zA-Z0-9_]*"]},
+			If[ Not[And@@StringMatchQ[fields, patt]]
+				,
+				message[MSet::fldnm,
+					Select[fields, Not@StringMatchQ[#, patt]& ]
+					]["error"];
+				Return[$Failed]
+			]
+		];
+		If[ Length@Union[fields] != Length[rules]
+			,
+			message[MSet::flddup,
+			  Cases[Tally[fields], {elem_, n_} /; n > 1][[All, 1]]
+			  ]["error"];
+			Return[$Failed]
+		];
+		Thread[fields -> (dispatcher /@ rules[[All, 2]])]
 	]
 
-handleStruct[_] := $Failed (* TODO multi-element struct *)
+handleStruct[_] := (Assert["must never reach here"; False]; $Failed) (* TODO multi-element struct *)
 
-handleCell[list_List, throwOpt_] := dispatcher[#, throwOpt]& /@ list
-handleCell[expr_, throwOpt_] := dispatcher[expr, throwOpt]
+handleCell[list_List] := dispatcher /@ list
+handleCell[expr_] := dispatcher[expr]
 
 End[] (* MATLink`Engine` *)
 
@@ -835,7 +841,7 @@ MATLABCell[] :=
 		CellPrint@Cell[
 			TextData[""],
 			"Program",
-			Evaluatable->True,
+			Evaluatable -> True,
 			CellEvaluationFunction -> (MEvaluate@First@FrontEndExecute[FrontEnd`ExportPacket[Cell[#], "InputText"]] &),
 			CellGroupingRules -> "InputGrouping",
 			CellFrameLabels -> {{None,"MATLAB"},{None,None}}
@@ -846,5 +852,8 @@ MATLABCell[] :=
 	]
 
 End[] (* MATLink`Experimental` *)
+
+SetAttributes[#, {Protected,ReadProtected}]& /@ Names["`*"];
+SetAttributes[#, {ReadProtected}]& /@ Names["`*`*"];
 
 EndPackage[] (* MATLink` *)
