@@ -41,37 +41,9 @@
 	</div>
 </div>
 
-<!--Main MATLink banner-->
-<div class="jumbotron">
-	<div class="container">
-		<div class="row">
-			<div class="span12">
-				<div class="hero-unit">
-					<div class="container">
-						<div class="row">
-							<div class="span6 text-center">
-								<img src="assets/img/logo.png" width=400px>
-							</div>
-							<div class="span5 center-all">
-								<h1>MATLink</h1>
-								<p>A <i>Mathematica</i> application for seamless two-way communication and data transfer with MATLAB. Harness the computational power of both systems efficiently using MATLink. </p>
-								<div class="actions">
-									<a class="btn btn-primary" href="https://github.com/rsmenon/MATLink/archive/latest.zip"
-										onClick="_gaq.push(['_trackEvent', 'Outbound Link', 'Download on GitHub']);">
-										<i class="icon-cloud-download"></i>
-										Download 0.1 alpha</a>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
 <div class="container">
 <h1>Documentation</h1>
+<p>MATLink is a <i>Mathematica</i><sup>™</sup> application for seamless two-way communication and data transfer with MATLAB<sup>™</sup>. It is written in Mathematica and C++ and connects to MATLAB using the <a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">MATLAB Engine interface</a>
 <h2>Reference</h2>
 <section id="connection">
 	<h3>Connecting to MATLAB</h3>
@@ -85,18 +57,31 @@
 
 	<div id="install-tabs-content" class="tab-content">
 		<div class="tab-pane fade in active" id="connection-introduction">
+			<p>MATLink has four functions that handle various aspects of startup and shutdown of MATLAB and the underlying engine</p>
+			<ul>
+				<li><a href="#ConnectEngine"><code>ConnectEngine</code></a> and <a href="#DisconnectEngine"><code>DisconnectEngine</code></a></li>
+				<li><code>OpenMATLAB</code> and <code>CloseMATLAB</code></li>
+			</ul>
+			<p>Typically, one only needs to call <code>OpenMATLAB</code>, as it automatically calls ConnectEngine. </p>
 		</div>
 
 		<div class="tab-pane fade" id="ConnectEngine">
-			<blockquote><code>ConnectEngine[]</code> will open a connection to the MATLAB engine.</blockquote>
+			<blockquote><code>ConnectEngine[]</code> will connect to the MATLAB engine using MathLink.</blockquote>
 
 			<h4>Details & Options</h4>
 			<ul>
-				<li>
+				<li>On linux and OS X, if the <code>mengine</code> binary is not found, <code>ConnectEngine</code> will try to auto compile it.</li>
+				<li><code>ConnectEngine</code> creates a session directory in <code>$TemporaryDirectory</code> to which <code>MScripts</code> are written. This directory is automatically removed when <code>DisconnectEngine</code> is called.</li>
 			</ul>
 		</div>
 
 		<div class="tab-pane fade" id="DisconnectEngine">
+			<blockquote><code>DisconnectEngine[]</code> will terminate the MathLink connection with the MATLAB engine.</blockquote>
+
+			<h4>Details & Options</h4>
+			<ul>
+				<li><code>DisconnectEngine</code> deletes the session directory in <code>$TemporaryDirectory</code> that was created by <code>ConnectEngine</code>.</li>
+			</ul>
 		</div>
 
 		<div class="tab-pane fade" id="OpenMATLAB">

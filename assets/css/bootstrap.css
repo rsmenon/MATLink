@@ -753,6 +753,10 @@ h6 {
   text-rendering: optimizelegibility;
 }
 
+h1 {
+	margin-top: 80px;
+}
+
 h1 small,
 h2 small,
 h3 small,
