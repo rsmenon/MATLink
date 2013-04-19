@@ -6,7 +6,7 @@
 *)
 (* :Copyright: 2013 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
-(* :Package Version: 0.2a *)
+(* :Package Version: 0.5a *)
 (* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
