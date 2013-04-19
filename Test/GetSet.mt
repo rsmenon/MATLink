@@ -18,7 +18,7 @@ Test[
 	,
 	$Failed
 	,
-	{MATLink::errx}
+	{MSet::unsupp}
 	,
 	TestID->"GetSet-20130418-J1V0P7"
 ]
@@ -29,7 +29,7 @@ Test[
 	,
 	$Failed
 	,
-	{MATLink::errx}
+	{MSet::unsupp}
 	,
 	TestID->"GetSet-20130418-Q1I3B2"
 ]
@@ -40,7 +40,7 @@ Test[
 	,
 	$Failed
 	,
-	{MATLink::errx}
+	{MSet::unsupp}
 	,
 	TestID->"GetSet-20130418-U6V1A1"
 ]
@@ -51,10 +51,116 @@ Test[
 	,
 	$Failed
 	,
-	{MATLink::errx}
+	{MSet::unsupp}
 	,
 	TestID->"GetSet-20130418-G8W1O4"
 ]
+
+Test[
+	MSet["x", {"field_1" -> 1}]
+	,
+	Null
+	,
+	TestID->"GetSet-20130419-G2Z3C1"
+]
+
+Test[
+	MSet["x", {"1field" -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldnm}
+	,
+	TestID->"GetSet-20130419-B4C2W2"
+]
+
+Test[
+	MSet["x", {"_field" -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldnm}
+	,
+	TestID->"GetSet-20130419-G6H9L1"
+]
+
+Test[
+	MSet["x", {"*" -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldnm}
+	,
+	TestID->"GetSet-20130419-A1F7R6"
+]
+
+Test[
+	Clear[field];
+	MSet["x", {field -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldstr}
+	,
+	TestID->"GetSet-20130419-Q4B7U8"
+]
+
+Test[
+	MSet["x", {1 -> 1}]
+	,
+	$Failed
+	,
+	{MSet::fldstr}
+	,
+	TestID->"GetSet-20130419-F1Y6I7"
+]
+
+Test[
+	MSet["x", {"a" -> 1, "b" -> 0, "a" -> 1}]
+	,
+	$Failed
+	,
+	{MSet::flddup}
+	,
+	TestID->"GetSet-20130419-M2O9V8"
+]
+
+
+(* struct rules must be enclosed in a list 
+   otherwise it's not clear if {"a" -> 1, "b" -> 1} 
+   represents one or two structs *)
+Test[
+	MSet["x", "field" -> 1]
+	,
+	$Failed
+	,
+	{MSet::unsupp}
+	,
+	TestID->"GetSet-20130419-P6M2J4"
+]
+
+(* MATLAB doesn't support multidimensional sparse arrays *)
+Test[
+	MSet["x", SparseArray@RandomReal[1,{3,3,3}]]
+	,
+	$Failed
+	,
+	{MSet::sparse}
+	,
+	TestID->"GetSet-20130419-D3I6T9"
+]
+
+(* MATLAB doesn't support sparse arrays with a nonzero default element *)
+Test[
+	MSet["x", SparseArray[{1,0,1,0}, {4}, 1]]
+	,
+	$Failed
+	,
+	{MSet::spdef}
+	,
+	TestID->"GetSet-20130419-Z5Y0O8"
+]
+
 
 Test[
 	MSet["x", 1]
