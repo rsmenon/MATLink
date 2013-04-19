@@ -197,7 +197,6 @@ If[!TrueQ[MATLinkLoadedQ[]],
 	MATLABInstalledQ[] = False;
 	$openLink = {};
 	$sessionID = "";
-	$temporaryVariablePrefix = "";
 	$sessionTemporaryDirectory = "";
 	writeLog["Loaded MATLink`", "user"];
 	writeLog["Version: " <> $Version, "info"];
@@ -291,7 +290,6 @@ ConnectEngine[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[]
 			IntegerString[List @@ Rest@$openLink],
 			randomString[10]
 		];
-		$temporaryVariablePrefix = "MATLink" <> $sessionID;
 		$sessionTemporaryDirectory = FileNameJoin[{$TemporaryDirectory, "MATLink" <> $sessionID}];
 		CreateDirectory@$sessionTemporaryDirectory;
 		MATLABInstalledQ[] = True;
@@ -430,7 +428,7 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	Catch[
-		Module[{result, error, file, id = randomString[], ex = $temporaryVariablePrefix <> randomString[10]},
+		Module[{result, error, file, id = randomString[], ex = randomString[]},
 			Switch[mlint,
 				"Check", {error, file} = errorsInMATLABCode@cmd,
 				"NoCheck", {error, file} = {None, {cmd}},
