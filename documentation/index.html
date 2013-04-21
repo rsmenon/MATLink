@@ -43,8 +43,25 @@
 
 <div class="container">
 <h1 class="main-header">Documentation</h1>
-<p>MATLink is a <i>Mathematica</i><sup>™</sup> application for seamless two-way communication and data transfer with MATLAB<sup>™</sup>. It is written in Mathematica and C++ and connects to MATLAB using the <a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">MATLAB Engine interface</a>
-<h2>Reference</h2>
+<p>MATLink is a <i>Mathematica</i><sup>™</sup> application to communicate with MATLAB<sup>™</sup>, providing functionality to easily transfer data between the two systems, and use MATLAB functions, scripts and toolboxes from within <i>Mathematica</i>. MATLink is <b>not</b> a substitute for MATLAB, nor is it a replacement for actual knowledge of MATLAB and <i>Mathematica</i>; it is merely an application that allows the user to harness the power of both computational systems to program and develop more efficiently.</p>
+
+
+<div class="row">
+	<div class="span4">
+		<p>MATLink is written in <i>Mathematica</i> and C++ and connects to MATLAB using the <a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">MATLAB Engine interface</a>. The image to the right is an overview of the different functions in MATLink and how they interact with the different systems. This documentation contains
+		<ul>
+			<li>the <a href="">function reference</a>, which is the official documentation for the different functions in MATLink, grouped by scope</li>
+			<li>a list of <a href="">supported datatypes</a> and rules for conversions</li>
+			<li>a list of <a href="">known issues</a>, which document known bugs, missing functionality, and other limitations of MATLink (mostly due to the limitations of the MATLAB engine).
+		</ul>
+		</p>
+	</div>
+	<div class="span8">
+		<img src="/MATLink/assets/img/intro.png">
+	</div>
+</div>
+
+<h2>Function Reference</h2>
 <section id="connection">
 	<h3>Connecting to MATLAB</h3>
 	<ul id="install-tabs" class="nav nav-tabs">
@@ -311,6 +328,10 @@ Too many output arguments.
 			</div>
 		</div>
 	</section>
+</div>
+
+<div class="container">
+	<h2>Supported Datatypes</h2>
 </div>
 
 <div class="container">

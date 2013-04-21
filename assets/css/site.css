@@ -1,6 +1,6 @@
 /* This file overrides the defaults */
 
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:300,300italic);
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,400italic);
 @import url(http://fonts.googleapis.com/css?family=Open+Sans+Condensed:700);
 
 h1,h2,h3,h4 {
@@ -8,7 +8,7 @@ h1,h2,h3,h4 {
 }
 
 .main-header {
-	margin-top: 80px;
+	margin-top: 60px;
 }
 
 h2 {
@@ -28,7 +28,7 @@ code {
 
 blockquote {
 	padding: 15px;
-	margin: 0 0 26px;
+	margin: -15px 0 26px;
 	border: 1px solid #ddd;
 	border-top: none;
 	background-color: #f6f6f6;
@@ -87,4 +87,18 @@ blockquote code {
 	text-align: center;
 	display:inline-block;
 	vertical-align:middle;
+}
+
+.nav {
+	margin-bottom: 0px;
+}
+
+.tab-content {
+	padding-top: 15px;
+}
+
+.doc-img {
+	margin-top: 10px;
+	width: 600px;
+	text-align: center;
 }
