@@ -1,69 +1,86 @@
-/* other modifications to override bootstrap.css*/
+/*bootstrap.css compiled from bootstrap.less. This file overrides the defaults */
+
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:300,300italic);
+@import url(http://fonts.googleapis.com/css?family=Open+Sans+Condensed:700);
+
+h1,h2,h3,h4 {
+	font-family: 'Open Sans Condensed', sans-serif;
+}
+
 h2 {
 	color: #0063ac;
 }
 
 code {
-  color: #000;
+	color: #000;
 }
 
 .quote {
-  padding: 10px;
-  margin: 0 0 26px;
-  border-left: 5px solid #ddd;
-  background-color: #f6f6f6;
+	padding: 10px;
+	margin: 0 0 26px;
+	border-left: 5px solid #ddd;
+	background-color: #f6f6f6;
+}
+
+blockquote {
+	padding: 15px;
+	margin: 0 0 26px;
+	border: 1px solid #ddd;
+	border-top: none;
+	background-color: #f6f6f6;
+
 }
 
 blockquote code {
-  /*color: #0063ac;*/
-  padding: 2px 0px 2px 4px;
-  /*background-color: none;*/
-  border: none;
+	/*color: #0063ac;*/
+	padding: 2px 0px 2px 4px;
+	/*background-color: none;*/
+	border: none;
 }
 
 .alert-info code {
-  color: #0063ac;
-  padding: 2px 0px 2px 4px;
-  background-color: #d9edf7;
-  border: none;
+	color: #0063ac;
+	padding: 2px 0px 2px 4px;
+	background-color: #d9edf7;
+	border: none;
 }
 
 .alert-success code {
-  color: #1c9b47;
-  background-color: #dff0d8;
-  padding: 2px 0px 2px 4px;
-  border: none;
+	color: #1c9b47;
+	background-color: #dff0d8;
+	padding: 2px 0px 2px 4px;
+	border: none;
 }
 
 /*From Bootstrap's docs.css*/
 .footer {
-  text-align: center;
-  font-size: 12px;
-  padding: 20px 0;
-  background-color: #f5f5f5;
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
+	text-align: center;
+	font-size: 12px;
+	padding: 20px 0;
+	background-color: #f5f5f5;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
 }
 .footer p {
-  margin-bottom: 0;
-  color: #777;
+	margin-bottom: 0;
+	color: #777;
 }
 .footer-links {
-  /*margin: 10px 0;*/
-  margin-bottom: 0;
-  color: #777;
+	/*margin: 10px 0;*/
+	margin-bottom: 0;
+	color: #777;
 }
 .footer-links li {
-  display: inline;
-  /*padding: 0 2px;*/
+	display: inline;
+	/*padding: 0 2px;*/
 }
 .footer-links li:first-child {
-  padding-left: 0;
+	padding-left: 0;
 }
 
 .center-all {
-  text-align: center;
+	text-align: center;
 	display:inline-block;
 	vertical-align:middle;
 }
