@@ -1,10 +1,14 @@
-/*bootstrap.css compiled from bootstrap.less. This file overrides the defaults */
+/* This file overrides the defaults */
 
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:300,300italic);
 @import url(http://fonts.googleapis.com/css?family=Open+Sans+Condensed:700);
 
 h1,h2,h3,h4 {
 	font-family: 'Open Sans Condensed', sans-serif;
+}
+
+.main-header {
+	margin-top: 80px;
 }
 
 h2 {
