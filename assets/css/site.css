@@ -56,6 +56,9 @@ blockquote code {
 	border: none;
 }
 
+.alert-success a {
+	color: #13672F;
+}
 /*From Bootstrap's docs.css*/
 .footer {
 	text-align: center;
@@ -108,7 +111,7 @@ li {
 }
 
 pre {
-	font-size:13px;
+	font-size:12.5px;
 }
 
 .nav-tabs > .active > a, .nav-tabs > .active > a:hover, .nav-tabs > .active > a:focus {

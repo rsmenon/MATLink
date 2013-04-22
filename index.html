@@ -41,10 +41,10 @@ _gaq.push(['_trackPageview']);
 					<i class="icon-caret-down"></i>
 				</a>
 				<ul class="dropdown-menu" role="menu">
-					<li class=""><a href="/MATLink/#connecting">Connecting to MATLink</a></li>
-					<li class=""><a href="/MATLink/#executing-matlab">Executing MATLAB commands</a></li>
-					<li class=""><a href="/MATLink/#transferring-data">Transferring data</a></li>
-					<li class=""><a href="/MATLink/#scripts-functions">Working with scripts and functions</a></li>
+					<li><a href="/MATLink/#connecting">Connecting to MATLink</a></li>
+					<li><a href="/MATLink/#executing-matlab">Executing MATLAB commands</a></li>
+					<li><a href="/MATLink/#transferring-data">Transferring data</a></li>
+					<li><a href="/MATLink/#scripts-functions">Working with scripts and functions</a></li>
 				</ul>
 				</li>
 				<li><a href="/MATLink/documentation/">Documentation</a></li>
@@ -245,11 +245,11 @@ OpenMATLAB[]
 			<subsection id="executing-matlab">
 			<div class="span12">
 				<h3>Executing MATLAB commands</h3>
-				<p>You can execute arbitrary MATLAB code using the <code>MEvaluate</code> command. Any output that would normally be displayed in MATLAB's command window will be displayed in the output cell. For example, evaluating
+				<p>You can execute arbitrary MATLAB code using the <code>MEvaluate</code> command. Any output that would normally be displayed in MATLAB's command window will be displayed in the output cell. For example, evaluating</p>
 <pre class="prettyprint lang-mma">
 MEvaluate["mat = magic(4)"]
 </pre>
-will output a magic square of size 3 and make an assignment to a variable named <code>mat</code> in the MATLAB workspace. Think of <code>MEvaluate</code> as a portal to the MATLAB workspace, allowing you to run commands in it and assign values to variables.</p>
+<p>will output a magic square of size 3 and make an assignment to a variable named <code>mat</code> in the MATLAB workspace. Think of <code>MEvaluate</code> as a portal to the MATLAB workspace, allowing you to run commands in it and assign values to variables.</p>
 				<p><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window. It cannot be used to transfer data to <i>Mathematica</i>. Use <code>MGet</code> and <code>MSet</code> as explained in the next section.</p>
 			</div>
 			</subsection>

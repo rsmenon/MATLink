@@ -158,7 +158,7 @@ _gaq.push(['_trackPageview']);
 
 				<h4>Details & Options</h4>
 				<ul>
-					<li></li>
+					<li><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window.</li>
 				</ul>
 
 				<h4>Possible issues</h4>
@@ -347,20 +347,20 @@ add[3, 4]
 
 				<h4>Details & Options</h4>
 				<ul>
-					<li>Use <code>MFunction["func", "OutputArguments" -> n]</code> when <code>func</code> returns more than one argument (default value for <code>"OutputArguments"</code> is 1).
+					<li>Use <code>MFunction["func", "OutputArguments" -> n]</code> when <code>func</code> returns more than one argument (default value for <code>"OutputArguments"</code> is 1).</li>
 
 <pre class="prettyprint lang-mma">
 eigsys = MFunction["eig", "OutputArguments" -> 2];
 eigsys[{{1, 2}, {3, 4}}]
 (* Out[1]= {{{-0.824565, -0.415974}, {0.565767, -0.909377}}, {{-0.372281, 0.}, {0., 5.37228}}} *)
 </pre>
-					</li>
 					<li>If <code>func</code> returns no outputs (or to suppress output), use <code>MFunction["func", "Output" -> False]</code> (default value for <code>"Output"</code> is <code>True</code>).</li>
 <pre class="prettyprint lang-mma">
 imagesc = MFunction["imagesc", "Output" -> False];
 data = Import["ExampleData/ozonemap.hdf", {"Datasets", "TOTAL_OZONE"}][[20 ;;, All]];
 imagesc[data];
 </pre>
+<p>Note that MATLAB plots will be opened in a new window, unlike <i>Mathematica</i> plots which are displayed inside the notebook.</p>
 					<li>When creating new functions using the syntax <code>MFunction["func", "body"]</code>, <code>MFunction</code> will not overwrite exsiting <code>.m</code> files. To force overwrite an existing file, use the option <code>"Overwrite" -> True</code> (default value for <code>"Overwrite"</code> is <code>False</code>).</li>
 				</ul>
 
@@ -408,7 +408,7 @@ Too many output arguments.
 
 	<div id="translation-rules">
 	<h3>Rules for translating data structures</h3>
-	<p>This section documents the internal rules that govern the translation of data structures from MATLAB to Mathematica and vice versa. You do not need to do this conversion, but you should be aware of how it is converted so that you can design your programs accordingly.</p>
+	<p>This section documents the internal rules that govern the translation of data structures from MATLAB to <i>Mathematica</i> and vice versa. You do not need to do this conversion, but you should be aware of how it is converted so that you can design your programs accordingly.</p>
 	<h4>MATLAB → <i>Mathematica</i></h4>
 	<ol>
 		<li><h5>Numerical Arrays</h5></li>
@@ -495,7 +495,7 @@ Too many output arguments.
 
 		<li><h4>Inf and NaN</h4>
 
-		<p>Inf and Nan are not supported at the moment. The values returned to Mathematica are not safe to use: operations on them give unpredictable results.</p></li>
+		<p>Inf and Nan are not supported at the moment. The values returned to <i>Mathematica</i> are not safe to use: operations on them give unpredictable results.</p></li>
 
 		<li><h4>Multiple instances of MATLAB on OS X</h4>
 
