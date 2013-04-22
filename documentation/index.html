@@ -361,6 +361,7 @@ Too many output arguments.
 </div>
 
 <div class="container">
+	<div id="supported-datatypes">
 	<h2>Supported Datatypes</h2>
 
 	<p>The following data types can be transferred in both directions:</p>
@@ -382,7 +383,52 @@ Too many output arguments.
 	</ul>
 
 	<h3>Rules for translating data structures</h3>
-	<p>Coming soon...</p>
+	<p>This section documents the internal rules that govern the translation of data structures from MATLAB to Mathematica and vice versa. You do not need to do this conversion, but you should be aware of how it is converted so that you can design your programs accordingly.</p>
+	<h4>MATLAB → <i>Mathematica</i></h4>
+	<ol>
+		<li><h5>Numerical Arrays</h5></li>
+		<ul>
+			<li><code>single</code> and <code>double</code> are converted to <code>Real</code> or <code>Complex</code> (as the case may be)</li>
+			<li><code>int16</code> and <code>int32</code> are converted to <code>Integer</code></li>
+			<li>1×1 matrices (scalars) are atomic</li>
+			<li>1×N matrices (row vectors) are simple (packed) lists of length N</li>
+			<li>M×N×... matrices (any dimension) are packed arrays of the same dimension</li>
+			<li>Empty matrices (any dimension) are <code>{}</code></li>
+		</ul>
+
+		<li><h5>Logical Arrays</h5></li>
+		<ul>
+			<li>0 and 1 (<code>logical</code>) or <code>true</code> and <code>false</code> are converted to <code>True</code> and <code>False</code> respectively</li>
+			<li>All other rules are identical to those for numerical arrays</li>
+		</ul>
+
+		<li><h5>Char Arrays</h5></li>
+		<ul>
+			<li> <code>char</code> is converted to <code>String</code> </li>
+			<li>1xN char arrays are atomic</li>
+			<li>MxNx... char arrays (any dimension) are lists of individual characters</li>
+		</ul>
+
+		<li><h5>Struct Arrays</h5></li>
+		<ul>
+			<li> <code>struct</code> is converted to a list of rules</li>
+			<li>Field names are the LHS of rules (stored as string); values are the RHS of rules</li>
+			<li>Missing fields (for multidimensional arrays) are assigned <code>{}</code> in the RHS</li>
+			<li>1x1 struct arrays are a simple list of rules of length F, where F is the number of fields</li>
+			<li>1xN struct arrays are a list of rules of dimension NxF</li>
+			<li>MxNx... struct arrays (any dimension) are lists of dimension MxNx...xF</li>
+		</ul>
+		<li><h5>Cells</h5></li>
+		<ul>
+			<li>1x1 cells are atomic</li>
+			<li>1xN cells are simple (unpacked) lists of length N</li>
+			<li>MxNx... cells (any dimension) are unpacked arrays</li>
+			<li>Empty cells (any dimension) are <code>{}</code></li>
+		</ul>
+	</ol>
+
+	<h4><i>Mathematica</i> → MATLAB</h4>
+</div>
 </div>
 
 <div class="container">
