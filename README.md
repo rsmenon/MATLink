@@ -1,7 +1,11 @@
 #_MATLink_
 
+![](http://rsmenon.github.io/MATLink/assets/img/logo.png)
+
 _MATLink_ is a [_Mathematica_](http://www.wolfram.com/mathematica/) application that allows the user to communicate data between _Mathematica_ and [MATLAB](http://www.mathworks.com/products/matlab/), as well as execute MATLAB code and seamslesly call MATLAB functions from within _Mathematica_.
 It uses [_MathLink_](http://reference.wolfram.com/mathematica/tutorial/MathLinkAndExternalProgramCommunicationOverview.html) to communicate between _Mathematica_ and MATLAB (via the [MATLAB Engine library](http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html)).
+
+> ###NOTE: You are reading the README file for the development version of the MATLink project, which may or may not be up-to-date or accurate. Please visit the project's homepage at http://rsmenon.github.io/MATLink/ for the stable version and detailed documentation.
 
 ##System requirements
 
@@ -197,7 +201,7 @@ The following data types can be transferred in both directions:
 The following can only be transferred from MATLAB to Mathematica:
 
  - numerical arrays with the following types: single, int16, int32
- - structs with any number of elements 
+ - structs with any number of elements
 
 
 ----
@@ -239,7 +243,7 @@ Out[]=
  * `MEvaluate` performance suffers if the output is not suppressed in MATLAB code.  If you do not need to see the output of `MEvaluate`, use `MEvaluate["command;"]` instead of `MEvaluate["command"];`.
 
  * The output length of `MEvaluate` is limited to approximatey 100,000 characters.  The rest will be truncated.
- 
+
 **See also:** `MScript`
 
 
@@ -267,7 +271,7 @@ In[]:= {v, d} = MGet[{"v", "d"}];
 **Possible issues:**
 
  * MATLAB works with floating point values by default. Even array indices are floating point.  Such values need to be explicitly `Round`ed in Mathematica before they can be used as indices again.  Example:
- 
+
 ```
 MEvaluate["s = size(zeros(3,4));"]
 s = MGet["s"]
@@ -291,14 +295,14 @@ Use `MSet["x", value, "ShowErrors" -> False]` to disable error reporting and dia
 ```
 In[]:= MSet["a", {1,2,3}]
        MEvaluate["a"]
-       
+
 Out[]= a =
 
           1     2     3
-          
+
 In[]:= MSet["b", {"one" -> {1, 2, 3}, "two" -> {4, "five"}}]
        MEvaluate["b"]
-       
+
 Out[]= b =
 
          one: [1 2 3]
@@ -310,7 +314,7 @@ To force a list to be sent as a cell, wrap it in the `MCell` head:
 ```
 In[]:= MSet["a", MCell[{1, 2, 3}]]
        MEvaluate["a"]
-       
+
 Out[]= a =
 
           [1] [2] [3]
@@ -348,7 +352,7 @@ In[]:= eig = MFunction["eig", "OutputArguments" -> 2]
 Out[]= MFunction["eig", "OutputArguments" -> 2]
 
 In[]:= eig[{{1, 2}, {3, 4}}]
-Out[]= {{{-0.824565, -0.415974}, {0.565767, -0.909377}}, 
+Out[]= {{{-0.824565, -0.415974}, {0.565767, -0.909377}},
           {{-0.372281, 0.}, {0., 5.37228}}}
 ```
 
@@ -404,7 +408,7 @@ Out[]=
 
 ####`CommandWindow`
 
-`CommandWindow["Show"]` will show the MATLAB command window.  When an evaluation is not in progress, this window can be used to input MATLAB commands independently of _MATLink_.   Use `CommandWindow["Hide"]` to hide the window again. 
+`CommandWindow["Show"]` will show the MATLAB command window.  When an evaluation is not in progress, this window can be used to input MATLAB commands independently of _MATLink_.   Use `CommandWindow["Hide"]` to hide the window again.
 
 This functionanilty is only available on Windows.
 
@@ -478,7 +482,7 @@ Example:
 ```
 In[]:= MEvaluate["s='Paul Erdős'"] (* Unicode input *)
 
-Out[]= 
+Out[]=
 
 s =
 
