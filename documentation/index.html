@@ -144,6 +144,14 @@ _gaq.push(['_trackPageview']);
 
 		<div id="install-tabs-content" class="tab-content">
 			<div class="tab-pane fade in active" id="evaluation-introduction">
+				<p>Arbitrary MATLAB code can be evaluated in three ways — using <code>MEvaluate</code>, <code>MATLABCell</code> or <code>CommandWindow</code> (only the first two are available on non-Windows operating systems). The primary difference between the three functions is:</p>
+				<ul>
+					<li><code>MEvaluate</code> is a <i>Mathematica</i> function that takes MATLAB input as strings, and can be conveniently used in larger programs</li>
+					<li><code>MATLABCell</code> is a styled cell in a <i>Mathematica</i> notebook, that is useful for interactive work</li>
+					<li><code>CommandWindow</code> is just a <i>Mathematica</i> function that activates a native MATLAB command window interface. With this, one  works directly with MATLAB, independent of MATLink (although the variables are still accessible via MATLink).</li>
+				</ul>
+
+				<p>Since there is overhead in transferring instructions and output with <code>MEvaluate</code>, it is advisable to not display output where not necessary (both, in MATLAB and <i>Mathematica</i>). If you need to run the same set of instructions repeatedly, use an <code>MScript</code> instead of <code>MEvaluate</code>.</p>
 			</div>
 			<div class="tab-pane fade" id="MEvaluate">
 				<blockquote><code>MEvaluate["code"]</code> will execute <code>code</code> in MATLAB as if it were entered at the command prompt and returns the output as text.</blockquote>
@@ -446,13 +454,30 @@ Too many output arguments.
 
 	<h4><i>Mathematica</i> → MATLAB</h4>
 	<ol>
-		<li><h5>Numerical lists</h5></li>
+		<li><h5>Numbers and numerical lists</h5></li>
 		<ul>
 			<li><code>Integer</code>, <code>Real</code> and <code>Complex</code> are all converted to <code>double</code></li>
 			<li>Simple lists are row vectors</li>
 			<li>All other rectangular lists of lists (any dimension) are converted to an identical sized array.</li>
 			<li>Numerical lists can be interpreted as MATLAB cells using the <code>MCell</code> head</li>
 		</ul>
+
+		<li><h5>Strings and string lists</h5></li>
+		<ul>
+			<li>String is converted to a 1xN char array, where N is the string length.</li>
+			<li>Lists of strings (any dimension) are converted to cell arrays of appropriate dimensions</li>
+		</ul>
+
+		<li><h5>Lists of rules</h5></li>
+		<ul>
+			<li>Simple lists of rules are converted to a struct if all the LHS of the rules is a string, the RHS is a supported datatype and there are no duplicate fields.</li>
+		</ul>
+
+		<li><h5>Mixed lists</h5></li>
+		<ul>
+			<li>Lists of mixed datatypes are transferred as cells of appropriate dimensions</li>
+		</ul>
+
 	</ol>
 
 </div>
@@ -550,7 +575,7 @@ MGet["s"]
 <script src="/MATLink/assets/js/prettify.js"></script>
 <script src="/MATLink/assets/js/lang-matlab.js"></script>
 <script src="/MATLink/assets/js/lang-mma.js"></script>
-<script type="text/javascript">
+<script>
 jQuery(document).ready(function () {
 		// apply syntax highlighting
 		prettyPrint();
