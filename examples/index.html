@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8" />
+<title>MATLink — Examples</title>
+<meta name="description" content="">
+<meta name="author" content="R. Menon, Sz. Horvát">
+
+<link rel="stylesheet" href="/MATLink/assets/css/bootstrap.css">
+<link rel="stylesheet" href="/MATLink/assets/css/site.css">
+<link rel="stylesheet" href="/MATLink/assets/css/prettify.css">
+<link rel="stylesheet" href="/MATLink/assets/css/lang-matlab.css">
+<link rel="stylesheet" href="/MATLink/assets/css/lang-mma.css">
+<link rel="stylesheet" href="/MATLink/assets/css/font-awesome.min.css">
+
+</head>
+<body>
+
+<!--navigation bar-->
+<div class="navbar navbar-inverse navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			<a class="brand" href="/MATLink/">MATLink</a>
+			<ul class="nav">
+				<li><a href="/MATLink/#installation">Installation</a></li>
+				<li class="dropdown">
+				<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+					Getting started
+					<i class="icon-caret-down"></i>
+				</a>
+				<ul class="dropdown-menu" role="menu">
+					<li class=""><a href="/MATLink/#connecting">Connecting to MATLink</a></li>
+					<li class=""><a href="/MATLink/#executing-matlab">Executing MATLAB commands</a></li>
+					<li class=""><a href="/MATLink/#transferring-data">Transferring data</a></li>
+					<li class=""><a href="/MATLink/#scripts-functions">Working with scripts and functions</a></li>
+				</ul>
+				</li>
+				<li><a href="/MATLink/documentation/">Documentation</a></li>
+				<li><a href="/MATLink/examples/">Examples</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+
+	<div class="container">
+		<section id="examples">
+			<h1 class="main-header">Examples</h1>
+			The following examples are illustrative of real world problems that are easily solved by using MATLink to get the best of both MATLAB and <i>Mathematica</i>.
+
+			<subsection id="filtering">
+			<h2>Fast Delaunay triangulations</h2>
+			<p><i>Mathematica</i> has a <code>DelaunayTriangulation</code> function in the <code>ComputationalGeometry</code> package, but it is very slow.
+			(It does have its strong points though, such as the capability to use exact arithmetic and deal with collinear points.)
+			<!--This in turn also causes <code>ListDensityPlot</code> to be very inefficient (to the point where it's impossible to plot a few thousands of points).-->
+			Using MATLink, we can use MATLAB's <code>delaunay</code> function to compute the Delaunay triangulation of a set of points as
+<pre class="prettyprint lang-mma">
+delaunay = Composition[Round, MFunction["delaunay"]];
+</pre>
+
+			Since <i>Mathematica</i>'s function returns a vertex adjacency list, we'll need to <a href="http://mathematica.stackexchange.com/a/281">post-process</a> the output to compare it with MATLAB's:
+<pre class="prettyprint lang-mma">
+Needs["ComputationalGeometry`"];
+delaunayMma[points_] :=
+	Module[{tr, triples},
+		tr = DelaunayTriangulation[points];
+		triples = Flatten[
+			Function[{v, list},
+				Switch[Length[list],
+				 (* account for nodes with connectivity 2 or less *)
+				 1, {},
+				 2, {Flatten[{v, list}]}, _, {v, ##}& @@@ Partition[list, 2, 1, {1, 1}]]
+			] @@@ tr, 1];
+		Cases[GatherBy[triples, Sort], a_ /; Length[a] == 3 :> a[[1]]]
+	]
+</pre>
+
+			<div class="row">
+				<div class="span8">
+					A random set of points will generally have a unique Delaunay triangulation, so we can test that the two systems return identical results
+<pre class="prettyprint lang-mma">
+With[{pts = RandomVariate[NormalDistribution[], {100, 2}]},
+	Sort[Sort /@ delaunay[pts]] === Sort[Sort /@ delaunayMma[pts]]
+]
+</pre>
+					and plot the triangulations with
+<pre class="prettyprint lang-mma">
+trianglesToLines[t_] :=
+  Union@Flatten[{{#1, #2}, {#2, #3}, {#1, #3}} & @@
+	  Transpose[Sort /@ t], {{1, 3}, {2}}];
+Graphics@GraphicsComplex[pts, Line@trianglesToLines@delaunay[pts]]
+</pre>
+				</div>
+				<div class="span4">
+					<img src="/MATLink/assets/img/delaunay.png">
+				</div>
+			</div>
+
+			<p>Not only is <code>delaunay</code> much faster than <code>DelaunayTriangulation</code> (especially for larger data sets), it is also much faster than the triangulator used internally by <code>ListDensityPlot</code>. Hence we can use MATLAB's <code>delaunay</code> to design a custom <code>listDensityPlot</code> which is faster than the built-in function and can handle large data sets as follows:
+
+<pre class="prettyprint lang-mma">
+Options[listDensityPlot] = Options[Graphics] ~Join~ {ColorFunction -> Automatic, MeshStyle -> None, Frame -> True};
+
+listDensityPlot[data_?MatrixQ, opt : OptionsPattern[]] :=
+	Module[{in, out, tri, colfun},
+		tri = delaunay[data[[All, 1;;2]]];
+		colfun = OptionValue[ColorFunction];
+		If[Not@MatchQ[colfun, _Symbol | _Function], Check[colfun = ColorData[colfun], colfun = Automatic]];
+		If[colfun === Automatic, colfun = ColorData["LakeColors"]];
+		Graphics[
+			GraphicsComplex[data[[All, 1;;2]],
+				GraphicsGroup[{EdgeForm[OptionValue[MeshStyle]], Polygon[tri]}],
+				VertexColors -> colfun /@ Rescale[data[[All, 3]]]
+			],
+			Sequence @@ FilterRules[{opt}, Options[Graphics]], Method -> {"GridLinesInFront" -> True}
+		]
+	]
+</pre>
+			<p>Let's now test our custom function against the built-in function for 30000 points:</p>
+<pre class="prettyprint lang-mma">
+pts = RandomReal[{-1, 1}, {30000, 2}];
+values = Sin[3 Sqrt[#1^2 + #2^2]] & @@@ pts;
+
+listDensityPlot[ArrayFlatten[{{pts, List /@ values}}], Frame -> True] // AbsoluteTiming
+(* 0.409001, --Graphics-- *)
+
+ListDensityPlot[ArrayFlatten[{{pts, List /@ values}}]] // AbsoluteTiming
+(* 12.416587, --Graphics-- *)
+</pre>
+			<p>The speedup is indeed quite significant. For hundreds of thousands of points, the built in <code>ListDensityPlot</code> is practically unusable, while <code>listDensityPlot</code> finishes in seconds.</p>
+			<p class="alert alert-info"><i class="icon-info-sign"></i> When benchmarking MATLink, it's necessary to use <code>AbsoluteTiming</code>, which measures wall time.  <code>Timing</code> only measures the CPU time consumed by the <i>Mathematica</i> kernel; it does not measure the time used by MATLAB. </p>
+
+
+			<h2>Filtering sound using the signal processing toolbox</h2>
+			<p>Signal processing functionality was notoriously missing from <i>Mathematica</i> until version 9, and still lags behind MATLAB's toolbox in terms of functionality and ease of use. Let's suppose we wanted to inspect the frequency content of an audio file and filter it (assume you're using <i>Mathematica</i> 8 and don't have the newer functions).</p>
+
+			<div class="row">
+				<div class="span12">
+<pre class="prettyprint lang-mma">
+{data, fs}  = {#[[1, 1, 1]], #[[1, 2]]} &@ExampleData[{"Sound", "Apollo13Problem"}];
+spectrogram = MFunction["spectrogram", "Output" -> False]; (* Use MATLAB's spectrogram *)
+spectrogram[data, 1000, 0, 1024, fs]
+</pre>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="span6">
+					<p>Clearly, the frequency content is mostly below 2.5 kHz, and so we design a lowpass filter in MATLAB using the following code:
+<pre class="prettyprint lang-matlab">
+[z, p, k] = butter(6, 2.5e3/fs, 'low') ;%Butterworth filter
+[sos, g]  = zp2sos(z, p, k)            ;
+Hd        = dfilt.df2tsos(sos, g)      ;
+</pre>
+
+					<p> To use this from MATLink, we need to pass the value of <code>fs</code> and also make a helper function that will return the filtered data</p>
+
+<pre class="prettyprint lang-mma">
+MSet["fs", fs];
+MEvaluate["
+	[z, p, k] = butter(6, 2.5e3/fs, 'low') ;
+	[sos, g]  = zp2sos(z, p, k)            ;
+	Hd        = dfilt.df2tsos(sos, g)      ;
+	myfilt    = @(x)filter(Hd,x)           ;
+"]
+filter = MFunction["myfilt"];
+</pre>
+
+				</div>
+				<div class="span6">
+					<img src="/MATLink/assets/img/spectrogram_data.png">
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="span12">
+					<p>Now we're all set to use the <code>filter</code> function from within <i>Mathematica</i> on the data. This simple example demonstrates how one can fill in for missing functionality. It saves us the trouble of having to develop a complicated filter design algorithm in <i>Mathematica</i> (which is not an easy task) and spend hours debugging it. The code for the Butterworth filter could've come from anywhere — the file exchange or Stack Overflow or previously written code or perhaps even, as in this case, an example from the documentation for <code>butter</code>. A slight tweak of the parameters to suit the needs at hand, and we're good to proceed with our work in <i>Mathematica</i>.
+				</div>
+			</div>
+			<div class="row">
+				<div class="span6">
+					<p>To complete the example, let's filter the data using our filter and look at the spectrogram</p>
+<pre class="prettyprint lang-mma">
+filteredData = filter@data;
+spectrogram[filteredData, 1000, 0, 1024, fs]
+</pre>
+					<p>For fun, we can also play both the filtered and unfiltered data and listen to the differences</p>
+<pre class="prettyprint lang-mma">
+ListPlay[data, SampleRate -> fs]
+ListPlay[filteredData, SampleRate -> fs]
+</pre>
+				</div>
+				<div class="span6">
+					<img src="/MATLink/assets/img/spectrogram_filtered.png">
+				</div>
+			</div>
+		</section>
+
+		<footer class="footer">
+			<div class="container">
+				<ul class="footer-links">
+					<li>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></li>
+					<li class="muted">·</li>
+					<li>Licensed under the <a href="http://opensource.org/licenses/mit-license.html">MIT License</a></li>
+				</ul>
+				<p><i>Mathematica</i> is a registered trademark of <a href="http://wolfram.com">Wolfram Research, Inc.</a> and MATLAB is a registered trademark of <a href="http://mathworks.com/">The MathWorks, Inc.</a></p>
+			</div>
+		</footer>
+	</div>
+
+	<script src="/MATLink/assets/js/jquery-1.9.1.min.js"></script>
+	<script src="/MATLink/assets/js/underscore.min.js"></script>
+	<script src="/MATLink/assets/js/backbone.min.js"></script>
+	<script src="/MATLink/assets/js/bootstrap-222.min.js"></script>
+	<script src="/MATLink/assets/js/prettify.js"></script>
+	<script src="/MATLink/assets/js/lang-matlab.js"></script>
+	<script src="/MATLink/assets/js/lang-mma.js"></script>
+	<script type="text/javascript">
+jQuery(document).ready(function () {
+		// apply syntax highlighting
+		prettyPrint();
+
+		// add language selection menus (after a small delay)
+		setTimeout(function () {
+			add_language_selection_menu();
+			}, 300);
+		});
+	</script>
+
+	<script>
+$(function () {
+		$('#install-tabs a:first').tab('show');
+		})
+	</script>
+
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40302070-1', 'github.io');
+  ga('send', 'pageview');
+
+</script>
+
+	</body>
+	</html>

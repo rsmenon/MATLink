@@ -50,9 +50,9 @@
 	<div class="span4">
 		<p>MATLink is written in <i>Mathematica</i> and C++ and connects to MATLAB using the <a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">MATLAB Engine interface</a>. The image to the right is an overview of the different functions in MATLink and how they interact with the different systems. This documentation contains
 		<ul>
-			<li>the <a href="">function reference</a>, which is the official documentation for the different functions in MATLink, grouped by scope</li>
-			<li>a list of <a href="">supported datatypes</a> and rules for conversions</li>
-			<li>a list of <a href="">known issues</a>, which document known bugs, missing functionality, and other limitations of MATLink (mostly due to the limitations of the MATLAB engine).
+			<li>the <a href="#function-reference">function reference</a>, which is the official documentation for the different functions in MATLink, grouped by scope</li>
+			<li>a list of <a href="#supported-datatypes">supported datatypes</a> and <a href="#translation-rules">rules for conversions</a></li>
+			<li>a list of <a href="#known-issues">known issues</a>, which document known bugs, missing functionality, and other limitations of MATLink (mostly due to the limitations of the MATLAB engine).
 		</ul>
 		</p>
 	</div>
@@ -61,6 +61,7 @@
 	</div>
 </div>
 
+<div id="function-reference">
 <h2>Function Reference</h2>
 <section id="connection">
 	<h3>Connecting to MATLAB</h3>
@@ -164,7 +165,6 @@
 			</div>
 		</div>
 	</section>
-</div>
 
 <div class="container">
 	<section id="transferring-variables">
@@ -359,6 +359,7 @@ Too many output arguments.
 		</div>
 	</section>
 </div>
+</div>
 
 <div class="container">
 	<div id="supported-datatypes">
@@ -381,7 +382,9 @@ Too many output arguments.
 		<li>numerical arrays with the following types: single, int16, int32</li>
 		<li>structs with any number of elements </li>
 	</ul>
+	</div>
 
+	<div id="translation-rules">
 	<h3>Rules for translating data structures</h3>
 	<p>This section documents the internal rules that govern the translation of data structures from MATLAB to Mathematica and vice versa. You do not need to do this conversion, but you should be aware of how it is converted so that you can design your programs accordingly.</p>
 	<h4>MATLAB → <i>Mathematica</i></h4>
@@ -539,6 +542,17 @@ jQuery(document).ready(function () {
 $(function () {
 		$('#install-tabs a:first').tab('show');
 		})
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40302070-1', 'github.io');
+  ga('send', 'pageview');
+
 </script>
 
 </body>

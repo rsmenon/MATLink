@@ -46,6 +46,8 @@
  * @author pscheibe@trm.uni-leipzig.de
  */
 
+//Modified by R. Menon for use with MATLink
+
 (function () {
 
     var keywords = 'AbelianGroup|Abort|AbortKernels|AbortProtect|Above|Abs|Absolute|AbsoluteCorrelation|AbsoluteCorrelationFunction|AbsoluteCurrentValue|AbsoluteDashing|AbsoluteFileName|AbsoluteOptions|AbsolutePointSize|AbsoluteThickness|AbsoluteTime|AbsoluteTiming|AccountingForm|Accumulate|Accuracy|AccuracyGoal|ActionDelay|ActionMenu|ActionMenuBox|ActionMenuBoxOptions|Active|ActiveItem|ActiveStyle|AcyclicGraphQ|AddOnHelpPath|AddTo|AdjacencyGraph|AdjacencyList|AdjacencyMatrix|AdjustmentBox|AdjustmentBoxOptions|AdjustTimeSeriesForecast|AffineTransform|After|AiryAi|AiryAiPrime|AiryAiZero|AiryBi|AiryBiPrime|AiryBiZero|AlgebraicIntegerQ|AlgebraicNumber|AlgebraicNumberDenominator|AlgebraicNumberNorm|AlgebraicNumberPolynomial|'+
