@@ -13,16 +13,18 @@
 <link rel="stylesheet" href="/MATLink/assets/css/font-awesome.min.css">
 
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-40302070-1', 'github.io');
-  ga('send', 'pageview');
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-40302070-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+ var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+ var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+ })();
 
 </script>
-
 </head>
 <body data-spy="scroll" data-target=".navbar">
 
@@ -143,6 +145,7 @@
 
 				<p> MATLink has been extensively tested with <i>Mathematica</i> versions 8.0.4 and 9.0.1, MATLAB 2012b and 2013a on OS X 10.8.2 and 10.8.3, and moderately tested on Windows 8 and Ubuntu (version). If you encounter any issues with a relatively modern operating system or a supported <i>Mathematica</i>/MATLAB version, please open a new <a href="https://github.com/rsmenon/MATLink/issues/new">issue</a> at GitHub.</p>
 
+				<p class="alert alert-info"><b>Next:</b> Choose your preferred download option and install MATLink</p>
 			</div>
 
 			<div class="tab-pane fade" id="download-matlink">
@@ -185,6 +188,7 @@ ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
 						</ol>
 					</div>
 				</div>
+				<p class="alert alert-info"><b>Next:</b> Select your operating system and follow the instructions to link with MATLAB.</p>
 			</div>
 
 			<div class="tab-pane fade" id="windows">
@@ -194,6 +198,7 @@ ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
 					<li>Add MATLAB's <code>bin/win64</code> directory (<code>bin/win32</code> for 32-bit versions) to the system <code>PATH</code> (<a href="http://www.mathworks.com/support/solutions/en/data/1-15ZLK/index.html">more info</a>).</li>
 					<li>Register the default MATLAB version by running <code>regmatlabserver</code> in MATLAB. On most Windows systems, you will need administrator rights to do this.</li>
 				</ol>
+				<p class="alert alert-success">You should now be all set to use MATLink! If for some reason it fails, please open a <a href="https://github.com/rsmenon/MATLink/issues/new">new issue</a> on Github.</p>
 			</div>
 
 			<div class="tab-pane fade" id="linux">
@@ -204,6 +209,7 @@ ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
 					<li>A C++ compiler is needed to compile the MATLink binary. Very old versions of <code>gcc</code> cannot be used to compile MATLink.</li>
 					<li>Both <i>Mathematica</i> and MATLAB must be on the system <code>PATH</code> (i.e., <code>which matlab</code> and <code>which math</code> return the correct locations).</li>
 				</ol>
+				<p class="alert alert-success">You should now be all set to use MATLink! If for some reason it fails, please open a <a href="https://github.com/rsmenon/MATLink/issues/new">new issue</a> on Github.</p>
 			</div>
 
 			<div class="tab-pane fade" id="osx">
@@ -213,6 +219,7 @@ ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
 					<li>Navigate to the <code>MATLink/Engine/bin/MacOSX64</code> directory, edit the file <code>mengine.sh</code> and set the path to the MATLAB app bundle. This is not
 					necessary if MATLAB is installed in the default folder in <code>/Applications</code> (e.g. <code>/Applications/MATLAB_R2013a.app</code>)</li>
 				</ol>
+				<p class="alert alert-success">You should now be all set to use MATLink! If for some reason it fails, please open a <a href="https://github.com/rsmenon/MATLink/issues/new">new issue</a> on Github.</p>
 			</div>
 		</div>
 	</section>
@@ -315,7 +322,7 @@ magic[4] // MatrixForm
 		<h2 class="page-header">Help us improve MATLink!</h2>
 		<ul>
 			<li>Please help spread the word about MATLink among those that use <i>Mathematica</i> and have use for MATLAB. The more the number of people that use it, the easier it is to find and fix bugs, prioritize new features for future updates, etc.</li>
-			<li>If you find a bug or unexpected behaviour, please open a <a href="https://github.com/rsmenon/MATLink/issues">new issue</a> at Github and we'll look at it. If you don't have a Github account and don't want to create one, you can also contact us at <a href="mailto:matlink.m@gmail.com">matlink.m@gmail.com</a>.</li>
+			<li>If you find a bug or unexpected behaviour, please open a <a href="https://github.com/rsmenon/MATLink/issues/new">new issue</a> at Github and we'll look at it. If you don't have a Github account and don't want to create one, you can also contact us at <a href="mailto:matlink.m@gmail.com">matlink.m@gmail.com</a>.</li>
 			<li>If you have interesting uses for MATLink, please let us know at the above address and we'll eventually add to our <a href="/MATLink/examples/">examples gallery</a>.</li>
 		</ul>
 	</div>
