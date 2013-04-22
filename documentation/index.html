@@ -430,23 +430,23 @@ Too many output arguments.
 		<li><h5>Char Arrays</h5></li>
 		<ul>
 			<li> <code>char</code> is converted to <code>String</code> </li>
-			<li>1xN char arrays are atomic strings</li>
-			<li>MxNx... char arrays (any dimension) are lists of individual characters</li>
+			<li>1×N char arrays are atomic strings</li>
+			<li>M×N×... char arrays (any dimension) are lists of individual characters</li>
 		</ul>
 
 		<li><h5>Struct Arrays</h5></li>
 		<ul>
 			<li> <code>struct</code> is converted to a list of rules</li>
 			<li>Field names are the LHS of rules (stored as string); values are the RHS of rules</li>
-			<li>1x1 struct arrays are a simple list of rules of length F, where F is the number of fields</li>
-			<li>1xN struct arrays are a list of rules of dimension NxF</li>
-			<li>MxNx... struct arrays (any dimension) are lists of dimension MxNx...xF</li>
+			<li>1×1 struct arrays are a simple list of rules of length F, where F is the number of fields</li>
+			<li>1×N struct arrays are a list of rules of dimension N×F</li>
+			<li>M×N×... struct arrays (any dimension) are lists of dimension M×N×...×F</li>
 		</ul>
 		<li><h5>Cells</h5></li>
 		<ul>
-			<li>1x1 cells are atomic</li>
-			<li>1xN cells are simple (unpacked) lists of length N</li>
-			<li>MxNx... cells (any dimension) are unpacked arrays</li>
+			<li>1×1 cells are atomic</li>
+			<li>1×N cells are simple (unpacked) lists of length N</li>
+			<li>M×N×... cells (any dimension) are unpacked arrays</li>
 			<li>Empty cells (any dimension) are <code>{}</code></li>
 		</ul>
 	</ol>
@@ -463,7 +463,7 @@ Too many output arguments.
 
 		<li><h5>Strings and string lists</h5></li>
 		<ul>
-			<li>String is converted to a 1xN char array, where N is the string length.</li>
+			<li>String is converted to a 1×N char array, where N is the string length.</li>
 			<li>Lists of strings (any dimension) are converted to cell arrays of appropriate dimensions</li>
 		</ul>
 
