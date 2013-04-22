@@ -102,3 +102,26 @@ blockquote code {
 	width: 600px;
 	text-align: center;
 }
+
+li {
+	margin-bottom: 5px;
+}
+
+pre {
+	font-size:13px;
+}
+
+.nav-tabs > .active > a, .nav-tabs > .active > a:hover, .nav-tabs > .active > a:focus {
+    color: rgb(85, 85, 85);
+    background-color: rgb(246, 246, 246);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(221, 221, 221) rgb(221, 221, 221) transparent;
+    -moz-border-top-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    border-image: none;
+    cursor: default;
+}
+
