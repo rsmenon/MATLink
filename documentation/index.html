@@ -233,7 +233,7 @@ s = MGet["s"]
 (* Out: {3., 4.} *)
 </pre>
 </li>
-<li>Do not attempt to use <code>MGet</code> on objects (<code>classdef</code> objects) or data structures which contain objects. This will crash MATLAB because of a MATLAB bug. See the "Known issues" section for additional details.</li>
+<li>Do not attempt to use <code>MGet</code> on objects (<code>classdef</code> objects) or data structures which contain objects. This will crash MATLAB because of a MATLAB bug. See the <a href="#known-issues">known issues</a> section for additional details.</li>
 </ul>
 			</div>
 
@@ -262,17 +262,6 @@ MEvaluate["a"]
 </pre>
 				</ul>
 
-				<h4>Possible issues</h4>
-				<ul>
-					<li>MATLAB works with floating point values by default. Even array indices are floating point, and such values need to be explicitly rounded in <i>Mathematica</i> before they can be used as indices again.
-<pre class="prettyprint lang-mma">
-MEvaluate["s = size(zeros(3,4));"]
-s = MGet["s"]
-(* Out: {3., 4.} *)
-</pre>
-</li>
-<li>Do not attempt to use <code>MGet</code> on objects (<code>classdef</code> objects) or data structures which contain objects. This will crash MATLAB because of a MATLAB bug. See the "Known issues" section for additional details.</li>
-</ul>
 			</div>
 
 			<div class="tab-pane fade" id="MCell">
@@ -483,6 +472,7 @@ Too many output arguments.
 </div>
 
 <div class="container">
+	<div id="known-issues">
 	<h2>Known Issues</h2>
 	<ul>
 		<li>
@@ -554,7 +544,7 @@ MGet["s"]
 <p>A workaround is using <code>evalc</code>.  This is not used in MATLink because of unsolved <a href="https://github.com/rsmenon/MATLink/issues/29">issue #29</a>.</p>
 </li>
 </ul>
-
+</div>
 <footer class="footer">
 	<div class="container">
 		<ul class="footer-links">
