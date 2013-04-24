@@ -60,16 +60,16 @@ $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
 
 (* This flag makes it possible to force using a 32 bit MATLAB with a 64 bit Mathematica.
    Mainly useful on Widows where the student version of MATLAB is 32-bit only.
-   To use it permanently, put MATLink`Developer`$Force32BitMATLAB = True in your kernel init.m *)
-$Force32BitMATLAB /: (Set|SetDelayed)[$Force32BitMATLAB, value_] :=
-	Block[{$inForce32BitMATLABFunction = True},
-		$Force32BitMATLAB = value; setBinaryDirectories[]; value] /; Not@TrueQ[$inForce32BitMATLABFunction]
+   To use it permanently, put MATLink`Developer`$Force32BitEngine = True in your kernel init.m *)
+$Force32BitEngine /: (Set|SetDelayed)[$Force32BitEngine, value_] :=
+	Block[{$inForce32BitEngineFunction = True},
+		$Force32BitEngine = value; setBinaryDirectories[]; value] /; Not@TrueQ[$inForce32BitEngineFunction]
 
 setBinaryDirectories[] := 
-	($BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[If[TrueQ[$Force32BitMATLAB], 32, $SystemWordLength]]}];
+	($BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[If[TrueQ[$Force32BitEngine], 32, $SystemWordLength]]}];
 	 $BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];)
 
-If[ValueQ[$Force32BitMATLAB], setBinaryDirectories[], $Force32BitMATLAB = False]
+If[ValueQ[$Force32BitEngine], setBinaryDirectories[], $Force32BitEngine = False]
 
 (* Log files and related functions *)
 If[!DirectoryQ@$ApplicationDataDirectory, CreateDirectory@$ApplicationDataDirectory];
