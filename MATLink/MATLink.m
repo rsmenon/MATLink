@@ -6,7 +6,7 @@
 *)
 (* :Copyright: 2013 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
-(* :Package Version: 0.2a *)
+(* :Package Version: 0.9b *)
 (* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
@@ -208,7 +208,6 @@ If[!TrueQ[MATLinkLoadedQ[]],
 	MATLABInstalledQ[] = False;
 	$openLink = {};
 	$sessionID = "";
-	$temporaryVariablePrefix = "";
 	$sessionTemporaryDirectory = "";
 	writeLog["Loaded MATLink`", "user"];
 	writeLog["Version: " <> $Version, "info"];
@@ -293,7 +292,6 @@ ConnectEngine[link_ : Automatic] /; EngineBinaryExistsQ[] && !MATLABInstalledQ[]
 			IntegerString[List @@ Rest@$openLink],
 			randomString[10]
 		];
-		$temporaryVariablePrefix = "MATLink" <> $sessionID;
 		$sessionTemporaryDirectory = FileNameJoin[{$TemporaryDirectory, "MATLink" <> $sessionID}];
 		CreateDirectory@$sessionTemporaryDirectory;
 		MATLABInstalledQ[] = True;
@@ -395,9 +393,9 @@ MGet[_, x__] := message[MGet::argx, "MGet", Length@{x} + 1]["error"]
 (* MSet *)
 MSet::sparse = "Unsupported sparse array; sparse arrays must be one or two dimensional, and must have either only numerical or only logical (True|False) elements."
 MSet::spdef = "Unsupported sparse array; the default element in numerical sparse arrays must be 0."
-MSet::flddup = "Duplicate field names not alowed in struct.  The following duplicates were found: ``."
-MSet::fldnm = "Struct field names must start with a letter and contain only letters, numbers or the _ character.  The following struct field names are not valid: ``."
-MSet::fldstr = "Struct field names must be strings.  The following invalid field names were found: ``."
+MSet::flddup = "Duplicate field names not alowed in struct. The following duplicates were found: ``."
+MSet::fldnm = "Struct field names must start with a letter and contain only letters, numbers or the _ character. The following struct field names are not valid: ``."
+MSet::fldstr = "Struct field names must be strings. The following invalid field names were found: ``."
 MSet::unsupp = "Unsupported data type. The expression \"``\" can't be converted."
 
 SyntaxInformation[MSet] = {"ArgumentsPattern" -> {_, _}};
@@ -425,7 +423,7 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, mlint_String : "Check"] :=
 	Catch[
-		Module[{result, error, file, id = randomString[], ex = $temporaryVariablePrefix <> randomString[10]},
+		Module[{result, error, file, id = randomString[], ex = randomString[]},
 			Switch[mlint,
 				"Check", {error, file} = errorsInMATLABCode@cmd,
 				"NoCheck", {error, file} = {None, {cmd}},
@@ -816,7 +814,7 @@ handleStruct[rules_ ? (VectorQ[#, ruleQ]&)] :=
 	With[{fields = rules[[All,1]]},
 		If[ Not@MatchQ[fields, {___String}]
 			,
-			message[MSet::fldstr, 
+			message[MSet::fldstr,
 				Select[fields, Not@StringQ[#]&]
 				]["error"];
 			Return[$Failed]
@@ -826,17 +824,17 @@ handleStruct[rules_ ? (VectorQ[#, ruleQ]&)] :=
 				,
 				message[MSet::fldnm,
 					Select[fields, Not@StringMatchQ[#, patt]& ]
-					]["error"]; 
+					]["error"];
 				Return[$Failed]
 			]
 		];
 		If[ Length@Union[fields] != Length[rules]
 			,
-			message[MSet::flddup, 
+			message[MSet::flddup,
 			  Cases[Tally[fields], {elem_, n_} /; n > 1][[All, 1]]
-			  ]["error"]; 
+			  ]["error"];
 			Return[$Failed]
-		];		
+		];
 		Thread[fields -> (dispatcher /@ rules[[All, 2]])]
 	]
 
