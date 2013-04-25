@@ -31,6 +31,7 @@ To be able to use _MATLink_, you will need to install it to a location in _Mathe
 Some further setup may be necessary to let MATLink find MATLAB:
 
  - On Windows, this is the standard procedure that is necessary to run MATLAB Engine applications:  1. First, add MATLAB's `bin/win64` (`bin/win32` for 32-bit versions) directory to the system `PATH`.  To do this, follow the instructions [here](http://www.mathworks.com/support/solutions/en/data/1-15ZLK/index.html).  2. Now register the default MATLAB version by running the `regmatlabserver` command from within MATLAB.  On most Windows systems it will be necessary to run MATLAB as administrator for the `regmatlabserver` command to work, but this step needs to be done only once.
+ - If you're using 32 bit MATLAB with a 64 bit Mathematica on Windows, then set ``MATLink`Developer`$Force32BitEngine = True`` before launching MATLink (or place it in your `init.m` file).
  - On OS X, navigate to the `MATLink/Engine/bin/MacOSX64` directory, edit the file `mengine.sh` and set the path to the MATLAB app bundle.
  - On Linux, both MATLAB and Mathematica must be in the system `PATH`.  Then MATLink will be able to automatically compile its binary component (a C++ compiler needs to be installed).
 

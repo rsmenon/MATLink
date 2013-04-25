@@ -6,7 +6,7 @@
 *)
 (* :Copyright: 2013 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
-(* :Package Version: 0.9b *)
+(* :Package Version: 0.91b *)
 (* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
@@ -65,7 +65,7 @@ $Force32BitEngine /: (Set|SetDelayed)[$Force32BitEngine, value_] :=
 	Block[{$inForce32BitEngineFunction = True},
 		$Force32BitEngine = value; setBinaryDirectories[]; value] /; Not@TrueQ[$inForce32BitEngineFunction]
 
-setBinaryDirectories[] := 
+setBinaryDirectories[] :=
 	($BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[If[TrueQ[$Force32BitEngine], 32, $SystemWordLength]]}];
 	 $BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];)
 
