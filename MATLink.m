@@ -6,7 +6,7 @@
 *)
 (* :Copyright: 2013 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
-(* :Package Version: 0.9b *)
+(* :Package Version: 0.91b *)
 (* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
@@ -57,8 +57,19 @@ Begin["`Developer`"]
 $ApplicationDirectory = DirectoryName@$InputFileName;
 $ApplicationDataDirectory = FileNameJoin[{$UserBaseDirectory, "ApplicationData", "MATLink"}];
 $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
-$BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[$SystemWordLength]}];
-$BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];
+
+(* This flag makes it possible to force using a 32 bit MATLAB with a 64 bit Mathematica.
+   Mainly useful on Widows where the student version of MATLAB is 32-bit only.
+   To use it permanently, put MATLink`Developer`$Force32BitEngine = True in your kernel init.m *)
+$Force32BitEngine /: (Set|SetDelayed)[$Force32BitEngine, value_] :=
+	Block[{$inForce32BitEngineFunction = True},
+		$Force32BitEngine = value; setBinaryDirectories[]; value] /; Not@TrueQ[$inForce32BitEngineFunction]
+
+setBinaryDirectories[] :=
+	($BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[If[TrueQ[$Force32BitEngine], 32, $SystemWordLength]]}];
+	 $BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];)
+
+If[ValueQ[$Force32BitEngine], setBinaryDirectories[], $Force32BitEngine = False]
 
 (* Log files and related functions *)
 If[!DirectoryQ@$ApplicationDataDirectory, CreateDirectory@$ApplicationDataDirectory];
