@@ -103,15 +103,13 @@ MATLink /: SetOptions[MATLink, opts_] :=
 		writeLog["MATLink settings changed: " <> ToString@Options@MATLink, "user"];
 	]
 
-Options@MATLink = {"DefaultMATLABDirectory" -> "NotAvailable", "Force32BitEngine" -> False};
+Options@MATLink = {"Force32BitEngine" -> False};
 If[FileExistsQ@$SettingsFile,
 	Options@MATLink = Get@$SettingsFile;,
 
 	writeLog["Missing init.m; Creating a new file.", "matlink"];
 	SetOptions[MATLink, Options@MATLink];
 ]
-
-$DefaultMATLABDirectory := OptionValue[MATLink, "DefaultMATLABDirectory"];
 
 (* Binary directories: The $Force32BitEngine flag makes it possible to force using a 32 bit MATLAB with a 64 bit Mathematica.
    Mainly useful on Windows where the student version of MATLAB is 32-bit only.
@@ -209,7 +207,6 @@ If[!TrueQ[MATLinkLoadedQ[]],
 	writeLog["Loaded MATLink`", "user"];
 	writeLog["Version: " <> $Version, "info"];
 	writeLog["OS: " <> $OperatingSystem, "info"];
-	writeLog["MATLAB: " <> $DefaultMATLABDirectory, "info"];
 	writeLog["MATLink: " <> ToString@Options@MATLink, "info"];,
 
 	message[MATLink::needs]["warning"]
