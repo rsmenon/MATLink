@@ -53,23 +53,10 @@ MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MA
 
 Begin["`Developer`"]
 
-(* Directories & file paths *)
+(* Application directories & file paths *)
 $ApplicationDirectory = DirectoryName@$InputFileName;
 $ApplicationDataDirectory = FileNameJoin[{$UserBaseDirectory, "ApplicationData", "MATLink"}];
 $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
-
-(* This flag makes it possible to force using a 32 bit MATLAB with a 64 bit Mathematica.
-   Mainly useful on Widows where the student version of MATLAB is 32-bit only.
-   To use it permanently, put MATLink`Developer`$Force32BitEngine = True in your kernel init.m *)
-$Force32BitEngine /: (Set|SetDelayed)[$Force32BitEngine, value_] :=
-	Block[{$inForce32BitEngineFunction = True},
-		$Force32BitEngine = value; setBinaryDirectories[]; value] /; Not@TrueQ[$inForce32BitEngineFunction]
-
-setBinaryDirectories[] :=
-	($BinaryDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[If[TrueQ[$Force32BitEngine], 32, $SystemWordLength]]}];
-	 $BinaryPath = FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];)
-
-If[ValueQ[$Force32BitEngine], setBinaryDirectories[], $Force32BitEngine = False]
 
 (* Log files and related functions *)
 If[!DirectoryQ@$ApplicationDataDirectory, CreateDirectory@$ApplicationDataDirectory];
@@ -125,6 +112,14 @@ If[FileExistsQ@$SettingsFile,
 ]
 
 $DefaultMATLABDirectory := OptionValue[MATLink, "DefaultMATLABDirectory"];
+
+(* Binary directories: The $Force32BitEngine flag makes it possible to force using a 32 bit MATLAB with a 64 bit Mathematica.
+   Mainly useful on Windows where the student version of MATLAB is 32-bit only.
+   To use it permanently, evaluate SetOption[MATLink, "Force32BitEngine" -> True] *)
+
+$Force32BitEngine := OptionValue[MATLink, "Force32BitEngine"]
+$BinaryDirectory := FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[If[TrueQ[$Force32BitEngine], 32, $SystemWordLength]]}];
+$BinaryPath := FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];
 
 (* Other Developer` functions *)
 CompileMEngine::unsupp := "Automatically compiling the MATLink Engine from source is not supported on ``. Please compile it manually."
