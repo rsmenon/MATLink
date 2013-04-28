@@ -127,12 +127,13 @@ If[FileExistsQ@$SettingsFile,
    To use it permanently, evaluate SetOption[MATLink, "Force32BitEngine" -> True] *)
 
 $Force32BitEngine := OptionValue[MATLink, "Force32BitEngine"]
-$BinaryDirectory := FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[If[TrueQ[$Force32BitEngine], 32, $SystemWordLength]]}];
+$EngineWordLength := If[TrueQ[$Force32BitEngine], 32, $SystemWordLength]
+$BinaryDirectory := FileNameJoin[{$ApplicationDirectory, "Engine", "bin", $OperatingSystem <> IntegerString[$EngineWordLength]}];
 $BinaryPath := FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows", "mengine.exe", "mengine"]}];
 
 (* Other Developer` functions *)
-CompileMEngine::unsupp := "Automatically compiling the MATLink Engine from source is not supported on ``. Please compile it manually."
-CompileMEngine::failed := "Automatically compiling the MATLink Engine has failed. Please try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
+CompileMEngine::unsupp = "Automatically compiling the MATLink Engine from source for `` is not supported. Please compile it manually."
+CompileMEngine::failed = "Automatically compiling the MATLink Engine has failed. Please try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
 
 (* CompileMEngine[] will Abort[] on failure to avoid an infinite loop. *)
 CompileMEngine[] :=
@@ -143,6 +144,10 @@ CompileMEngine[] :=
 
 CompileMEngine["MacOSX"] :=
 	Block[{dir = Directory[]},
+		If[$EngineWordLength == 32,
+			message[CompileMEngine::unsupp, "32-bit OS X"]["fatal"];
+			Abort[]
+		];
 		SetDirectory[$EngineSourceDirectory];
 		PrintTemporary["Compiling the MATLink Engine from source...\n"];
 		If[ Run["make -f Makefile.osx"] != 0,
@@ -157,7 +162,7 @@ CompileMEngine["MacOSX"] :=
 
 CompileMEngine["Unix"] :=
 	Block[{dir = Directory[], makefile},
-		If[$SystemWordLength == 64, makefile="Makefile.lin64", makefile="Makefile.lin32"];
+		If[$EngineWordLength == 64, makefile="Makefile.lin64", makefile="Makefile.lin32"];
 		SetDirectory[$EngineSourceDirectory];
 		PrintTemporary["Compiling the MATLink Engine from source...\n"];
 		If[ Run["make -f " <> makefile] != 0,
