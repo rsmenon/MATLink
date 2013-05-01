@@ -273,7 +273,7 @@ cleanOutput[str_String, file_String] :=
 			StartOfString ~~ ">> ".. :> ">> "}
 		]&,
 		str
-	]
+	] /. "" -> Null
 
 validOptionsQ[func_Symbol, opts_List] :=
 	With[{o = FilterRules[opts, Options[func]], patt = validOptionPatterns[func]},
