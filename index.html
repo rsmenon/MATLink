@@ -71,7 +71,7 @@ _gaq.push(['_trackPageview']);
 								<div class="actions">
 									<a class="btn btn-primary" href="https://dl.dropboxusercontent.com/u/38623/MATLink/MATLink.zip">
 										<i class="icon-cloud-download"></i>
-										Download 0.9 beta
+										Download 0.93 beta
 									</a>
 								</div>
 							</div>
@@ -197,8 +197,11 @@ ProjectInstall[URL["https://github.com/rsmenon/MATLink/archive/master.zip"]]
 				<ol>
 					<li>Add MATLAB's <code>bin\win64</code> directory (<code>bin\win32</code> for 32-bit versions) to the system <code>PATH</code>.</li>
 					<li>Register the default MATLAB version by running <code>regmatlabserver</code> in MATLAB. On most Windows systems, you will need administrator rights to do this.</li>
-					<li>If you're using a 32 bit MATLAB (such as a student version) and a 64 bit <i>Mathematica</i>, then set the following before loading MATLink or in your <code>init.m</code> file:</li>
-<pre class="prettyprint lang-mma">MATLink`Developer`$Force32BitEngine = True</pre>
+					<li>If you're using a 32 bit MATLAB (such as a student version) and a 64 bit <i>Mathematica</i>, then set the following before loading MATLink for the first time (needs to be done only once)</li>
+<pre class="prettyprint lang-mma">
+SetOptions[MATLink, "Force32BitEngine" -> True]
+</pre>
+If you reset your <i>Mathematica</i> settings or remove MATLink's <code>init.m</code> in <code>$UserBaseDirectory/ApplicationData/MATLink</code>, then the above option will need to be set again.
 				</ol>
 				<p class="alert alert-success">You should now be all set to use MATLink! If for some reason it fails, please open a <a href="https://github.com/rsmenon/MATLink/issues/new">new issue</a> on Github.</p>
 			</div>
