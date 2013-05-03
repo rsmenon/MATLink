@@ -488,16 +488,23 @@ Too many output arguments.
 
 		<li><h4>Multiple instances of MATLAB on OS X</h4>
 
-		<p>On OS X, if a MATLAB background process has already been started by <em>MATLink</em>, it will not be possible to launch another instance of MATLAB by clicking on its icon. As a workaround, either start MATLAB before you call <code>OpenMATLAB[]</code>or start MATLAB from the terminal as</p>
+		<p>If a MATLAB background process has already been started by MATLink, it will not be possible to launch another instance of MATLAB by clicking on its icon. As a workaround, either start MATLAB before you call <code>OpenMATLAB[]</code> or launch the MATLAB executable directly as:</p>
 
+<h5>On OS X</h5>
 <pre>
 open -n /Applications/MATLAB_R2013a.app
 </pre>
 
-<p>You can also open it by directly executing the binary from the command line:</p>
+<p>or by executing the binary from the command line</p>
 
 <pre>
 /Applications/MATLAB_R2013a.app/bin/matlab
+</pre>
+
+<h5>On Windows</h5>
+<p>Run the binary located at</p>
+<pre>
+C:\Program Files\MATLAB\R2013a\bin\matlab.exe
 </pre>
 </li>
 
