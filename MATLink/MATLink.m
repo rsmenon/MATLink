@@ -6,7 +6,7 @@
 *)
 (* :Copyright: 2013 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
-(* :Package Version: 0.91b *)
+(* :Package Version: 0.94b *)
 (* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
@@ -247,29 +247,12 @@ mscriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
 randomString[n_Integer:50] :=
 	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
 
-(* Check MATLAB code for syntax errors before evaluating.
-   This is necessary because a bug in the engine causes it to hang if there is a syntax error. *)
-errorsInMATLABCode[cmd_String] :=
-	Module[
-		{
-			file = iMScript[randomString[], cmd],
-			config = FileNameJoin[{$ApplicationDirectory, "Kernel", "MLintErrors.txt"}],
-			result
-		},
-		eval@ToString@StringForm[
-			"`1` = checkcode('`2`','-id','-config=`3`')",
-			First@file, file["AbsolutePath"],config
-		];
-		result = List@@iMGet@First@file;
-		eval@ToString@StringForm["clear `1`", First@file];
-		{If[result =!= {}, "message" /. Flatten@result, None], file}
-	]
-
 cleanOutput[str_String, file_String] :=
 	FixedPoint[
 		StringReplace[#,
 			{file -> "input",
 			"[\.08" ~~ Shortest[x__] ~~ "]" :> x,
+			"Error: File: " ~~ $sessionTemporaryDirectory ~~ "/input.m " -> "",
 			StartOfString ~~ ">> ".. :> ">> "}
 		]&,
 		str
@@ -431,31 +414,24 @@ MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 (* MEvaluate *)
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
-iMEvaluate[cmd_String, mlint_String : "Check"] :=
+iMEvaluate[cmd_String, script_ : Automatic] :=
 	Catch[
-		Module[{result, error, file, id = randomString[], ex = randomString[]},
-			Switch[mlint,
-				"Check", {error, file} = errorsInMATLABCode@cmd,
-				"NoCheck", {error, file} = {None, {cmd}},
-				_, Message[MEvaluate::unkw, mlint];Throw[$Failed,$error]
+		Module[{result, file, id = randomString[], ex = randomString[]},
+			Switch[script,
+				Automatic, file = iMScript[randomString[], cmd],
+				"NoScript", file = {cmd},
+				_, Message[MEvaluate::unkw, script];Throw[$Failed,$error]
 			];
-			If[error === None,
-				result = eval@StringJoin["
-					try
-						", First@file, "
-					catch ", ex, "
-						sprintf('%s%s%s', '", id, "', ", ex, ".getReport,'", id, "')
-					end
-					clear ", ex
-				];
-				If[mscriptQ@file, DeleteFile@file],
 
-				If[mscriptQ@file, DeleteFile@file];
-				Block[{$MessagePrePrint = Identity},
-					Message[MATLink::errx, error];
-					Throw[$Failed, $error]
-				]
+			result = eval@StringJoin["
+				try
+					", First@file, "
+				catch ", ex, "
+					sprintf('%s%s%s', '", id, "', ", ex, ".getReport,'", id, "')
+				end
+				clear ", ex
 			];
+			If[mscriptQ@file, DeleteFile@file];
 
 			Switch[result,
 				$Failed,
@@ -478,9 +454,9 @@ iMEvaluate[cmd_String, mlint_String : "Check"] :=
 		$error
 	]
 
-MEvaluate[cmd_String, mlint_String : "Check"] /; MATLABInstalledQ[] :=
+MEvaluate[cmd_String, script_ : Automatic] /; MATLABInstalledQ[] :=
 	switchAbort[engineOpenQ[],
-		iMEvaluate[cmd, mlint],
+		iMEvaluate[cmd, script],
 		message[MEvaluate::wspc]["warning"]
 	]
 
@@ -507,7 +483,7 @@ iMScript[name_String, cmd_String, opts : OptionsPattern[]] :=
 		WriteString[file, cmd];
 		Close[file];
 		(* The follosing is necessary on Windows for MATLAB to pick up new script *)
-		MEvaluate["rehash", "NoCheck"];
+		MEvaluate["rehash", "NoScript"];
 		(* The following clears the script from memory to ensure MATLAB will reload it
 		   exist() is used to avoid clearing variables of the same name by accident. *)
 		If[MFunction["exist"][name] == 2, MFunction["clear", "Output"->False][name]];
@@ -560,10 +536,10 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 					message[MFunction::args, Flatten@Position[fails, $Failed], name]["error"];
 					output = ConstantArray[$Failed, nOut];,
 
-					iMEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoCheck"];
+					iMEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoScript"];
 					output = iMGet /@ vars[[-nOut;;]];
 				];
-				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
+				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoScript"];
 				If[nOut == 1, First@output, output]
 			],
 
@@ -572,9 +548,9 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 				fails = Thread[iMSet[vars, {args}]];
 				If[MemberQ[fails, $Failed],
 					message[MFunction::args, Position[fails, $Failed]]["error"],
-					iMEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoCheck"];
+					iMEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoScript"];
 				];
-				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoCheck"];
+				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoScript"];
 			]
 		],
 

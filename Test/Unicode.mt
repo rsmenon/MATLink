@@ -70,7 +70,7 @@ Test[
 (* MEvaluate unicode input -- NoCheck version *)
 Test[
 	s = "\[AAcute]\[EAcute]\[IAcute] \[ODoubleAcute]\[UDoubleAcute] a\:026ap\:02b0i\:02d0e\:026a \[CapitalEpsilon]\[Lambda]\[Lambda]\[Eta]\[Nu]\[Iota]\[Kappa]\:03ac \:6c49\:8bed";
-	MEvaluate["clear s; s = '"<> s <>"'", "NoCheck"];
+	MEvaluate["clear s; s = '"<> s <>"'", "NoScript"];
 	MGet["s"]
 	,
 	s
@@ -98,7 +98,7 @@ Test[
 	,
 	{}
 	,
-	TestID -> "Unicode-20130416-R5H5G8"	
+	TestID -> "Unicode-20130416-R5H5G8"
 ]
 
 
