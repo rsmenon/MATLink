@@ -5,12 +5,12 @@
 <meta name="description" content="">
 <meta name="author" content="R. Menon, Sz. Horvát">
 
-<link rel="stylesheet" href="/MATLink/assets/css/bootstrap.css">
-<link rel="stylesheet" href="/MATLink/assets/css/site.css">
-<link rel="stylesheet" href="/MATLink/assets/css/prettify.css">
-<link rel="stylesheet" href="/MATLink/assets/css/lang-matlab.css">
-<link rel="stylesheet" href="/MATLink/assets/css/lang-mma.css">
-<link rel="stylesheet" href="/MATLink/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/bootstrap.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/site.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/prettify.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/lang-matlab.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/lang-mma.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/font-awesome.min.css">
 
 <script>
 
@@ -32,23 +32,23 @@ _gaq.push(['_trackPageview']);
 <div class="navbar navbar-inverse navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container">
-			<a class="brand" href="/MATLink/">MATLink</a>
+			<a class="brand" href="http://matlink.org/">MATLink</a>
 			<ul class="nav">
-				<li><a href="/MATLink/#installation">Installation</a></li>
+				<li><a href="http://matlink.org/#installation">Installation</a></li>
 				<li class="dropdown">
 				<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
 					Getting started
 					<i class="icon-caret-down"></i>
 				</a>
 				<ul class="dropdown-menu" role="menu">
-					<li class=""><a href="/MATLink/#connecting">Connecting to MATLink</a></li>
-					<li class=""><a href="/MATLink/#executing-matlab">Executing MATLAB commands</a></li>
-					<li class=""><a href="/MATLink/#transferring-data">Transferring data</a></li>
-					<li class=""><a href="/MATLink/#scripts-functions">Working with scripts and functions</a></li>
+					<li class=""><a href="http://matlink.org/#connecting">Connecting to MATLink</a></li>
+					<li class=""><a href="http://matlink.org/#executing-matlab">Executing MATLAB commands</a></li>
+					<li class=""><a href="http://matlink.org/#transferring-data">Transferring data</a></li>
+					<li class=""><a href="http://matlink.org/#scripts-functions">Working with scripts and functions</a></li>
 				</ul>
 				</li>
-				<li><a href="/MATLink/documentation/">Documentation</a></li>
-				<li><a href="/MATLink/examples/">Examples</a></li>
+				<li><a href="http://matlink.org/documentation/">Documentation</a></li>
+				<li><a href="http://matlink.org/examples/">Examples</a></li>
 			</ul>
 		</div>
 	</div>
@@ -104,7 +104,7 @@ Graphics@GraphicsComplex[pts, Line@trianglesToLines@delaunay[pts]]
 </pre>
 				</div>
 				<div class="span4">
-					<img src="/MATLink/assets/img/delaunay.png">
+					<img src="http://matlink.org/assets/img/delaunay.png">
 				</div>
 			</div>
 
@@ -158,14 +158,7 @@ spectrogram[data, 1000, 0, 1024, fs]
 
 			<div class="row">
 				<div class="span6">
-					<p>Clearly, the frequency content is mostly below 2.5 kHz, and so we design a lowpass filter in MATLAB using the following code:
-<pre class="prettyprint lang-matlab">
-[z, p, k] = butter(6, 2.5e3/fs, 'low') ;%Butterworth filter
-[sos, g]  = zp2sos(z, p, k)            ;
-Hd        = dfilt.df2tsos(sos, g)      ;
-</pre>
-
-					<p> To use this from MATLink, we need to pass the value of <code>fs</code> and also make a helper function that will return the filtered data</p>
+					<p>Clearly, the frequency content is mostly below 2.5 kHz, and so we can design a lowpass filter in MATLAB and also make a helper function that will return the filtered data</p>
 
 <pre class="prettyprint lang-mma">
 MSet["fs", fs];
@@ -180,7 +173,7 @@ filter = MFunction["myfilt"];
 
 				</div>
 				<div class="span6">
-					<img src="/MATLink/assets/img/spectrogram_data.png">
+					<img src="http://matlink.org/assets/img/spectrogram_data.png">
 				</div>
 			</div>
 
@@ -203,7 +196,7 @@ ListPlay[filteredData, SampleRate -> fs]
 </pre>
 				</div>
 				<div class="span6">
-					<img src="/MATLink/assets/img/spectrogram_filtered.png">
+					<img src="http://matlink.org/assets/img/spectrogram_filtered.png">
 				</div>
 			</div>
 		</section>
@@ -220,13 +213,13 @@ ListPlay[filteredData, SampleRate -> fs]
 		</footer>
 	</div>
 
-	<script src="/MATLink/assets/js/jquery-1.9.1.min.js"></script>
-	<script src="/MATLink/assets/js/underscore.min.js"></script>
-	<script src="/MATLink/assets/js/backbone.min.js"></script>
-	<script src="/MATLink/assets/js/bootstrap-222.min.js"></script>
-	<script src="/MATLink/assets/js/prettify.js"></script>
-	<script src="/MATLink/assets/js/lang-matlab.js"></script>
-	<script src="/MATLink/assets/js/lang-mma.js"></script>
+	<script src="http://matlink.org/assets/js/jquery-1.9.1.min.js"></script>
+	<script src="http://matlink.org/assets/js/underscore.min.js"></script>
+	<script src="http://matlink.org/assets/js/backbone.min.js"></script>
+	<script src="http://matlink.org/assets/js/bootstrap-222.min.js"></script>
+	<script src="http://matlink.org/assets/js/prettify.js"></script>
+	<script src="http://matlink.org/assets/js/lang-matlab.js"></script>
+	<script src="http://matlink.org/assets/js/lang-mma.js"></script>
 	<script type="text/javascript">
 jQuery(document).ready(function () {
 		// apply syntax highlighting

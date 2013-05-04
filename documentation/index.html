@@ -5,12 +5,12 @@
 <meta name="description" content="">
 <meta name="author" content="R. Menon, Sz. Horvát">
 
-<link rel="stylesheet" href="/MATLink/assets/css/bootstrap.css">
-<link rel="stylesheet" href="/MATLink/assets/css/site.css">
-<link rel="stylesheet" href="/MATLink/assets/css/prettify.css">
-<link rel="stylesheet" href="/MATLink/assets/css/lang-matlab.css">
-<link rel="stylesheet" href="/MATLink/assets/css/lang-mma.css">
-<link rel="stylesheet" href="/MATLink/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/bootstrap.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/site.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/prettify.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/lang-matlab.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/lang-mma.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/font-awesome.min.css">
 
 <script>
 
@@ -33,23 +33,23 @@ _gaq.push(['_trackPageview']);
 <div class="navbar navbar-inverse navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container">
-			<a class="brand" href="/MATLink/">MATLink</a>
+			<a class="brand" href="http://matlink.org/">MATLink</a>
 			<ul class="nav">
-				<li><a href="/MATLink/#installation">Installation</a></li>
+				<li><a href="http://matlink.org/#installation">Installation</a></li>
 				<li class="dropdown">
 				<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
 					Getting started
 					<i class="icon-caret-down"></i>
 				</a>
 				<ul class="dropdown-menu" role="menu">
-					<li class=""><a href="/MATLink/#connecting">Connecting to MATLink</a></li>
-					<li class=""><a href="/MATLink/#executing-matlab">Executing MATLAB commands</a></li>
-					<li class=""><a href="/MATLink/#transferring-data">Transferring data</a></li>
-					<li class=""><a href="/MATLink/#scripts-functions">Working with scripts and functions</a></li>
+					<li class=""><a href="http://matlink.org/#connecting">Connecting to MATLink</a></li>
+					<li class=""><a href="http://matlink.org/#executing-matlab">Executing MATLAB commands</a></li>
+					<li class=""><a href="http://matlink.org/#transferring-data">Transferring data</a></li>
+					<li class=""><a href="http://matlink.org/#scripts-functions">Working with scripts and functions</a></li>
 				</ul>
 				</li>
-				<li><a href="/MATLink/documentation/">Documentation</a></li>
-				<li><a href="/MATLink/examples/">Examples</a></li>
+				<li><a href="http://matlink.org/documentation/">Documentation</a></li>
+				<li><a href="http://matlink.org/examples/">Examples</a></li>
 			</ul>
 		</div>
 	</div>
@@ -71,7 +71,7 @@ _gaq.push(['_trackPageview']);
 		</p>
 	</div>
 	<div class="span8">
-		<img src="/MATLink/assets/img/intro.png">
+		<img src="http://matlink.org/assets/img/intro.png">
 	</div>
 </div>
 
@@ -172,7 +172,7 @@ _gaq.push(['_trackPageview']);
 			<div class="tab-pane fade" id="CommandWindow">
 				<blockquote><code>CommandWindow["action"]</code> will perform <code>"action"</code> on MATLAB's built-in command window. This function works only on Windows.</blockquote>
 
-				<img src="/MATLink/assets/img/command_window.png">
+				<img src="http://matlink.org/assets/img/command_window.png">
 				<h4>Details & Options</h4>
 				<ul>
 					<li><code>CommandWindow["Show"]</code> displays the command window. When an evaluation is not in progress, this window can be used to input MATLAB commands independently of MATLink.</li>
@@ -182,8 +182,8 @@ _gaq.push(['_trackPageview']);
 
 			<div class="tab-pane fade" id="MATLABCell">
 				<blockquote><code>MATLABCell[]</code> creates a program cell in the current notebook, whose contents are interpreted as MATLAB code.</blockquote>
-				<img src="/MATLink/assets/img/matlab_cell.png" width=600px><br>
-				<img src="/MATLink/assets/img/plot_sinx.png" width=600px>
+				<img src="http://matlink.org/assets/img/matlab_cell.png" width=600px><br>
+				<img src="http://matlink.org/assets/img/plot_sinx.png" width=600px>
 			</div>
 		</div>
 	</section>
@@ -200,7 +200,7 @@ _gaq.push(['_trackPageview']);
 
 		<div id="install-tabs-content" class="tab-content">
 			<div class="tab-pane fade in active" id="transferring-introduction">
-				<p>Any <a href="/MATLink/documentation/#supported-datatypes">supported datatype</a> can be transferred from <i>Mathematica</i> to MATLAB and vice versa using <code>MSet</code> and <code>MGet</code> respectively. However, one must be aware of the overhead involved in data transfer (when using any link technology) and avoid programming pitfalls that result in unnecessary back-and-forth data transfer (unless absolutely necessary). It is always good practice to transfer as much as possible in one go, and only transfer what is necessary.</p>
+				<p>Any <a href="http://matlink.org/documentation/#supported-datatypes">supported datatype</a> can be transferred from <i>Mathematica</i> to MATLAB and vice versa using <code>MSet</code> and <code>MGet</code> respectively. However, one must be aware of the overhead involved in data transfer (when using any link technology) and avoid programming pitfalls that result in unnecessary back-and-forth data transfer (unless absolutely necessary). It is always good practice to transfer as much as possible in one go, and only transfer what is necessary.</p>
 
 				<p>Every effort has been made to convert quantities to native data structures in each system (such as arrays in MATLAB and lists in <i>Mathematica</i>) and allow the user to retrun the same data to the originating system without loss of structure, but there are certain exceptions (MATLAB cells). See the <a href="">translation rules</a> for more information.</p>
 			</div>
@@ -564,13 +564,13 @@ MGet["s"]
 </footer>
 </div>
 
-<script src="/MATLink/assets/js/jquery-1.9.1.min.js"></script>
-<script src="/MATLink/assets/js/underscore.min.js"></script>
-<script src="/MATLink/assets/js/backbone.min.js"></script>
-<script src="/MATLink/assets/js/bootstrap-222.min.js"></script>
-<script src="/MATLink/assets/js/prettify.js"></script>
-<script src="/MATLink/assets/js/lang-matlab.js"></script>
-<script src="/MATLink/assets/js/lang-mma.js"></script>
+<script src="http://matlink.org/assets/js/jquery-1.9.1.min.js"></script>
+<script src="http://matlink.org/assets/js/underscore.min.js"></script>
+<script src="http://matlink.org/assets/js/backbone.min.js"></script>
+<script src="http://matlink.org/assets/js/bootstrap-222.min.js"></script>
+<script src="http://matlink.org/assets/js/prettify.js"></script>
+<script src="http://matlink.org/assets/js/lang-matlab.js"></script>
+<script src="http://matlink.org/assets/js/lang-mma.js"></script>
 <script>
 jQuery(document).ready(function () {
 		// apply syntax highlighting
