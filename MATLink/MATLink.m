@@ -854,6 +854,5 @@ MATLABCell[] :=
 End[] (* MATLink`Experimental` *)
 
 SetAttributes[#, {Protected,ReadProtected}]& /@ Names["`*"];
-SetAttributes[#, {ReadProtected}]& /@ Names["`*`*"];
 
 EndPackage[] (* MATLink` *)
