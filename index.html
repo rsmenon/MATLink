@@ -159,8 +159,10 @@ _gaq.push(['_trackPageview']);
 						<p>The zip file will always contain the most up-to-date stable version.</p>
 					</div>
 					<div class="span9">
-						<ul>
-							<li>Download the <a href="https://dl.dropboxusercontent.com/u/38623/MATLink/MATLink.zip">zip</a> file and extract the contents to <code>$UserBaseDirectory/Applications/MATLink</code></li>
+							<p>Download the <a href="https://dl.dropboxusercontent.com/u/38623/MATLink/MATLink.zip">zip</a> file and extract the contents to the folder opened by</p>
+<pre class="prettyprint lang-mma">
+SystemOpen@FileNameJoin[{$UserBaseDirectory, "Applications"}]
+</pre>
 						</ul>
 					</div>
 				</div>
