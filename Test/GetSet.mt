@@ -659,6 +659,55 @@ Test[
 	TestID -> "GetSet-20130416-U3G0C5"
 ]
 
+(* int32 *)
+Test[
+	nums = {-2^31, -42, 137, 2^31 - 1};
+	MFunction["int32"] /@ nums
+	,
+	nums
+	,
+	TestID -> "GetSet-20130516-F6P4S1" 
+]
+
+(* int16 *)
+Test[
+	nums = {-2^15, -42, 137, 2^15 - 1};
+	MFunction["int16"] /@ nums
+	,
+	nums
+	,
+	TestID -> "GetSet-20130516-H3N9R2" 
+]
+
+(* uint16 *)
+Test[
+	nums = {0, 137, 2^16 - 1};
+	MFunction["uint16"] /@ nums
+	,
+	nums
+	,
+	TestID -> "GetSet-20130516-U0Q5P8" 
+]
+
+(* int8 *)
+Test[
+	nums = {-2^7, -42, 2^7 - 1};
+	MFunction["int8"] /@ nums
+	,
+	nums
+	,
+	TestID -> "GetSet-20130516-M2Q9H3" 
+]
+
+(* uint8 *)
+Test[
+	nums = {0, 137, 2^8 - 1};
+	MFunction["uint8"] /@ nums
+	,
+	nums
+	,
+	TestID -> "GetSet-20130516-J0K3M2" 
+]
 
 
 (* after all the tests have run, check that there are no
