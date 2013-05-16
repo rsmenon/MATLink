@@ -6,7 +6,7 @@
 *)
 (* :Copyright: 2013 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
-(* :Package Version: 0.94b *)
+(* :Package Version: 0.96b *)
 (* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
@@ -854,6 +854,5 @@ MATLABCell[] :=
 End[] (* MATLink`Experimental` *)
 
 SetAttributes[#, {Protected,ReadProtected}]& /@ Names["`*"];
-SetAttributes[#, {ReadProtected}]& /@ Names["`*`*"];
 
 EndPackage[] (* MATLink` *)
