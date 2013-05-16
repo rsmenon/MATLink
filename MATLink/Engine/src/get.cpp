@@ -48,6 +48,8 @@ void toMma(const mxArray *var, MLINK link) {
     std::reverse_copy(mbDims, mbDims + depth, mmDimsVec.begin());
     int *mmDims = &mmDimsVec[0];
 
+    int len = mxGetNumberOfElements(var);
+
     // numerical (sparse or dense)
     if (mxIsNumeric(var)) {
         mxClassID classid = mxGetClassID(var);
@@ -56,8 +58,11 @@ void toMma(const mxArray *var, MLINK link) {
         switch (classid) {
         case mxDOUBLE_CLASS:
         case mxSINGLE_CLASS:
-        case mxINT16_CLASS:
         case mxINT32_CLASS:
+        case mxINT16_CLASS:
+        case mxUINT16_CLASS:
+        case mxINT8_CLASS:
+        case mxUINT8_CLASS:
             break;
         default:
             putUnknown(var, link);
@@ -128,25 +133,79 @@ void toMma(const mxArray *var, MLINK link) {
                     MLPutReal64Array(link, mxGetPi(var), mmDims, NULL, depth); break;
                  case mxSINGLE_CLASS:
                     MLPutReal32Array(link, (float *) mxGetImagData(var), mmDims, NULL, depth); break;
-                 case mxINT16_CLASS:
-                    MLPutInteger16Array(link, (short *) mxGetImagData(var), mmDims, NULL, depth); break;
                  case mxINT32_CLASS:
                     MLPutInteger32Array(link, (int *) mxGetImagData(var), mmDims, NULL, depth); break;
+                 case mxINT16_CLASS:
+                    MLPutInteger16Array(link, (short *) mxGetImagData(var), mmDims, NULL, depth); break;
+                 case mxUINT16_CLASS:
+                  {
+                    int *arr = new int[len];
+                    unsigned short *mbData = (unsigned short *) mxGetImagData(var);
+                    std::copy(mbData, mbData + len, arr);
+                    MLPutInteger32Array(link, arr, mmDims, NULL, depth);
+                    delete [] arr;
+                    break;
+                  }
+                 case mxINT8_CLASS:
+                  {
+                    short *arr = new short[len];
+                    char *mbData = (char *) mxGetImagData(var);
+                    std::copy(mbData, mbData + len, arr);
+                    MLPutInteger16Array(link, arr, mmDims, NULL, depth);
+                    delete [] arr;
+                    break;
+                  }
+                 case mxUINT8_CLASS:
+                  {
+                    short *arr = new short[len];
+                    unsigned char *mbData = (unsigned char *) mxGetImagData(var);
+                    std::copy(mbData, mbData + len, arr);
+                    MLPutInteger16Array(link, arr, mmDims, NULL, depth);
+                    delete [] arr;
+                    break;
+                  }
                  default:
                     assert(false); // should never reach here
                 }
             }
 
             switch (classid) {
-             case mxDOUBLE_CLASS:
+            case mxDOUBLE_CLASS:
                 MLPutReal64Array(link, mxGetPr(var), mmDims, NULL, depth); break;
-             case mxSINGLE_CLASS:
+            case mxSINGLE_CLASS:
                 MLPutReal32Array(link, (float *) mxGetData(var), mmDims, NULL, depth); break;
-             case mxINT16_CLASS:
-                MLPutInteger16Array(link, (short *) mxGetData(var), mmDims, NULL, depth); break;
-             case mxINT32_CLASS:
+            case mxINT32_CLASS:
                 MLPutInteger32Array(link, (int *) mxGetData(var), mmDims, NULL, depth); break;
-             default:
+            case mxINT16_CLASS:
+                MLPutInteger16Array(link, (short *) mxGetData(var), mmDims, NULL, depth); break;
+            case mxUINT16_CLASS:
+             {
+                int *arr = new int[len];
+                unsigned short *mbData = (unsigned short *) mxGetData(var);
+                std::copy(mbData, mbData + len, arr);
+                MLPutInteger32Array(link, arr, mmDims, NULL, depth);
+                delete [] arr;
+                break;
+             }
+            case mxINT8_CLASS:
+             {
+                short *arr = new short[len];
+                char *mbData = (char *) mxGetData(var);
+                std::copy(mbData, mbData + len, arr);
+                MLPutInteger16Array(link, arr, mmDims, NULL, depth);
+                delete [] arr;
+                break;
+             }
+            case mxUINT8_CLASS:
+             {
+                short *arr = new short[len];
+                unsigned char *mbData = (unsigned char *) mxGetData(var);
+                std::copy(mbData, mbData + len, arr);
+                MLPutInteger16Array(link, arr, mmDims, NULL, depth);
+                delete [] arr;
+                break;
+             }
+            default:
                 assert(false); // should never reach here
             }
 
@@ -180,7 +239,6 @@ void toMma(const mxArray *var, MLINK link) {
         else // not sparse
         {
             mxLogical *logicals = mxGetLogicals(var);
-            int len = mxGetNumberOfElements(var);
 
             short *integers = new short[len];
             std::copy(logicals, logicals+len, integers);
@@ -198,14 +256,12 @@ void toMma(const mxArray *var, MLINK link) {
         if (depth == 2 && mbDims[0] == 1) {
             const mxChar *str = mxGetChars(var);
             MLPutFunction(link, CONTEXT "matString", 1);
-            MLPutUTF16String(link, reinterpret_cast<const unsigned short *>(str), mxGetNumberOfElements(var)); // cast may be required on other platforms: (mxChar *) str
-
+            MLPutUTF16String(link, reinterpret_cast<const unsigned short *>(str), len); // cast may be required on other platforms: (mxChar *) str
         }
         // general char arrays are sent as an array of characters
         else {
             MLPutFunction(link, CONTEXT "matCharArray", 2);
             const mxChar *str = mxGetChars(var);
-            int len = mxGetNumberOfElements(var);
             MLPutFunction(link, "List", len);
             for (int i=0; i < len; ++i)
                 MLPutUTF16String(link, reinterpret_cast<const unsigned short *>(str + i), 1);
@@ -214,7 +270,6 @@ void toMma(const mxArray *var, MLINK link) {
     }
     // struct
     else if (mxIsStruct(var)) {
-        int len = mxGetNumberOfElements(var);
         int nfields = mxGetNumberOfFields(var);
         MLPutFunction(link, CONTEXT "matStruct", 2);
         MLPutFunction(link, "List", len);
@@ -233,7 +288,6 @@ void toMma(const mxArray *var, MLINK link) {
     }
     // cell
     else if (mxIsCell(var)) {
-        int len = mxGetNumberOfElements(var);
         MLPutFunction(link, CONTEXT "matCell", 2);
         MLPutFunction(link, "List", len);
         for (int i=0; i < len; ++i)
