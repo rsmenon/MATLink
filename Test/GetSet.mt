@@ -361,7 +361,7 @@ Test[
    This is now tested using utin8.  When uint8 gets implemented
    this will need to be changed. *)
 Test[
-	MEvaluate["x = uint8(7);"];
+	MEvaluate["x = uint32(7);"];
 	MGet["x"]	
 	,
 	$Failed
