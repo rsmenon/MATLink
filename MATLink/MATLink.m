@@ -482,11 +482,11 @@ iMScript[name_String, cmd_String, overwrite_:False] :=
 		file = OpenWrite[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}], CharacterEncoding -> "UTF-8"];
 		WriteString[file, cmd];
 		Close[file];
-		(* The following is necessary on Windows for MATLAB to pick up new script 
+		(* The following is necessary on Windows for MATLAB to pick up new script
 		   It's skipped on OSX/Linux because it's slow on those platforms. *)
 		If[$OperatingSystem === "Windows", MEvaluate["rehash", "NoScript"]];
 		(* The following clears the script from memory to ensure MATLAB will reload it
-		   exist() is used to avoid clearing variables of the same name by accident. 
+		   exist() is used to avoid clearing variables of the same name by accident.
 		   exist() is very slow on OSX/Linux so we only use it if the "Overwrite" -> True flag was used.
 		   This avoids calling exist() when using MEvaluate[] *)
 		If[overwrite && MFunction["exist"][name, "file"] == 2, MFunction["clear", "Output"->False][name]];
@@ -561,10 +561,13 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 	]
 
 MFunction[name_String, code_String, opts : OptionsPattern[]] /; MATLABInstalledQ[] && validOptionsQ[MFunction, {opts}] :=
-	Module[{},
-		If[!mscriptQ[name] || OptionValue["Overwrite"],
-			MScript[name, code, "Overwrite" -> True],
-			message[MFunction::owrt, "MFunction"]["warning"]
+	With[{anonymousQ = StringMatchQ[StringTrim@#, Verbatim@"@" ~~ __] &},
+		If[anonymousQ@code,
+			MEvaluate[name <> "=" <> code <> ";"],
+			If[!mscriptQ[name] || OptionValue["Overwrite"],
+				MScript[name, code, "Overwrite" -> True],
+				message[MFunction::owrt, "MFunction"]["warning"]
+			];
 		];
 		MFunction[name, Sequence @@ FilterRules[{opts}, Except["Overwrite"]]]
 	]
