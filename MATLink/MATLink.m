@@ -6,8 +6,6 @@
 *)
 (* :Copyright: 2013 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
-(* :Package Version: 0.96b *)
-(* :Mathematica Version: 9.0 *)
 
 BeginPackage["MATLink`"]
 
@@ -51,8 +49,15 @@ MCell::usage = "MCell[list] forces list to be interpreted as a MATLAB cell in MS
 
 MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MATLAB."
 
-Begin["`Developer`"]
+Begin["`Information`"]
+`$VersionNumber = 0.97
+`$ReleaseNumber = "b"
+`$CreationDate = "Sat 18 May 2013"
+`$Version = ToString@StringForm["MATLink `1``2` for `3` (`4`)", `$VersionNumber, `$ReleaseNumber, $OperatingSystem, `$CreationDate]
+`$HomePage := SystemOpen["http://matlink.org"]
+End[]
 
+Begin["`Developer`"]
 (* Application directories & file paths *)
 $ApplicationDirectory = DirectoryName@$InputFileName;
 $ApplicationDataDirectory = FileNameJoin[{$UserBaseDirectory, "ApplicationData", "MATLink"}];
