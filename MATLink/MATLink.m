@@ -226,9 +226,9 @@ If[!TrueQ[MATLinkLoadedQ[]],
 	$sessionID = "";
 	$sessionTemporaryDirectory = "";
 	writeLog["Loaded MATLink`", "user"];
-	writeLog["Version: " <> $Version, "info"];
-	writeLog["OS: " <> $OperatingSystem, "info"];
-	writeLog["MATLink: " <> ToString@Options@MATLink, "info"];,
+	writeLog["Mathematica: " <> $Version, "info"];
+	writeLog["MATLink: " <> MATLink`Information`$Version, "info"];
+	writeLog["Settings: " <> ToString@Options@MATLink, "info"];,
 
 	message[MATLink::needs]["warning"]
 ]
