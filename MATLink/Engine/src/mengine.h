@@ -13,6 +13,10 @@
 #include <engine.h>
 #include <matrix.h>
 
+#if !WINDOWS_MATHLINK
+#include <signal.h>
+#endif
+
 // context of all symbols returned to Mathematica
 #define CONTEXT "MATLink`Engine`"
 
@@ -43,6 +47,11 @@ class MatlabEngine {
     Engine *ep;
     char buffer[BUFSIZE+1];
 
+#if !WINDOWS_MATHLINK
+    pid_t pid;
+    bool pid_set;
+#endif
+
     MatlabEngine(const MatlabEngine &);     // disallowed
     void operator = (const MatlabEngine &); // disallowed
 
@@ -67,15 +76,27 @@ public:
             ep = engOpen("matlab -nosplash");
 #endif
             if (ep != NULL) {
+                engSetVisible(ep, 0); // hide the window on Windows
                 buffer[0] = '\0';
                 engOutputBuffer(ep, buffer, BUFSIZE);
 
                 // Mathematica will interpret MATLAB's output as UTF-8,
                 // so let's try to get MATLAB to send this encoding.
                 // Note: works in OSX 2012b and Linux 2013a.  Does work in OSX/Windows 2013a
-                engEvalString(ep, "feature('DefaultCharacterSet', 'UTF-8')");
+                engEvalString(ep, "feature('DefaultCharacterSet', 'UTF-8');");
 
-                engSetVisible(ep, 0);
+#if !WINDOWS_MATHLINK
+                engEvalString(ep, "feature('GetPid');");
+                mxArray *ans = engGetVariable(ep, "ans");
+                if (ans != NULL && mxIsNumeric(ans)) {
+                    pid = (pid_t) mxGetScalar(ans);
+                    pid_set = true;
+                    mxDestroyArray(ans);
+                }
+                else
+                    pid_set = false;
+#endif
+                engEvalString(ep, "clear ans;");
             }
         }
         // if opening fails, ep stays NULL
@@ -125,6 +146,13 @@ public:
             return;
         engSetVisible(ep, val);
     }
+
+#if !WINDOWS_MATHLINK
+    void abort() {
+        if (pid_set)
+            kill(pid, SIGINT);
+    }
+#endif
 };
 
 

@@ -55,3 +55,22 @@ void eng_set_visible(int value) {
     engine.setVisible(value);
     MLPutSymbol(stdlink, "Null");
 }
+
+
+#if !WINDOWS_MATHLINK
+// this message handler will try to abort MATLAB when receiving an abort message
+void msghandler(MLINK link, int msg, int arg) {
+    switch (msg) {
+    case MLInterruptMessage:
+    case MLAbortMessage:
+        engine.abort();
+        break;
+    default:
+        stdhandler(link, msg, arg);
+    }
+}
+
+int setup_abort_handler() {
+    return MLSetMessageHandler(stdlink, (MLMessageHandlerObject) msghandler);
+}
+#endif

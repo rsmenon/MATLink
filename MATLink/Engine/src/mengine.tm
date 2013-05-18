@@ -178,4 +178,12 @@
 :End:
 
 
+:Begin:
+:Function:		setup_abort_handler
+:Pattern:		engSetupAbortHandler[]
+:Arguments:		{}
+:ArgumentTypes:	{}
+:ReturnType:	Integer
+:End:
+
 :Evaluate:		End[]

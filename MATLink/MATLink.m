@@ -332,6 +332,7 @@ OpenMATLAB[] /; MATLABInstalledQ[] :=
 				openEngine[];
 				switchAbort[engineOpenQ[],
 					writeLog["Opened MATLAB workspace"];
+					MATLink`Engine`engSetupAbortHandler[];
 					MFunction["addpath", "Output" -> False][$sessionTemporaryDirectory];
 					MFunction["cd", "Output" -> False][Directory[]],
 
