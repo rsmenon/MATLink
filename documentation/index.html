@@ -332,6 +332,15 @@ add[3, 4]
 (* Out[1] = 7 *)
 </pre>
 					</li>
+
+					<li>Creating an anonymous function and using it
+<pre class="prettyprint lang-mma">
+add = MFunction["add", "@(x,y)x+y"];
+add[3, 4]
+(* Out[1] = 7 *)
+</pre>
+Anonymous functions defined in this manner form a closure, as in MATLAB.
+					</li>
 				</ul>
 
 				<h4>Details & Options</h4>
@@ -351,6 +360,7 @@ imagesc[data];
 </pre>
 <p>Note that MATLAB plots will be opened in a new window, unlike <i>Mathematica</i> plots which are displayed inside the notebook.</p>
 					<li>When creating new functions using the syntax <code>MFunction["func", "body"]</code>, <code>MFunction</code> will not overwrite exsiting <code>.m</code> files. To force overwrite an existing file, use the option <code>"Overwrite" -> True</code> (default value for <code>"Overwrite"</code> is <code>False</code>).</li>
+					<li>If the first character in <code>"body"</code> is <code>@</code>, then the function is defined as an anonymous function in MATLAB's workspace and no function file is created.</li>
 				</ul>
 
 				<h4>Possible issues</h4>
@@ -390,7 +400,7 @@ Too many output arguments.
 	<p>The following can only be transferred from MATLAB to <i>Mathematica:</i></p>
 
 	<ul>
-		<li>numerical arrays with the following types: single, int16, int32</li>
+		<li>numerical arrays with the following types: single, int8, int16, int32, uint8 and uint16</li>
 		<li>structs with any number of elements </li>
 	</ul>
 	</div>
@@ -403,7 +413,7 @@ Too many output arguments.
 		<li><h5>Numerical Arrays</h5></li>
 		<ul>
 			<li><code>single</code> and <code>double</code> are converted to <code>Real</code> or <code>Complex</code> (as the case may be)</li>
-			<li><code>int16</code> and <code>int32</code> are converted to <code>Integer</code> or <code>Complex</code> (as the case may be)</li>
+			<li>All the supported <code>int*</code> and <code>uint*</code> are converted to <code>Integer</code> or <code>Complex</code> (as the case may be)</li>
 			<li>1×1 matrices (scalars) are atomic</li>
 			<li>1×N matrices (row vectors) are simple (packed) lists of length N</li>
 			<li>M×N×... matrices (any dimension) are packed arrays of the same dimension</li>
@@ -558,6 +568,8 @@ MGet["s"]
 			<li>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></li>
 			<li class="muted">·</li>
 			<li>Licensed under the <a href="http://opensource.org/licenses/mit-license.html">MIT License</a></li>
+			<li class="muted">·</li>
+			<li><a href="http://matlink.org/changelog.html">Change log</a></li>
 		</ul>
 		<p><i>Mathematica</i> is a registered trademark of <a href="http://wolfram.com">Wolfram Research, Inc.</a> and MATLAB is a registered trademark of <a href="http://mathworks.com/">The MathWorks, Inc.</a></p>
 	</div>
