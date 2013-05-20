@@ -252,16 +252,18 @@ mscriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
 randomString[n_Integer:50] :=
 	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
 
-cleanOutput[str_String, file_String] :=
-	FixedPoint[
-		StringReplace[#,
-			{file -> "input",
-			"[\.08" ~~ Shortest[x__] ~~ "]" :> x,
-			"Error: File: " ~~ $sessionTemporaryDirectory ~~ "/input.m " -> "",
-			StartOfString ~~ ">> ".. :> ">> "}
-		]&,
-		str
-	] /. "" -> Null
+cleanOutput[str_String, file_String, script_] :=
+	Block[{replaceFileName = If[script === "NoScript", Unevaluated@Sequence[], file -> "input"]},
+		FixedPoint[
+			StringReplace[#,
+				{replaceFileName,
+				"[\.08" ~~ Shortest[x__] ~~ "]" :> x,
+				"Error: File: " ~~ $sessionTemporaryDirectory ~~ "/input.m " -> "",
+				StartOfString ~~ ">> ".. :> ">> "}
+			]&,
+			str
+		] /. "" -> Null
+	]
 
 validOptionsQ[func_Symbol, opts_List] :=
 	With[{o = FilterRules[opts, Options[func]], patt = validOptionPatterns[func]},
@@ -446,11 +448,11 @@ iMEvaluate[cmd_String, script_ : Automatic] :=
 
 				_,
 				If[StringFreeQ[result,id],
-					cleanOutput[result, First@file],
+					cleanOutput[result, First@file, script],
 
 					First@StringCases[result, __ ~~ id ~~ x__ ~~ id ~~ ___ :>
 						Block[{$MessagePrePrint = Identity},
-							Message[MATLink::errx, cleanOutput[x, First@file]];
+							Message[MATLink::errx, cleanOutput[x, First@file, script]];
 							Throw[$Failed, $error]
 						]
 					]
