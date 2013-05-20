@@ -195,6 +195,25 @@ FileHashList[] :=
 		]
 	] // TableForm
 
+GetInfo[] :=
+	Block[{csh, gpp, matlab, OS = $OperatingSystem},
+		csh[] := "csh:\n" <> Import["!which csh", "Text"];
+		gpp[] := "g++:\n" <> Import["!which g++", "Text"];
+
+		matlab[] := "MATLAB:\n" <> Switch[OS,
+			"MacOSX",
+			Import["!ls -d /Applications/MATLAB*.app", "Text"]
+		];
+
+		Switch[OS,
+			"MacOSX",
+			Print @@ Riffle[{
+				MATLink`Information`$Version, $Version,
+				csh[], gpp[], matlab[]
+			}, "\n\n"]
+		]
+	]
+
 End[] (* `Developer` *)
 
 Begin["`Private`"]
