@@ -76,4 +76,8 @@ MLMDEFN(void, msghandler, (MLINK link, int msg, int arg)) {
 int setup_abort_handler() {
     return MLSetMessageHandler(stdlink, (MLMessageHandlerObject) msghandler);
 }
+#else
+int setup_abort_handler() {
+    return 0; // unsupported on Windows
+}
 #endif
