@@ -209,7 +209,7 @@ GetInfo[] :=
 			"MacOSX",
 			Print @@ Riffle[{
 				MATLink`Information`$Version, $Version,
-				csh[], gpp[], matlab[]
+				csh[], matlab[]
 			}, "\n\n"]
 		]
 	]
