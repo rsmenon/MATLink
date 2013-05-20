@@ -21,6 +21,39 @@ Test[
 	TestID -> "Functions-20130416-V5H0K2"
 ]
 
+(* ----- MEvaluate -----*)
+
+(* syntax error *)
+Test[
+	MEvaluate["1+"]
+	,
+	$Failed
+	,
+	{MATLink::errx}
+	,
+	TestID -> "Functions-20130416-K4F7D4"
+]
+
+(* runtime error *)
+Test[
+	MEvaluate["eig()"]
+	,
+	$Failed
+	,
+	{MATLink::errx}
+	,
+	TestID -> "Functions-20130520-S1J5L9"
+]
+
+(* verify that MEvaluate returns backslashes correctly *)
+Test[
+	StringTrim@StringTrim[MEvaluate["disp('\\backslash')"],">>"]
+	,
+	"\\backslash"
+	,
+	TestID -> "Functions-20130520-I8N9M3"
+]
+
 
 (* ------ MScript ------ *)
 
@@ -45,7 +78,7 @@ Test[
 	,
 	{MScript::owrt}
 	,
-	TestID -> "Functions-20130416-K4F7D4"
+	TestID -> "Functions-20130520-D6E4F1"
 ]
 
 (* the original script must not be overwritten and must still be working *)
