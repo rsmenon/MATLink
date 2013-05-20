@@ -34,8 +34,29 @@ void eng_close() {
 
 
 void eng_getbuffer() {
-    MLPutString(stdlink, engine.getBuffer()); // temporarily disable sending engEvaluate[] output as unicode to avoid crashes
+    const char *buf = engine.getBuffer();
+    char *escaped = new char[2*BUFSIZE+1];
+
+    const char *in = buf;
+    char *out = escaped;
+    while (*in != '\0') {
+        if (*in == '\\') {
+            *out = '\\';
+            *(out+1) = '\\';
+            out += 2;
+            in += 1;
+        }
+        else
+            *(out++) = *(in++);
+    }
+    *out = *in; // copy final '\0'
+
+    // temporarily disable sending engEvaluate[] output as unicode to avoid crashes
+    // MLPutString needs all backslashes to be escaped.
+    MLPutString(stdlink, escaped);
     //MLPutUTF8String(stdlink, (const unsigned char*) engine.getBuffer(), strlen(engine.getBuffer()));
+
+    delete [] escaped;
 }
 
 
