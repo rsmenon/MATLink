@@ -41,7 +41,7 @@ Make sure you follow the installation instructions and add MATLAB's `bin\win64` 
 
     C:\Program Files\MATLAB\R2013a\bin\win64
     
-(depending on where MATLAB is installed)
+(depending on where MATLAB is installed).
 
 
 ##Windows: "The application was unable to start correctly"
@@ -52,6 +52,8 @@ To be able to use a 32-bit MATLAB with a 64-bit Mathematica, evaluate the follow
 
     Needs["MATLink`"]
     SetOptions[MATLink, "Force32BitEngine" -> True]
+    
+If you are certain that you have a 64-bit version of MATLAB and you are still getting this error, make sure MATLink is not set to try to use a 32-bit MATLAB: `SetOptions[MATLink, "Force32BitEngine" -> False]`.
     
     
 ##Linux: "Automatically compiling the MATLink Engine has failed"
