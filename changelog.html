@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
-<title>MATLink — Communicate with MATLAB from Mathematica</title>
+<title>MATLink — Change log</title>
 <meta name="description" content="">
 <meta name="author" content="R. Menon, Sz. Horvát">
 
@@ -123,5 +123,29 @@ _gaq.push(['_trackPageview']);
 	</div>
 </footer>
 </div>
+<script src="http://matlink.org/assets/js/jquery-1.9.1.min.js"></script>
+<script src="http://matlink.org/assets/js/underscore.min.js"></script>
+<script src="http://matlink.org/assets/js/backbone.min.js"></script>
+<script src="http://matlink.org/assets/js/bootstrap-222.min.js"></script>
+<script src="http://matlink.org/assets/js/prettify.js"></script>
+<script src="http://matlink.org/assets/js/lang-matlab.js"></script>
+<script src="http://matlink.org/assets/js/lang-mma.js"></script>
+<script type="text/javascript">
+jQuery(document).ready(function () {
+		// apply syntax highlighting
+		prettyPrint();
+
+		// add language selection menus (after a small delay)
+		setTimeout(function () {
+			add_language_selection_menu();
+			}, 300);
+		});
+</script>
+
+<script>
+$(function () {
+		$('#install-tabs a:first').tab('show');
+		})
+</script>
 </body>
 </html>
