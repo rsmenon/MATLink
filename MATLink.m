@@ -50,7 +50,7 @@ MCell::usage = "MCell[list] forces list to be interpreted as a MATLAB cell in MS
 MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MATLAB."
 
 Begin["`Information`"]
-`$VersionNumber = 0.98
+`$VersionNumber = 0.99
 `$ReleaseNumber = "b"
 `$CreationDate = "Mon 20 May 2013"
 `$Version = ToString@StringForm["MATLink `1``2` for `3` (`4`)", `$VersionNumber, `$ReleaseNumber, $OperatingSystem, `$CreationDate]
