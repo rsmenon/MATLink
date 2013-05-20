@@ -59,9 +59,26 @@ _gaq.push(['_trackPageview']);
 	<div class="container">
 <h1 class="main-header">Troubleshooting</h1>
 
-<p>Before beginning the troubleshooting, check that MATLink has been set up according to the <a href="http://matlink.org/#installation">installation instructions</a>  and that your system meets the necessary requirements. Once you've done that, read through the instructions below for your specific operating system. Each OS has a set of necessary steps (some of which might be set by default, depending on your configuration), which were previously described in the installation instructions, and a set of frequently encountered issues. If your issue is not resolved by the links below, please send an email to <a href="mailto:matlink.m@gmail.com">matlink.m@gmail.com</a></p>
+<p>Before beginning the troubleshooting, check that MATLink has been set up according to the <a href="http://matlink.org/#installation">installation instructions</a>  and that your system meets the necessary requirements. Once you've done that, read the following and see if your specific issue is covered. If your issue is not resolved by the links below, please send an email to <a href="mailto:matlink.m@gmail.com">matlink.m@gmail.com</a></p>
 
-<h2>Windows</h2>
+<h2>Common issues</h2>
+<div class="accordion" id="common">
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="common" href="#force32bit">
+				OptionValue::optnf: "Option name "Force32BitEngine" not found in defaults for MATLink."
+			</a>
+		</div>
+		<div id="force32bit" class="accordion-body collapse in">
+			<div class="accordion-inner">
+				<p>This error occurs when upgrading to a newer version of MATLink and a new option has been added. To fix this issue, please run <code>MATLink`Developer`ResetSettings[]</code> and restart MATLink.</p>
+			</div>
+		</div>
+	</div>
+</div>
+<h2>Operating system specific issues</h2>
+<p>Each OS has a set of necessary steps (some of which might be set by default, depending on your configuration), which were previously described in the installation instructions, and a set of frequently encountered issues.</p>
+<h3>Windows</h3>
 <h4>Necessary steps</h4>
 <ul>
 	<li>MATLAB must have been registered as a COM server by running it as administrator and evaluating <code>!regmatlabserver</code>.</li>
@@ -108,7 +125,7 @@ SetOptions[MATLink, "Force32BitEngine" -> True]
 	</div>
 </div>
 
-<h2>Linux</h2>
+<h3>Linux</h3>
 <h4>Necessary steps</h4>
 <ul>
 <li>Ensure that both <code>matlab</code> and <code>math</code> are in the <code>PATH</code>.  Also ensure that <code>matlab</code> can be launched <em>from within Mathematica</em> by evaluating <code>Import["!matlab -nodesktop -nojvm -r quit", "Text"]</code> in Mathematica.  Unfortunately Mathematica may sometimes change <code>PATH</code>.</li>
@@ -162,7 +179,7 @@ MATLink`Developer`CompileMEngine[]
 	</div>
 </div>
 
-<h2>OS X</h2>
+<h3>OS X</h3>
 <h4>Necessary steps</h4>
 <ul>
 <li>If MATLAB is not installed in a standard location, make sure that the correct location of the MATLAB app bundle is set in the <code>MATLink/Engine/bin/MacOSX64/mengine.sh</code> file.</li>
