@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8" />
+<title>MATLink — Troubleshooting</title>
+<meta name="description" content="">
+<meta name="author" content="R. Menon, Sz. Horvát">
+
+<link rel="stylesheet" href="http://matlink.org/assets/css/bootstrap.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/site.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/prettify.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/lang-matlab.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/lang-mma.css">
+<link rel="stylesheet" href="http://matlink.org/assets/css/font-awesome.min.css">
+
+<script>
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-40302070-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+ var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+ var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+ })();
+
+</script>
+</head>
+<body>
+
+<!--navigation bar-->
+<div class="navbar navbar-inverse navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			<a class="brand" href="http://matlink.org/">MATLink</a>
+			<ul class="nav">
+				<li><a href="http://matlink.org/#installation">Installation</a></li>
+				<li class="dropdown">
+				<a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+					Getting started
+					<i class="icon-caret-down"></i>
+				</a>
+				<ul class="dropdown-menu" role="menu">
+					<li class=""><a href="http://matlink.org/#connecting">Connecting to MATLink</a></li>
+					<li class=""><a href="http://matlink.org/#executing-matlab">Executing MATLAB commands</a></li>
+					<li class=""><a href="http://matlink.org/#transferring-data">Transferring data</a></li>
+					<li class=""><a href="http://matlink.org/#scripts-functions">Working with scripts and functions</a></li>
+				</ul>
+				</li>
+				<li><a href="http://matlink.org/documentation/">Documentation</a></li>
+				<li><a href="http://matlink.org/troubleshooting/">Troubleshooting</a></li>
+				<li><a href="http://matlink.org/examples/">Examples</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+
+	<div class="container">
+<h1 class="main-header">Troubleshooting</h1>
+
+<p>Before beginning the troubleshooting, check that MATLink has been set up according to the <a href="http://matlink.org/#installation">installation instructions</a>  and that your system meets the necessary requirements. Once you've done that, read through the instructions below for your specific operating system. Each OS has a set of necessary steps (some of which might be set by default, depending on your configuration), which were previously described in the installation instructions, and a set of frequently encountered issues. If your issue is not resolved by the links below, please send an email to <a href="mailto:matlink.m@gmail.com">matlink.m@gmail.com</a></p>
+
+<h2>Windows</h2>
+<h4>Necessary steps</h4>
+<ul>
+	<li>MATLAB must have been registered as a COM server by running it as administrator and evaluating <code>!regmatlabserver</code>.</li>
+	<li>The <code>bin\win64</code> directory (or <code>bin\win32</code> for 32-bit versions) must be on the <code>PATH</code>.</li>
+</ul>
+<h4>FAQ</h4>
+<div class="accordion" id="windows">
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="windows" href="#libmxdll">
+			"The program can't start because libmx.dll is missing from your computer"
+			</a>
+		</div>
+		<div id="libmxdll" class="accordion-body collapse in">
+			<div class="accordion-inner">
+				<p>Make sure you have followed the installation instructions and added MATLAB's <code>bin\win64</code> (<code>bin\win32</code> directory if MATLAB is 32-bit) to the <code>PATH</code> environment variable. These directories are located within MATLAB's installation directory. A typical location would be</p>
+
+<pre>
+C:\Program Files\MATLAB\R2013a\bin\win64
+</pre>
+			</div>
+		</div>
+	</div>
+
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="windows" href="#win-nostart">
+				"The application was unable to start correctly."
+			</a>
+		</div>
+		<div id="win-nostart" class="accordion-body collapse in">
+			<div class="accordion-inner">
+				<p>This error usually indicates that you are using a 64-bit version of <i>Mathematica</i> with a 32-bit version of MATLAB. Note that the student version of MATLAB on Windows is 32-bit.</p>
+
+				<p>To be able to use a 32-bit MATLAB with a 64-bit <i>Mathematica</i>, evaluate the following:</p>
+
+<pre>
+Needs["MATLink`"]
+SetOptions[MATLink, "Force32BitEngine" -> True]
+</pre>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<h2>Linux</h2>
+<h4>Necessary steps</h4>
+<ul>
+<li>Ensure that both <code>matlab</code> and <code>math</code> are in the <code>PATH</code>.  Also ensure that <code>matlab</code> can be launched <em>from within Mathematica</em> by evaluating <code>Import["!matlab -nodesktop -nojvm -r quit", "Text"]</code> in Mathematica.  Unfortunately Mathematica may sometimes change <code>PATH</code>.</li>
+<li>Ensure that you have a recent version of <code>g++</code> installed.  Recent versions of MATLAB require gcc version 4.4 or later.  If <code>g++</code> is not installed, on Ubuntu, use <code>apt-get install g++</code>.</li>
+<li>Ensure that <code>/bin/csh</code> is installed and it works.  On Ubuntu, use <code>apt-get install csh</code>.</li>
+</ul>
+<h4>FAQ</h4>
+<div class="accordion" id="linux">
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="linux" href="#auto-compile-failed">
+			"Automatically compiling the MATLink Engine has failed"
+			</a>
+		</div>
+		<div id="auto-compile-failed" class="accordion-body collapse in">
+			<div class="accordion-inner">
+				<p>Linux binaries of <code>mengine</code> are not included in the download package, and MATLink relies on automatic compilation instead. The error indicates that this has failed.</p>
+
+				<p>First, make sure that you have a recent version of <code>g++</code> installed (gcc 4.4 is required for MATLAB R2013a). To see what is going wrong during compilation, try compiling <code>mengine</code> manually:</p>
+
+				<ul>
+					<li>Open a terminal and navigate to the directory <code>MATLink/Engine/src</code>.</li>
+					<li>Run <code>make -f Makefile.lin64</code> (or <code>make -f Makefile.lin32</code>).</li>
+				</ul>
+
+				<p>If the errors shown don't give an indication of what is going wrong, send an email to <a href="mailto:matlink.m@gmail.com">matlink.m@gmail.com</a>.</p>
+
+
+			</div>
+		</div>
+	</div>
+
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="linux" href="#lin-openmatlab-failed">
+				Executing OpenMATLAB simply hangs
+			</a>
+		</div>
+		<div id="lin-openmatlab-failed" class="accordion-body collapse in">
+			<div class="accordion-inner">
+				<p>This typically indicates that the <code>mengine.sh</code> script failed to launch the binary executable <code>mengine</code>. The most common cause for this is that it cannot find the shared libraries it needs from either <i>Mathematica</i> or MATLAB. Try launching <code>mengine.sh</code> manually from the terminal and see if it complains about missing libraries. If it is working correctly, you should see a prompt <code>Create link:</code>.  At this prompt press enter twice to exit.</p>
+
+				<p>If MATLAB has been upgraded to a newer version, it may be necessary to recompile <code>mengine</code>. Do this by evaluating the following in a fresh <i>Mathematica</i> kernel:</p>
+
+<pre>
+Needs["MATLink`"]
+MATLink`Developer`CompileMEngine[]
+</pre>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<h2>OS X</h2>
+<h4>Necessary steps</h4>
+<ul>
+<li>If MATLAB is not installed in a standard location, make sure that the correct location of the MATLAB app bundle is set in the <code>MATLink/Engine/bin/MacOSX64/mengine.sh</code> file.</li>
+<li>Make sure that <code>/bin/csh</code> is installed and it works.</li>
+</ul>
+<h4>FAQ</h4>
+<div class="accordion" id="osx">
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="osx" href="#osx-openmatlab-failed">
+				Executing OpenMATLAB simply hangs
+			</a>
+		</div>
+		<div id="osx-openmatlab-failed" class="accordion-body collapse in">
+			<div class="accordion-inner">
+				<p>This typically indicates that the <code>mengine.sh</code> script failed to launch the binary executable <code>mengine</code>. The most common cause for this is that it cannot find the shared libraries it needs from either <i>Mathematica</i> or MATLAB. Try launching <code>mengine.sh</code> manually from the terminal and see if it complains about missing libraries. If it is working correctly, you should see a prompt <code>Create link:</code>.  At this prompt press enter twice to exit.</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="osx" href="#auto-compile-32bit">
+				"Automatically compiling the MATLink Engine from source for 32-bit OS X is not supported"
+			</a>
+		</div>
+		<div id="auto-compile-32bit" class="accordion-body collapse in">
+			<div class="accordion-inner">
+				<p>We do not have access to 32-bit OS X systems, so we can't provide binaries for them. If you are using such an old system, you will need to compile <code>mengine</code> yourself, and place the resulting binary in <code>MATLink/Engine/bin/MacOSX32/</code>.  You will also need to provide an <code>mengine.sh</code> script that sets <code>PATH</code> and <code>DYLD_LIBRARY_PATH</code> before launching <code>mengine</code>.  Please see the model in <code>MATLink/Engine/bin/MacOSX64/</code>.</p>
+
+<p>If you need assistance, send an e-mail to <a href="mailto:matlink.m@gmail.com">matlink.m@gmail.com</a>.</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<footer class="footer">
+	<div class="container">
+		<ul class="footer-links">
+			<li>Created and maintained by <a href="https://github.com/rsmenon/">rsmenon</a> and <a href="https://github.com/szhorvat">szhorvat</a></li>
+			<li class="muted">·</li>
+			<li>Licensed under the <a href="http://opensource.org/licenses/mit-license.html">MIT License</a></li>
+			<li class="muted">·</li>
+			<li><a href="http://matlink.org/changelog.html">Change log</a></li>
+		</ul>
+		<p><i>Mathematica</i> is a registered trademark of <a href="http://wolfram.com">Wolfram Research, Inc.</a> and MATLAB is a registered trademark of <a href="http://mathworks.com/">The MathWorks, Inc.</a></p>
+	</div>
+</footer>
+	</div>
+
+	<script src="http://matlink.org/assets/js/jquery-1.9.1.min.js"></script>
+	<script src="http://matlink.org/assets/js/underscore.min.js"></script>
+	<script src="http://matlink.org/assets/js/backbone.min.js"></script>
+	<script src="http://matlink.org/assets/js/bootstrap-222.min.js"></script>
+	<script src="http://matlink.org/assets/js/prettify.js"></script>
+	<script src="http://matlink.org/assets/js/lang-matlab.js"></script>
+	<script src="http://matlink.org/assets/js/lang-mma.js"></script>
+	<script type="text/javascript">
+jQuery(document).ready(function () {
+		// apply syntax highlighting
+		prettyPrint();
+
+		// add language selection menus (after a small delay)
+		setTimeout(function () {
+			add_language_selection_menu();
+			}, 300);
+		});
+	</script>
+
+	<script>
+$(function () {
+		$('#install-tabs a:first').tab('show');
+		})
+	</script>
+	<script>
+$(function () {
+	$(".collapse").collapse();
+		})
+	</script>
+	</body>
+	</html>
