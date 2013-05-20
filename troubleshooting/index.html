@@ -98,7 +98,7 @@ C:\Program Files\MATLAB\R2013a\bin\win64
 
 				<p>To be able to use a 32-bit MATLAB with a 64-bit <i>Mathematica</i>, evaluate the following:</p>
 
-<pre>
+<pre class="prettyprint lang-mma">
 Needs["MATLink`"]
 SetOptions[MATLink, "Force32BitEngine" -> True]
 </pre>
@@ -153,11 +153,10 @@ SetOptions[MATLink, "Force32BitEngine" -> True]
 
 				<p>If MATLAB has been upgraded to a newer version, it may be necessary to recompile <code>mengine</code>. Do this by evaluating the following in a fresh <i>Mathematica</i> kernel:</p>
 
-<pre>
+<pre class="prettyprint lang-mma">
 Needs["MATLink`"]
 MATLink`Developer`CompileMEngine[]
 </pre>
-
 			</div>
 		</div>
 	</div>
