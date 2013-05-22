@@ -214,8 +214,9 @@ git clone git://github.com/rsmenon/MATLink.git $UserBaseDirectory/Applications/M
 				<ol>
 					<li>Add MATLAB's <code>bin\win64</code> directory (<code>bin\win32</code> for 32-bit versions) to the system <code>PATH</code>.</li>
 					<li>Register the default MATLAB version by running <code>regmatlabserver</code> in MATLAB. On most Windows systems, you will need administrator rights to do this.</li>
-					<li>If you're using a 32 bit MATLAB (such as a student version) and a 64 bit <i>Mathematica</i>, then set the following before loading MATLink for the first time (needs to be done only once)</li>
+					<li>If you're using a 32 bit MATLAB (such as a student version) with a 64 bit <i>Mathematica</i>, then evaluate the following before using <code>OpenMATLAB[]</code> for the first time (needs to be done only once)</li>
 <pre class="prettyprint lang-mma">
+Needs["MATLink`"]
 SetOptions[MATLink, "Force32BitEngine" -> True]
 </pre>
 If you reset your <i>Mathematica</i> settings or remove MATLink's <code>init.m</code> in <code>$UserBaseDirectory/ApplicationData/MATLink</code>, then the above option will need to be set again.
