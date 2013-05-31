@@ -90,11 +90,10 @@ delaunayMma[points_] :=
 
 			<div class="row">
 				<div class="span8">
-					A random set of points will generally have a unique Delaunay triangulation, so we can test that the two systems return identical results
+					A random set of points will usually have a unique Delaunay triangulation, so we can test that the two systems return identical results
 <pre class="prettyprint lang-mma">
-With[{pts = RandomVariate[NormalDistribution[], {100, 2}]},
-	Sort[Sort /@ delaunay[pts]] === Sort[Sort /@ delaunayMma[pts]]
-]
+pts = RandomVariate[NormalDistribution[], {100, 2}];
+Sort[Sort /@ delaunay[pts]] === Sort[Sort /@ delaunayMma[pts]]
 </pre>
 					and plot the triangulations with
 <pre class="prettyprint lang-mma">
@@ -167,9 +166,8 @@ MEvaluate["
 	[z, p, k] = butter(6, 2.5e3/fs, 'low') ;
 	[sos, g]  = zp2sos(z, p, k)            ;
 	Hd        = dfilt.df2tsos(sos, g)      ;
-	myfilt    = @(x)filter(Hd,x)           ;
 "]
-filter = MFunction["myfilt"];
+filter = MFunction["myfilt", "@(x)filter(Hd,x)"];
 </pre>
 
 				</div>
