@@ -497,7 +497,7 @@ Too many output arguments.
 
 		<p>Inf and Nan are not supported at the moment. The values returned to <i>Mathematica</i> are not safe to use: operations on them give unpredictable results.</p></li>
 
-		<li><h4>Multiple instances of MATLAB on OS X</h4>
+		<li><h4>Multiple instances of MATLAB</h4>
 
 		<p>If a MATLAB background process has already been started by MATLink, it will not be possible to launch another instance of MATLAB by clicking on its icon. As a workaround, either start MATLAB before you call <code>OpenMATLAB[]</code> or launch the MATLAB executable directly as:</p>
 
@@ -560,6 +560,18 @@ MGet["s"]
 <p>In <code>MEvaluate</code>'s output Unicode in mangled, however, <code>MGet</code> trasfers it correctly.</p>
 
 <p>A workaround is using <code>evalc</code>.  This is not used in MATLink because of unsolved <a href="https://github.com/rsmenon/MATLink/issues/29">issue #29</a>.</p>
+</li>
+
+<li><h4>Path names with non-ASCII characters on Windows</h4>
+On Windows, it maybe not be possible to change (<code>cd</code>) MATLAB into directories that have non-ASCII characters in their path name.  At the moment, the following workaround is available:
+
+<pre class="prettyprint lang-mma">
+MEvaluate["feature('DefaultCharacterSet', 'windows-1252')"]
+MFunction["cd"]["\\path\\to\\directory"]
+</pre>
+
+It may be necessary to use your system's default encoding instead of <code>windows-1252</code>.  To find what it is, evaluate <code>feature('DefaultCharacetrSet')</code> in a standalone (non-MATLink) MATLAB session.
+
 </li>
 </ul>
 </div>
