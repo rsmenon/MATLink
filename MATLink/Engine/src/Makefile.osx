@@ -42,7 +42,7 @@ menginetm.cpp: mengine.tm
 	$(MPREP) mengine.tm > menginetm.cpp
 
 mengine: main.cpp get.cpp set.cpp mengine.cpp mengine.h mlp.h menginetm.cpp
-	$(CXX) -O $(CFLAGS) $(INCDIRS) $(LIBDIRS) menginetm.cpp mengine.cpp set.cpp get.cpp main.cpp -lMLi3 -lmx -leng -framework Foundation -o mengine
+	$(CXX) -O $(CFLAGS) $(INCDIRS) $(LIBDIRS) menginetm.cpp mengine.cpp set.cpp get.cpp main.cpp -lMLi3 -lmx -leng -framework Foundation -stdlib=libstdc++ -o mengine
 
 clean:
 	@ rm -rf *.o mengine menginetm.cpp
