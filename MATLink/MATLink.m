@@ -203,6 +203,9 @@ GetInfo[] :=
 		matlab[] := "MATLAB:\n" <> Switch[OS,
 			"MacOSX",
 			Import["!ls -d /Applications/MATLAB*.app", "Text"]
+			,
+			"Unix",
+			Import["!echo $(dirname $(readlink -f $(which matlab)))/.."]
 		];
 
 		Switch[OS,
@@ -211,6 +214,12 @@ GetInfo[] :=
 				MATLink`Information`$Version, $Version,
 				csh[], matlab[]
 			}, "\n\n"]
+			,
+			"Unix",
+			Print @@ Riffle[{
+				MATLink`Information`$Version, $Version,
+				csh[], gpp[], matlab[]
+		}]
 		]
 	]
 
