@@ -57,9 +57,6 @@ Begin["`Information`"]
 `$HomePage := SystemOpen["http://matlink.org"]
 End[] (* Information` *)
 
-Begin["`Common`"]
-End[] (* Common` *)
-
 Begin["`Private`"]
 Needs["MATLink`Developer`"];
 
@@ -287,25 +284,27 @@ SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
 iMEvaluate[cmd_String, script_ : Automatic] :=
 	Catch[
-		Module[{result, file, id = randomString[], ex = randomString[]},
+		Module[{result, file, output = randomString[], id = randomString[], ex = randomString[]},
 			Switch[script,
 				Automatic, file = iMScript[randomString[], cmd],
 				"NoScript", file = {cmd},
 				_, Message[MEvaluate::unkw, script];Throw[$Failed,$error]
 			];
 
-			result = eval@StringJoin["
+			eval@StringJoin["
 				try
-					", First@file, "
+					", output, " = evalc('", First@file, "');
 				catch ", ex, "
-					sprintf('%s%s%s', '", id, "', ", ex, ".getReport,'", id, "')
+					", output, " = sprintf('%s%s%s', '", id, "', ", ex, ".getReport,'", id, "');
 				end
 				clear ", ex
 			];
+            result = MGet[output];
+            eval["clear " <> output];
 			If[mscriptQ@file, DeleteFile@file];
 
 			Switch[result,
-				$Failed,
+				$Failed, (* TODO: In MEX, eval won't return anything, so figure out a way to handle failed calls. Tests that check for $Failed fail here. *)
 				message[MATLink::noconn]["fatal"];
 				Abort[],
 
@@ -501,7 +500,7 @@ matString::usage = ""
 matCharArray::usage = ""
 matUnknown::usage = ""
 
-(* Assign to symbols defined in `Private` *)
+(* Assign to symbols defined in MATLink`Private` *)
 engineOpenQ[] /; MATLABInstalledQ[] :=
         With[{msgs = Unevaluated@{LinkObject::linkd, LinkObject::linkn}},
             Catch[
