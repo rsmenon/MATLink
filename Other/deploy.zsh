@@ -4,4 +4,4 @@
 setopt EXTENDED_GLOB
 MATLINKDIR=~/Library/Mathematica/Applications/MATLink/
 
-gcp --preserve=mode --parents $(dirname $0)/**/**~(*.dSYM/*|*/mengine.txt|*.zsh|LICENSE.txt) $MATLINKDIR
+rsync -a --exclude="/.idea" --exclude="/.git" --exclude="/Test" --exclude="*.nb" --exclude="*.zsh" --exclude="*.iml" --exclude=".gitignore" --exclude="*.dSYM" --exclude="*.txt" --exclude=".DS_Store" $(dirname $0) $MATLINKDIR

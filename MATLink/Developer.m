@@ -3,6 +3,7 @@
 BeginPackage["MATLink`Developer`", {"MATLink`"}]
 
 $ApplicationDirectory::usage = "Directory where MATLink is installed (usually, $UserBaseDirectory/Applications/)"
+$MATLABClassDirectory::usage = "Directory where MATLink stores its MATLAB class files."
 $ApplicationDataDirectory::usage = "Directory where MATLink's log file is stored."
 $EngineSourceDirectory::usage = ""
 $LogFile::usage = ""
@@ -25,6 +26,7 @@ Begin["`Private`"]
 (* Application directories & file paths *)
 $ApplicationDirectory = DirectoryName@$InputFileName;
 $ApplicationDataDirectory = FileNameJoin[{$UserBaseDirectory, "ApplicationData", "MATLink"}];
+$MATLABClassDirectory = FileNameJoin[{$ApplicationDirectory, "MATLAB"}];
 $EngineSourceDirectory = FileNameJoin[{$ApplicationDirectory, "Engine", "src"}];
 
 (* Log files and related functions *)
