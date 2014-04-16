@@ -110,7 +110,7 @@ mscriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
 	FileExistsQ[FileNameJoin[{$sessionTemporaryDirectory, name <> ".m"}]]
 
 randomString[n_Integer:50] :=
-	StringJoin@RandomSample[Join[#, ToLowerCase@#] &@CharacterRange["A", "Z"], n]
+	StringJoin@RandomSample[Join[#, ToLowerCase@#] & @ Characters @ "ABCDEFGHIJKLMNOPQRSTUVWXYZ", n]
 
 cleanOutput[str_String, file_String, script_] :=
 	Block[{replaceFileName = If[script === "NoScript", Unevaluated@Sequence[], file -> "input"]},
