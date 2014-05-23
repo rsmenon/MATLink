@@ -123,6 +123,28 @@ SetOptions[MATLink, "Force32BitEngine" -> True]
 			</div>
 		</div>
 	</div>
+
+<div class="accordion-group">
+  <div class="accordion-heading">
+    <a class="accordion-toggle" data-toggle="collapse" data-parent="windows" href="#win-update">
+      MATLink won't work after MATLAB was updated to a newer version.
+    </a>
+  </div>
+  <div id="win-update" class="accordion-body collapse in">
+    <div class="accordion-inner">
+      <p>When MATLAB is updated to a newer version, some of the MATLink <a href="http://matlink.org/#installation">installation steps</a> need to be performed again:
+        <ul>
+          <li>Remove the old MATLAB version's <code>bin\win64</code> directory from the system's <code>PATH</code> environment variable, and add the new one.  It is important that only a single MATLAB version is present in the system <code>PATH</code>.</li>
+          <li>Register the new MATLAB version as COM server by running it as administrator and evaluating <code>regmatlabserver</code> from the MATLAB command prompt.  It is important that the same MATLAB version that is added to the <code>PATH</code> should be registered as COM server as well.</li>
+        </ul>
+      </p>
+      <p>If you used a student version of MATLAB earlier than R2014a on Windows, it was a 32-bit version.  R2014a is available for Windows in 64-bit as a student version.  If updating a 32-bit version to a 64-bit version, it is necessary to change this setting in MATLink as well: <code>SetOptions[MATLink, "Force32BitEngine" -> False]</code>.</p>
+
+    </div>
+  </div>
+</div>
+
+
 </div>
 
 <h3>Linux</h3>
