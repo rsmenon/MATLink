@@ -487,6 +487,9 @@ Too many output arguments.
 	<h2>Known Issues</h2>
 	<ul>
 		<li>
+    <h4>MATLAB R2014a</h4>
+    <p>The OS X (and possible Linux) versions of MATLAB R2014a contain a bug that breaks MATLink.  Unfortunately this bug is in a core feature MATLink relies on, and it is not easy to work around it.  Until this is resolved, please consider using earlier versions of MATLAB (R2013b or earlier) on OS X or Linux to run MATLink.</p>
+
 		<h4>Large array support</h4>
 
 		<p>At the moment, only arrays with less than <code>2^31-1</code> elements are supported.  Note that this is true for matrices and multidimensional arrays as well: the <em>total number</em> of matrix elements may not excede <code>2^31-1</code> even if the matrix has fewer rows and columns than this.  As an example, the largest supported square matrix can be of size 46341 by 46341.</p>
