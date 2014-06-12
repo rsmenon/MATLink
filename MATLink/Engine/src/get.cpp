@@ -294,10 +294,18 @@ void toMma(const mxArray *var, MLINK link) {
             toMma(mxGetCell(var, i), link);
         MLPutInteger32List(link, mmDims, depth);
     }
-    // unknown or failure; TODO distinguish between unknown and failure
-    else
-    {
-        putUnknown(var, link);
+    else {
+        mxArray *str;
+        int err = mexCallMATLAB(1, &str, 1, const_cast<mxArray **>(&var), "struct");
+        if (err == 0) {
+            toMma(str, link);
+            mxDestroyArray(str);
+        }
+        // unknown or failure; TODO distinguish between unknown and failure
+        else
+        {
+            putUnknown(var, link);
+        }
     }
 }
 
