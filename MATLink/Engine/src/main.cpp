@@ -8,7 +8,7 @@
 #include "mengine.h"
 
 
-// mex -v LDFLAGS="\$LDFLAGS -framework Foundation" main.cpp get.cpp set.cpp mengine.cpp menginetm.cpp -L'/Applications/Mathematica\\ 9.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/' -I'/Applications/Mathematica 9.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/' -lMLi3 -output StartMATLink
+// mex -v LDFLAGS="\$LDFLAGS -framework Foundation" main.cpp get.cpp set.cpp mengine.cpp menginetm.cpp -L'/Applications/Mathematica.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/' -I'/Applications/Mathematica.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/' -lMLi3 -output StartMATLink
 
 #include "mengine.h"
 

@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <cassert>
 
 MatlabEngine engine; // global variable for engine
 
@@ -71,6 +72,40 @@ void eng_evaluate(const unsigned char *command, int len, int characters) {
     delete [] szcommand;
 }
 
+void eng_evaluate_with_trap(const unsigned short *command, int len, int characters) {
+    mwSize mbDims[2] = {1, len}; // use len, not characters, because no support for 4-byte characters in either Mma 9 or MATLAB
+    mxArray *var = mxCreateCharArray(2, mbDims);
+    std::copy(command, command+len, (unsigned short *) mxGetChars(var));
+    mxArray *res;
+    mxArray *err;
+    err = mexCallMATLABWithTrap(1, &res, 1, &var, "evalc");
+    
+    MLPutFunction(stdlink, "List", 2);
+    if (err == NULL) {
+        MLPutSymbol(stdlink, "Null");
+
+        assert(mxIsChar(res));
+        int len = mxGetNumberOfElements(res);
+        const mxChar *str = mxGetChars(res);
+        MLPutUTF16String(stdlink, reinterpret_cast<const unsigned short *>(str), len);
+        mxDestroyArray(res);
+    }
+    else {        
+        mxArray *msg;
+        int errCode = mexCallMATLAB(1, &msg, 1, &err, "getReport"); // TODO check error
+        assert(errCode == 0);
+        assert(mxIsChar(msg));
+        int len = mxGetNumberOfElements(msg);
+        const mxChar *str = mxGetChars(msg);
+        MLPutUTF16String(stdlink, reinterpret_cast<const unsigned short *>(str), len);
+        mxDestroyArray(msg);
+        mxDestroyArray(err);
+
+        MLPutString(stdlink, "");
+
+        // check if res is NULL
+    }
+}
 
 void eng_set_visible(int value) {
     engine.setVisible(value);

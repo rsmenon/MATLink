@@ -44,6 +44,15 @@
 
 
 :Begin:
+:Function:		eng_evaluate_with_trap
+:Pattern:		engEvaluateWithTrap[command_]
+:Arguments:		{command}
+:ArgumentTypes:	{UTF16String}
+:ReturnType:	Manual
+:End:
+
+
+:Begin:
 :Function:		eng_getbuffer
 :Pattern:		engGetBuffer[]
 :Arguments:		{}
