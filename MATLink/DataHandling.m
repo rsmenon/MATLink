@@ -1,3 +1,5 @@
+(* ::Package:: *)
+
 (* :Context: MATLink`DataHandling` *)
 (* Low level functions strongly tied with the C++ code are part of this context *)
 
@@ -76,7 +78,7 @@ structHandleQ[_] = False
 
 (* the convertToMATLAB function will always end up with a handle[] if it was successful *)
 convertToMATLAB[expr_] :=
-        Module[{structured,reshape = Composition[Flatten, Transpose[#, Reverse@Range@ArrayDepth@#]&]},
+        Module[{structured,reshape = Flatten@Transpose[#, Reverse@Range@ArrayDepth@#]&},
             structured = restructure[expr];
 
             Block[{MArray, MSparseArray, MLogical, MSparseLogical, MString, MCell, MStruct},
