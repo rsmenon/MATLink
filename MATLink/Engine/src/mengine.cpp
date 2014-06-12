@@ -74,11 +74,11 @@ void eng_evaluate(const unsigned char *command, int len, int characters) {
 
 void eng_evaluate_with_trap(const unsigned short *command, int len, int characters) {
     mwSize mbDims[2] = {1, len}; // use len, not characters, because no support for 4-byte characters in either Mma 9 or MATLAB
-    mxArray *var = mxCreateCharArray(2, mbDims);
-    std::copy(command, command+len, (unsigned short *) mxGetChars(var));
+    mxArray *cmd = mxCreateCharArray(2, mbDims);
+    std::copy(command, command+len, (unsigned short *) mxGetChars(cmd));
     mxArray *res;
     mxArray *err;
-    err = mexCallMATLABWithTrap(1, &res, 1, &var, "evalc");
+    err = mexCallMATLABWithTrap(1, &res, 1, &cmd, "evalc");
     
     MLPutFunction(stdlink, "List", 2);
     if (err == NULL) {
@@ -101,10 +101,11 @@ void eng_evaluate_with_trap(const unsigned short *command, int len, int characte
         mxDestroyArray(msg);
         mxDestroyArray(err);
 
-        MLPutString(stdlink, "");
+        MLPutSymbol(stdlink, "$Failed");
 
         // check if res is NULL
     }
+    mxDestroyArray(cmd);
 }
 
 void eng_set_visible(int value) {
