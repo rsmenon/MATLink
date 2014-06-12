@@ -24,9 +24,6 @@ OpenMATLAB::usage =
 CloseMATLAB::usage =
 	"CloseMATLAB[] closes a previously opened instance of MATLAB (opened via MATLink)."
 
-CommandWindow::usage =
-	"CommandWindow[\"Show\"] displays the MATLAB command window.\nCommandWindow[\"Hide\"] hides the MATLAB command window.\nThis function works only on Windows."
-
 MGet::usage =
 	"MGet[var] imports the MATLAB variable named \"var\" into Mathematica.  MGet is Listable."
 
@@ -215,15 +212,6 @@ CloseMATLAB[] /; MATLABInstalledQ[] :=
 	]
 
 CloseMATLAB[] /; !MATLABInstalledQ[] := message[CloseMATLAB::engc]["warning"];
-
-(* Show or hide MATLAB command windows --- works on Windows only *)
-CommandWindow::noshow = "Showing or hiding the MATLAB command window is only supported on Windows."
-SyntaxInformation[CommandWindow] = {"ArgumentsPattern" -> {_}}
-
-CommandWindow["Show"] := If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"], setVisible[1]]
-CommandWindow["Hide"] := If[$OperatingSystem =!= "Windows", message[CommandWindow::noshow]["warning"], setVisible[0]]
-CommandWindow[x_] := message[CommandWindow::unkw, x]["error"]
-CommandWindow[_, x__] := message[CommandWindow::argx, "CommandWindow", Length@{x} + 1]["error"]
 
 (* MGet *)
 MGet::unimpl = "Translating the MATLAB type \"`1`\" is not supported"
@@ -493,7 +481,6 @@ engOpen::usage = ""
 engOpenQ::usage = ""
 engSet::usage = ""
 engSetupAbortHandler::usage = ""
-engSetVisible::usage = ""
 matCell::usage = ""
 matStruct::usage = ""
 matArray::usage = ""
@@ -532,7 +519,6 @@ set[name_String, handle[h_Integer]] := engSet[name, h]
 set[name_, _] := $Failed
 
 cleanHandles = engCleanHandles;
-setVisible = engSetVisible;
 
 Needs["MATLink`DataHandling`"]
 

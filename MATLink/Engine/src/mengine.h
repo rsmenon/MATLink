@@ -137,10 +137,6 @@ public:
         return !res;
     }
 
-    void setVisible(bool val) {
-        /* unsupported */
-    }
-
 #if !WINDOWS_MATHLINK
     void abort() {
         if (pid_set)

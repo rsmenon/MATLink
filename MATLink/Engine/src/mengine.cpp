@@ -108,11 +108,6 @@ void eng_evaluate_with_trap(const unsigned short *command, int len, int characte
     mxDestroyArray(cmd);
 }
 
-void eng_set_visible(int value) {
-    engine.setVisible(value);
-    MLPutSymbol(stdlink, "Null");
-}
-
 
 #if !WINDOWS_MATHLINK
 // this message handler will try to abort MATLAB when receiving an abort message

@@ -179,15 +179,6 @@
 
 
 :Begin:
-:Function:		eng_set_visible
-:Pattern:		engSetVisible[value_]
-:Arguments:		{value}
-:ArgumentTypes:	{Integer32}
-:ReturnType:	Manual
-:End:
-
-
-:Begin:
 :Function:		setup_abort_handler
 :Pattern:		engSetupAbortHandler[]
 :Arguments:		{}
