@@ -266,7 +266,9 @@ iMEvaluate[cmd_String] :=
     Module[{result, error},
       {error, result} = evalWithTrap[cmd];
       If[error =!= Null,
-        Message[MATLink::errx, error] (* TODO use message[] ? *)
+        Block[{$MessagePrePrint = Identity},
+          Message[MATLink::errx, StringTrim[error]] (* TODO use message[] ? *)
+        ]
       ];
       result
     ]
@@ -323,7 +325,7 @@ MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
 
 MEvaluate[MScript[name_String]] /; MATLABInstalledQ[] && mscriptQ[name] :=
 	switchAbort[engineOpenQ[],
-		eval[name],
+		iMEvaluate[name],
 		message[MEvaluate::wspc]["warning"]
 	]
 
