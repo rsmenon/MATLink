@@ -7,36 +7,24 @@
 
 #include "mengine.h"
 
-#if WINDOWS_MATHLINK
 
-#if __BORLANDC__
-#pragma argsused
-#endif
+// mex -v LDFLAGS="\$LDFLAGS -framework Foundation" main.cpp get.cpp set.cpp mengine.cpp menginetm.cpp -L'/Applications/Mathematica\\ 9.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/' -I'/Applications/Mathematica 9.app/SystemFiles/Links/MathLink/DeveloperKit/MacOSX-x86-64/CompilerAdditions/' -lMLi3 -output StartMATLink
 
-int PASCAL WinMain( HINSTANCE hinstCurrent, HINSTANCE hinstPrevious, LPSTR lpszCmdLine, int nCmdShow)
+#include "mengine.h"
+
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    char buff[512];
-    char FAR * buff_start = buff;
-    char FAR * argv[32];
-    char FAR * FAR * argv_end = argv + 32;
+    (void) plhs; (void) prhs;    /* unused parameters */
 
-    int ml_main;
-
-    hinstPrevious = hinstPrevious; // suppress warning
-
-    if( !MLInitializeIcon( hinstCurrent, nCmdShow)) return 1;
-    MLScanString( argv, &argv_end, &lpszCmdLine, &buff_start);
-    ml_main = MLMain( argv_end - argv, argv);
-
-    return ml_main;
+    /* Check for proper number of input and output arguments */
+    if (nrhs !=0) {
+        mexErrMsgIdAndTxt( "MATLAB:mxisclass:maxrhs",
+                "No input argument required.");
+    }
+    if(nlhs > 1){
+        mexErrMsgIdAndTxt( "MATLAB:mxisclass:maxlhs", "Too many outputs");
+    }
+    MLMainString("-mathlink -linkmode listen linkprotocol SharedMemory -linkname MatlabLink");
 }
 
-#else
-
-int main(int argc, char* argv[])
-{
-    return MLMain(argc, argv);
-}
-
-#endif
 

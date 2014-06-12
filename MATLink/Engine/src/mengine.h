@@ -10,8 +10,7 @@
 
 #include "mlp.h"
 
-#include <engine.h>
-#include <matrix.h>
+#include <mex.h>
 
 #if !WINDOWS_MATHLINK
 #include <signal.h>
@@ -44,8 +43,7 @@ public:
 // When running on OS X, lots of isopen() check are necessary to avoid crashes
 // if MATLAB has quit.  This may not be necessary on Windows.
 class MatlabEngine {
-    Engine *ep;
-    char buffer[BUFSIZE+1];
+    const char *buffer;
 
 #if !WINDOWS_MATHLINK
     pid_t pid;
@@ -56,19 +54,23 @@ class MatlabEngine {
     void operator = (const MatlabEngine &); // disallowed
 
 public:
-    MatlabEngine() : ep(NULL) {
-        buffer[0] = '\0';       // zero-length on init
-        buffer[BUFSIZE] = '\0'; // ensure buffer is always null-terminated
+    MatlabEngine() : buffer("All output goes to the command window.") {
+        mxArray *handle = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
+        MatlabEngine **ptr = reinterpret_cast<MatlabEngine **>(mxMalloc(8));
+        mxSetData(handle, ptr);
+        *ptr = this;
+        mexPutVariable("base", "MmaLinkPointer", handle);
+        // mexLock();
+        mexPrintf("inited\n");
     }
 
-    ~MatlabEngine() { close(); }
+    ~MatlabEngine() { mexPrintf("destroyed\n"); }
 
     bool isopen() {
-        evaluate("");   // attempt evaluating something to detect if MATLAB has quit
-        return (ep != NULL);
+        return true; // TODO
     }
 
-    void open() {
+    void open() { /*
         if (! isopen()) {
 #ifdef ENGINE_WIN
             int status;
@@ -102,27 +104,20 @@ public:
         }
         // if opening fails, ep stays NULL
         // use isopen() to test for success
+        */
+        /* always open with MEX */
     }
 
     void close() {
-        if (isopen())
-            engClose(ep);
-        ep = NULL;
+        // return to command prompt TODO
     }
 
     // returns true on success
     // warning: because of a MATLAB Engine bug
     // engEvalString() will hang on an incomplete expression such as "x = [1"
     bool evaluate(const char *command) {
-        // contrary to the docs, engEvalString crashes when given a NULL pointer
-        // so let's check here:
-        if (ep == NULL)
-            return false;
-
-        int res = engEvalString(ep, command);
-        if (res)    // failure
-            ep = NULL;
-        return !res;
+        mexEvalString(command);
+        return true; // TODO
     }
 
     const char *getBuffer() const {
@@ -132,20 +127,18 @@ public:
     mxArray *getVariable(const char *name) {
         if (!isopen())  // avoid crash if MATLAB has quit
             return NULL;
-        return engGetVariable(ep, name);
+        return mexGetVariable("base", name);
     }
 
     bool putVariable(const char *name, mxArray *var) {
         if (!isopen())  // avoid crash if MATLAB has quit
             return false;
-        int res = engPutVariable(ep, name, var);
+        int res = mexPutVariable("base", name, var);
         return !res;
     }
 
     void setVisible(bool val) {
-        if (!isopen())
-            return;
-        engSetVisible(ep, val);
+        /* unsupported */
     }
 
 #if !WINDOWS_MATHLINK
