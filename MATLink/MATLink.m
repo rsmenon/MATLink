@@ -112,6 +112,7 @@ mscriptQ[MScript[name_String, ___]] /; MATLABInstalledQ[] :=
 randomString[n_Integer:50] :=
 	StringJoin@RandomSample[Join[#, ToLowerCase@#] & @ Characters @ "ABCDEFGHIJKLMNOPQRSTUVWXYZ", n]
 
+(*
 cleanOutput[str_String, file_String, script_] :=
 	Block[{replaceFileName = If[script === "NoScript", Unevaluated@Sequence[], file -> "input"]},
 		FixedPoint[
@@ -124,6 +125,7 @@ cleanOutput[str_String, file_String, script_] :=
 			str
 		] /. "" -> Null
 	]
+*)
 
 validOptionsQ[func_Symbol, opts_List] :=
 	With[{o = FilterRules[opts, Options[func]], patt = validOptionPatterns[func]},
