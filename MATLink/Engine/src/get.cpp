@@ -303,12 +303,11 @@ void toMma(const mxArray *var, MLINK link) {
 
 
 void eng_get(const char *name) {
-    mxArray *var = engine.getVariable(name);
+    const mxArray *var = engine.getVariable(name);
     if (var == NULL)
         MLPutSymbol(stdlink, "$Failed");
     else {
         toMma(var, stdlink);
-        mxDestroyArray(var);
     }
 }
 

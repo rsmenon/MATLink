@@ -124,10 +124,10 @@ public:
         return buffer;
     }
 
-    mxArray *getVariable(const char *name) {
+    const mxArray *getVariable(const char *name) {
         if (!isopen())  // avoid crash if MATLAB has quit
             return NULL;
-        return mexGetVariable("base", name);
+        return mexGetVariablePtr("base", name);
     }
 
     bool putVariable(const char *name, mxArray *var) {
