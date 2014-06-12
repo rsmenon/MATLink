@@ -185,25 +185,15 @@ OpenMATLAB::noopen = "Could not open a connection to MATLAB."
 
 SyntaxInformation[OpenMATLAB] = {"ArgumentsPattern" -> {}}
 
+(* TODO re-add checks, rework launching *)
 OpenMATLAB[] /; MATLABInstalledQ[] :=
-	switchAbort[engineOpenQ[],
-		message[OpenMATLAB::wspo]["warning"],
-
-		Catch[
-			Module[{},
-				openEngine[];
-				switchAbort[engineOpenQ[],
+					(
 					writeLog["Opened MATLAB workspace"];
-					MATLink`Engine`engSetupAbortHandler[];
+					(* MATLink`Engine`engSetupAbortHandler[]; *)
 					MFunction["addpath", "Output" -> False][$sessionTemporaryDirectory];
-					MFunction["cd", "Output" -> False][Directory[]],
+					MFunction["cd", "Output" -> False][Directory[]];
+					)	
 
-					message[OpenMATLAB::noopen]["fatal"];Throw[$Failed, $error]
-				];
-			],
-			$error
-		]
-	]
 
 OpenMATLAB[] /; !MATLABInstalledQ[] :=
 	Module[{},
