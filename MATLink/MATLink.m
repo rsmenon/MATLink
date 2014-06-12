@@ -75,7 +75,7 @@ General::badval = "Invalid option value `1` passed to `2`. Values must match the
 General::unkw = "`1` is an unrecognized argument"
 
 (* Directories and helper functions/variables *)
-EngineBinaryExistsQ[] := FileExistsQ[$BinaryPath];
+EngineBinaryExistsQ[] := True
 
 (* Set these variables only once per session.
    This is to avoid losing connection/changing temporary directory because the user used Get instead of Needs *)
