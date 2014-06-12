@@ -272,6 +272,15 @@ MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 (* MEvaluate *)
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
+iMEvaluate[cmd_String] :=
+    Module[{result, error},
+      {error, result} = evalWithTrap[cmd];
+      If[error =!= Null,
+        Message[MATLink::errx, error] (* TODO use message[] ? *)
+      ];
+      result
+    ]
+(*
 iMEvaluate[cmd_String, script_ : "NoScript"] :=
 	Catch[
 		Module[{result, file, output = randomString[], id = randomString[], ex = randomString[]},
@@ -313,10 +322,12 @@ iMEvaluate[cmd_String, script_ : "NoScript"] :=
 		],
 		$error
 	]
+*)
 
-MEvaluate[cmd_String, script_ : "NoScript"] /; MATLABInstalledQ[] :=
+
+MEvaluate[cmd_String] /; MATLABInstalledQ[] :=
 	switchAbort[engineOpenQ[],
-		iMEvaluate[cmd, script],
+		iMEvaluate[cmd],
 		message[MEvaluate::wspc]["warning"]
 	]
 
@@ -344,7 +355,7 @@ iMScript[name_String, cmd_String, overwrite_:False] :=
 		Close[file];
 		(* The following is necessary on Windows for MATLAB to pick up new script
 		   It's skipped on OSX/Linux because it's slow on those platforms. *)
-		If[$OperatingSystem === "Windows", MEvaluate["rehash", "NoScript"]];
+		If[$OperatingSystem === "Windows", MEvaluate["rehash"]];
 		(* The following clears the script from memory to ensure MATLAB will reload it
 		   exist() is used to avoid clearing variables of the same name by accident.
 		   exist() is very slow on OSX/Linux so we only use it if the "Overwrite" -> True flag was used.
@@ -402,7 +413,7 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 					iMEvaluate[StringJoin["[", Riffle[vars[[-nOut;;]], ","], "]=", name, "(", Riffle[vars[[;;nIn]], ","], ");"], "NoScript"];
 					output = iMGet /@ vars[[-nOut;;]];
 				];
-				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoScript"];
+				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
 				If[nOut == 1, First@output, output]
 			],
 
@@ -411,9 +422,9 @@ MFunction[name_String, opts : OptionsPattern[]][args___] /; MATLABInstalledQ[] &
 				fails = Thread[iMSet[vars, {args}]];
 				If[MemberQ[fails, $Failed],
 					message[MFunction::args, Position[fails, $Failed]]["error"],
-					iMEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"], "NoScript"];
+					iMEvaluate[StringJoin[name, "(", Riffle[vars, ","], ");"]];
 				];
-				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]], "NoScript"];
+				iMEvaluate[StringJoin["clear ", Riffle[vars, " "]]];
 			]
 		],
 
@@ -465,6 +476,7 @@ AppendTo[$ContextPath, "MATLink`Private`"]
 engCleanHandles::usage = ""
 engClose::usage = ""
 engEvaluate::usage = ""
+engEvaluateWithTrap::usage = ""
 engGet::usage = ""
 engMakeCell::usage = ""
 engMakeComplexArray::usage = ""
@@ -512,6 +524,7 @@ openEngine = engOpen;
 closeEngine = engClose;
 
 eval = engEvaluate;
+evalWithTrap = engEvaluateWithTrap
 get = engGet;
 set[name_String, handle[h_Integer]] := engSet[name, h]
 set[name_, _] := $Failed
