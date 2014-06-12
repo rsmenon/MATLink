@@ -272,7 +272,7 @@ MSet[___] /; !MATLABInstalledQ[] := message[MSet::engc]["warning"]
 (* MEvaluate *)
 SyntaxInformation[MEvaluate] = {"ArgumentsPattern" -> {_}};
 
-iMEvaluate[cmd_String, script_ : Automatic] :=
+iMEvaluate[cmd_String, script_ : "NoScript"] :=
 	Catch[
 		Module[{result, file, output = randomString[], id = randomString[], ex = randomString[]},
 			Switch[script,
@@ -314,7 +314,7 @@ iMEvaluate[cmd_String, script_ : Automatic] :=
 		$error
 	]
 
-MEvaluate[cmd_String, script_ : Automatic] /; MATLABInstalledQ[] :=
+MEvaluate[cmd_String, script_ : "NoScript"] /; MATLABInstalledQ[] :=
 	switchAbort[engineOpenQ[],
 		iMEvaluate[cmd, script],
 		message[MEvaluate::wspc]["warning"]
