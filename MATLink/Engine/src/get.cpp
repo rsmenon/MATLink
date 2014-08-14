@@ -256,7 +256,7 @@ void toMma(const mxArray *var, MLINK link) {
         if (depth == 2 && mbDims[0] == 1) {
             const mxChar *str = mxGetChars(var);
             MLPutFunction(link, CONTEXT "matString", 1);
-            MLPutUTF16String(link, reinterpret_cast<const unsigned short *>(str), len); // cast may be required on other platforms: (mxChar *) str
+            MLPutUCS2String(link, reinterpret_cast<const unsigned short *>(str), len); // cast may be required on other platforms: (mxChar *) str
         }
         // general char arrays are sent as an array of characters
         else {
@@ -264,7 +264,7 @@ void toMma(const mxArray *var, MLINK link) {
             const mxChar *str = mxGetChars(var);
             MLPutFunction(link, "List", len);
             for (int i=0; i < len; ++i)
-                MLPutUTF16String(link, reinterpret_cast<const unsigned short *>(str + i), 1);
+                MLPutUCS2String(link, reinterpret_cast<const unsigned short *>(str + i), 1);
             MLPutInteger32List(link, mmDims, depth);
         }
     }

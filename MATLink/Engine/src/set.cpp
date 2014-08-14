@@ -155,8 +155,9 @@ void eng_make_Cell(int *elems, int len, int *mmDims, int depth) {
 }
 
 
-void eng_make_String(const unsigned short *str, int len, int characters) {
-    mwSize mbDims[2] = {1, len}; // use len, not characters, because no support for 4-byte characters in either Mma 9 or MATLAB
+// note: as of Mathematica 10 and MATLAB R2014b, both only support UCS2, but not general UTF16 (surrogate pairs)
+void eng_make_String(const unsigned short *str, int len) {
+    mwSize mbDims[2] = {1, len};
     mxArray *var = mxCreateCharArray(2, mbDims);
     std::copy(str, str+len, (unsigned short *) mxGetChars(var));
     returnHandle(var);

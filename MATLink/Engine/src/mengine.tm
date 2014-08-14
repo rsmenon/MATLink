@@ -119,7 +119,7 @@
 :Function:		eng_make_String
 :Pattern:		engMakeString[string_]
 :Arguments:		{string}
-:ArgumentTypes:	{UTF16String}
+:ArgumentTypes:	{UCS2String}
 :ReturnType:	Manual
 :End:
 
