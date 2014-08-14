@@ -232,6 +232,7 @@ If you reset your <i>Mathematica</i> settings or remove MATLink's <code>init.m</
 				<ol>
 					<li>To run the MATLink engine, you must have the C shell <code>csh</code> installed at <code>/bin/csh</code> (<a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">more info</a>).</li>
 					<li>A C++ compiler is needed to compile the MATLink binary. Very old versions of <code>gcc</code> cannot be used to compile MATLink.</li>
+					<li>Development libraries for <code>libuuid</code> must be installed.</li>
 					<li>Both <i>Mathematica</i> and MATLAB must be on the system <code>PATH</code> (i.e., <code>which matlab</code> and <code>which math</code> return the correct locations).</li>
 				</ol>
 				<p class="alert alert-success">You should now be all set to use MATLink! If for some reason it fails, please open a <a href="https://github.com/rsmenon/MATLink/issues/new">new issue</a> on Github.</p>
