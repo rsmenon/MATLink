@@ -138,7 +138,7 @@ $BinaryPath := FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows"
 
 (* Other Developer` functions *)
 CompileMEngine::unsupp = "Automatically compiling the MATLink Engine from source for `` is not supported. Please compile it manually."
-CompileMEngine::failed = "Automatically compiling the MATLink Engine has failed. Please try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
+CompileMEngine::failed = "Automatically compiling the MATLink Engine has failed. See http://matlink.org/troubleshooting/, then try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
 
 (* CompileMEngine[] will Abort[] on failure to avoid an infinite loop. *)
 CompileMEngine[] :=

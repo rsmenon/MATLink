@@ -71,8 +71,7 @@ public:
     void open() {
         if (! isopen()) {
 #ifdef ENGINE_WIN
-            int status;
-            ep = engOpenSingleUse(NULL, NULL, &status);
+            ep = engOpen(NULL);
 #else
             ep = engOpen("matlab -nosplash");
 #endif
