@@ -718,7 +718,7 @@ mset[name_String, handle[h_Integer]] := engSet[name, h]
 mset[name_, _] := $Failed
 
 convertToMATLAB[expr_] :=
-	Module[{structured,reshape = Composition[Flatten, Transpose[#, Reverse@Range@ArrayDepth@#]&]},
+	Module[{structured, reshape = Flatten@Transpose[#, Reverse@Range@ArrayDepth@#]&},
 		structured = restructure[expr];
 
 		Block[{MArray, MSparseArray, MLogical, MSparseLogical, MString, MCell, MStruct},
