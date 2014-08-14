@@ -51,8 +51,8 @@ MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MA
 
 Begin["`Information`"]
 `$VersionNumber = 1.
-`$ReleaseNumber = 0
-`$CreationDate = "Fri 31 May 2013"
+`$ReleaseNumber = 1
+`$CreationDate = "Fri 15 Aug 2014"
 `$Version = ToString@StringForm["MATLink `1``2` for `3` (`4`)", `$VersionNumber, `$ReleaseNumber, $OperatingSystem, `$CreationDate]
 `$HomePage := SystemOpen["http://matlink.org"]
 End[]
