@@ -196,7 +196,7 @@ FileHashList[] :=
 	] // TableForm
 
 GetInfo[] :=
-	Block[{csh, gpp, matlab, path, comserver, OS = $OperatingSystem},
+	Block[{csh, gpp, matlab, libuuid, path, comserver, OS = $OperatingSystem},
 		csh[] := "csh:\n" <> Import["!which csh", "Text"];
 		gpp[] := "g++:\n" <> Import["!which g++", "Text"];
 
@@ -205,8 +205,10 @@ GetInfo[] :=
 			Import["!ls -d /Applications/MATLAB*.app", "Text"]
 			,
 			"Unix",
-			Import["!echo $(dirname $(readlink -f $(which matlab)))/.."]
+			Import["!echo $(dirname $(readlink -f $(which matlab)))", "Text"]
 		];
+
+		libuuid[] := "libuuid:\n" <> Import["!ldconfig -p | grep libuuid", "Text"];
 
 		path[] := "System PATH:\n" <> StringReplace[Environment["PATH"], If[OS === "Windows", ";", ":"] -> "\n"];
 
@@ -227,7 +229,7 @@ GetInfo[] :=
 			"Unix",
 			Print @@ Riffle[{
 				MATLink`Information`$Version, $Version,
-				csh[], gpp[], matlab[]
+				csh[], gpp[], matlab[], libuuid[], path[]
 			}, "\n\n"]
 			,
 			"Windows",
