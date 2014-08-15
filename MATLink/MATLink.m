@@ -196,7 +196,7 @@ FileHashList[] :=
 	] // TableForm
 
 GetInfo[] :=
-	Block[{csh, gpp, matlab, OS = $OperatingSystem},
+	Block[{csh, gpp, matlab, path, comserver, OS = $OperatingSystem},
 		csh[] := "csh:\n" <> Import["!which csh", "Text"];
 		gpp[] := "g++:\n" <> Import["!which g++", "Text"];
 
@@ -207,6 +207,15 @@ GetInfo[] :=
 			"Unix",
 			Import["!echo $(dirname $(readlink -f $(which matlab)))/.."]
 		];
+
+    path[] := "PATH:\n" <> StringReplace[Environment["PATH"], ";" -> "\n"];
+
+    comserver[] := Module[{clsID, progID, command},
+      ﻿clsID = Quiet@ Check[Null /. ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\Matlab.Application\\CLSID"], $Failed];
+      progID = Quiet@ Check[Null /. ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsid], $Failed];
+      command = Quiet@Check[Null /. ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsid <> "\\LocalServer32"], $Failed];
+      ToString@StringTemplate["CLSID: ``\nProgram ID: ``\nCommand: ``\n", clsID, progID, command];
+    ];
 
 		Switch[OS,
 			"MacOSX",
@@ -219,7 +228,13 @@ GetInfo[] :=
 			Print @@ Riffle[{
 				MATLink`Information`$Version, $Version,
 				csh[], gpp[], matlab[]
-		}]
+		  }]
+      ,
+      "Windows",
+      Print @@ Riffle[{
+        MATLink`Information`$Version, $Version,
+        path[], comserver[]
+      }]
 		]
 	]
 
