@@ -196,7 +196,7 @@ FileHashList[] :=
 	] // TableForm
 
 GetInfo[] :=
-	Block[{csh, gpp, matlab, libuuid, path, comserver, OS = $OperatingSystem},
+	Block[{csh, gpp, matlab, libuuid, path, comserver, force32bit, OS = $OperatingSystem},
 		csh[] := "csh:\n" <> Import["!which csh", "Text"];
 		gpp[] := "g++:\n" <> Import["!which g++", "Text"];
 
@@ -219,6 +219,8 @@ GetInfo[] :=
 			"COM server information:\nCLSID: " <> clsID <> "\nProgram ID: " <> progID <> "\nCommand: " <> command <> "\n"
 		];
 
+    force32bit[] := "Force 32-bit engine: " <> ToString[$Force32BitEngine];
+
 		Switch[OS,
 			"MacOSX",
 			Print @@ Riffle[{
@@ -235,7 +237,7 @@ GetInfo[] :=
 			"Windows",
 			Print @@ Riffle[{
 				MATLink`Information`$Version, $Version,
-				path[], comserver[]
+				force32bit[], path[], comserver[]
 			}, "\n\n"]
 		]
 	]
