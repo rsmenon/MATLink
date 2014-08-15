@@ -1,6 +1,6 @@
 /* mengine.tm
  *
- * Copyright (c) 2013 Sz. Horvát and R. Menon
+ * Copyright (c) 2014 Sz. Horvát and R. Menon
  *
  * See the file LICENSE.txt for copying permission.
  */
