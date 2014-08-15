@@ -208,14 +208,14 @@ GetInfo[] :=
 			Import["!echo $(dirname $(readlink -f $(which matlab)))/.."]
 		];
 
-    path[] := "PATH:\n" <> StringReplace[Environment["PATH"], ";" -> "\n"];
+		path[] := "System PATH:\n" <> StringReplace[Environment["PATH"], If[OS === "Windows", ";", ":"] -> "\n"];
 
-    comserver[] := Module[{clsID, progID, command},
-      ﻿clsID = Quiet@ Check[Null /. ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\Matlab.Application\\CLSID"], $Failed];
-      progID = Quiet@ Check[Null /. ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsid], $Failed];
-      command = Quiet@Check[Null /. ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsid <> "\\LocalServer32"], $Failed];
-      ToString@StringTemplate["CLSID: ``\nProgram ID: ``\nCommand: ``\n", clsID, progID, command];
-    ];
+		comserver[] := Module[{clsID, progID, command},
+			clsID = Quiet@ Check[Null /. Developer`ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\Matlab.Application\\CLSID"], $Failed];
+			progID = Quiet@ Check[Null /. Developer`ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsID], $Failed];
+			command = Quiet@Check[Null /. Developer`ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsID <> "\\LocalServer32"], $Failed];
+			"COM server information:\nCLSID: " <> clsID <> "\nProgram ID: " <> progID <> "\nCommand: " <> command <> "\n"
+		];
 
 		Switch[OS,
 			"MacOSX",
@@ -228,13 +228,13 @@ GetInfo[] :=
 			Print @@ Riffle[{
 				MATLink`Information`$Version, $Version,
 				csh[], gpp[], matlab[]
-		  }]
-      ,
-      "Windows",
-      Print @@ Riffle[{
-        MATLink`Information`$Version, $Version,
-        path[], comserver[]
-      }]
+			}, "\n\n"]
+			,
+			"Windows",
+			Print @@ Riffle[{
+				MATLink`Information`$Version, $Version,
+				path[], comserver[]
+			}, "\n\n"]
 		]
 	]
 
