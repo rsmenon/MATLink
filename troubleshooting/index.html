@@ -184,12 +184,16 @@ SetOptions[MATLink, "Force32BitEngine" -> True]
 	<div class="accordion-group">
 		<div class="accordion-heading">
 			<a class="accordion-toggle" data-toggle="collapse" data-parent="linux" href="#lin-openmatlab-failed">
-				Executing OpenMATLAB simply hangs
+				Executing <code>OpenMATLAB</code> simply hangs
 			</a>
 		</div>
 		<div id="lin-openmatlab-failed" class="accordion-body collapse in">
 			<div class="accordion-inner">
-				<p>This typically indicates that the <code>mengine.sh</code> script failed to launch the binary executable <code>mengine</code>. The most common cause for this is that it cannot find the shared libraries it needs from either <i>Mathematica</i> or MATLAB. Try launching <code>mengine.sh</code> manually from the terminal and see if it complains about missing libraries. If it is working correctly, you should see a prompt <code>Create link:</code>.  At this prompt press enter twice to exit.</p>
+        <p>There are two distinct problems that can cause this symptom:</p>
+        <p><strong>1. csh is not installed:</strong></p>
+        <p>Make sure <code>csh</code> is installed, as it is required by MATLAB's Engine interface.  On Ubuntu, it can be installed using <code>sudo apt-get install csh</code>.</p>
+        <p><strong>2. mengine failed to launch:</strong></p>
+				<p><code>OpenMATLAB[]</code> will hang if the <code>mengine.sh</code> script fails to launch the binary executable <code>mengine</code>. The most common cause for this is that it cannot find the shared libraries it needs from either <i>Mathematica</i> or MATLAB. Try launching <code>mengine.sh</code> manually from the terminal and see if it complains about missing libraries. If it is working correctly, you should see a prompt <code>Create link:</code>.  At this prompt press enter twice to exit.</p>
 
 				<p>If MATLAB has been upgraded to a newer version, it may be necessary to recompile <code>mengine</code>. Do this by evaluating the following in a fresh <i>Mathematica</i> kernel:</p>
 
@@ -200,19 +204,6 @@ MATLink`Developer`CompileMEngine[]
 			</div>
 		</div>
 	</div>
-
-  <div class="accordion-group">
-    <div class="accordion-heading">
-      <a class="accordion-toggle" data-toggle="collapse" data-parent="linux" href="#openmatlab-hangs">
-      <code>OpenMATLAB[]</code> hangs indefinitely
-      </a>
-    </div>
-    <div id="openmatlab-hangs" class="accordion-body collapse in">
-      <div class="accordion-inner">
-        <p>Make sure <code>csh</code> is installed, as it is required by MATLAB's Engine interface.  On Ubuntu, it can be installed using <code>sudo apt-get install csh</code>.</p>
-      </div>
-    </div>
-  </div>
 
 </div>
 
