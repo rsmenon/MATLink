@@ -216,7 +216,7 @@ GetInfo[] :=
 			clsID = Quiet@ Check[Null /. Developer`ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\Matlab.Application\\CLSID"], $Failed];
 			progID = Quiet@ Check[Null /. Developer`ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsID], $Failed];
 			command = Quiet@Check[Null /. Developer`ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsID <> "\\LocalServer32"], $Failed];
-			"COM server information:\nCLSID: " <> clsID <> "\nProgram ID: " <> progID <> "\nCommand: " <> command <> "\n"
+			"COM server information:\nCLSID: " <> ToString@clsID <> "\nProgram ID: " <> ToString@progID <> "\nCommand: " <> ToString@command <> "\n"
 		];
 
     force32bit[] := "Force 32-bit engine: " <> ToString[$Force32BitEngine];
