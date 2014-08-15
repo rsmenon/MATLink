@@ -39,7 +39,7 @@ convertToMathematica[expr_] :=
                 matStruct[list_, {1,1}] := list[[1]];
                 matStruct[list_, dim_] := listToArray[list,dim] ~reshape~ dim;
 
-                matSparseArray[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, 0, {1, {jc, List /@ ir + 1}, vals}];
+                matSparseArray[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, If[FreeQ[vals, _Complex], 0., 0. + 0. I], {1, {jc, List /@ ir + 1}, vals}];
 
                 matSparseLogical[jc_, ir_, vals_, dims_] := Transpose@SparseArray[Automatic, dims, False, {1, {jc, List /@ ir + 1}, vals /. 1 -> True}];
 

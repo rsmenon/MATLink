@@ -104,7 +104,7 @@ $BinaryPath := FileNameJoin[{$BinaryDirectory, If[$OperatingSystem === "Windows"
 
 (* Other Developer` functions *)
 CompileMEngine::unsupp = "Automatically compiling the MATLink Engine from source for `` is not supported. Please compile it manually."
-CompileMEngine::failed = "Automatically compiling the MATLink Engine has failed. Please try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
+CompileMEngine::failed = "Automatically compiling the MATLink Engine has failed. See http://matlink.org/troubleshooting/, then try to compile it manually and ensure that the path to the MATLAB directory is set correctly in the makefile."
 
 (* CompileMEngine[] will Abort[] on failure to avoid an infinite loop. *)
 CompileMEngine[] :=
@@ -162,7 +162,7 @@ FileHashList[] :=
         ] // TableForm
 
 GetInfo[] :=
-        Block[{csh, gpp, matlab, OS = $OperatingSystem},
+        Block[{csh, gpp, matlab, libuuid, path, comserver, force32bit, OS = $OperatingSystem},
             csh[] := "csh:\n" <> Import["!which csh", "Text"];
             gpp[] := "g++:\n" <> Import["!which g++", "Text"];
 
@@ -171,8 +171,21 @@ GetInfo[] :=
                 Import["!ls -d /Applications/MATLAB*.app", "Text"]
                 ,
                 "Unix",
-                Import["!echo $(dirname $(readlink -f $(which matlab)))/.."]
+                Import["!echo $(dirname $(readlink -f $(which matlab)))", "Text"]
             ];
+
+            libuuid[] := "libuuid:\n" <> Import["!ldconfig -p | grep libuuid", "Text"];
+
+            path[] := "System PATH:\n" <> StringReplace[Environment["PATH"], If[OS === "Windows", ";", ":"] -> "\n"];
+
+            comserver[] := Module[{clsID, progID, command},
+                clsID = Quiet@ Check[Null /. Developer`ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\Matlab.Application\\CLSID"], $Failed];
+                progID = Quiet@ Check[Null /. Developer`ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsID], $Failed];
+                command = Quiet@Check[Null /. Developer`ReadRegistryKeyValues["HKEY_CLASSES_ROOT\\CLSID\\" <> clsID <> "\\LocalServer32"], $Failed];
+                "COM server information:\nCLSID: " <> ToString@clsID <> "\nProgram ID: " <> ToString@progID <> "\nCommand: " <> ToString@command <> "\n"
+            ];
+
+            force32bit[] := "Force 32-bit engine: " <> ToString[$Force32BitEngine];
 
             Switch[OS,
                 "MacOSX",
@@ -184,8 +197,14 @@ GetInfo[] :=
                 "Unix",
                 Print @@ Riffle[{
                     MATLink`Information`$Version, $Version,
-                    csh[], gpp[], matlab[]
-                }]
+                    csh[], gpp[], matlab[], libuuid[], path[]
+                }, "\n\n"]
+                ,
+                "Windows",
+                Print @@ Riffle[{
+                    MATLink`Information`$Version, $Version,
+                    force32bit[], path[], comserver[]
+                }, "\n\n"]
             ]
         ]
 
