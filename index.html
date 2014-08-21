@@ -73,7 +73,7 @@ _gaq.push(['_trackPageview']);
 								<div class="actions">
 									<a class="btn btn-primary" href="https://dl.dropboxusercontent.com/u/38623/MATLink/MATLink.zip">
 										<i class="icon-cloud-download"></i>
-										Download 1.0
+										Download 1.1
 									</a>
 								</div>
 							</div>
@@ -92,7 +92,7 @@ _gaq.push(['_trackPageview']);
 			<p>Transfer numerical, char, cell and struct arrays of any size and shape from MATLAB as <i>Mathematica</i> lists, strings and rules (and vice versa).</p>
 		</div>
 		<div class="span4">
-			<h4>Create functions & scripts</h4>
+			<h4>Create functions &amp; scripts</h4>
 			<p>In addition to built-in MATLAB functions, you can also create custom MATLAB functions and scripts on the fly and use them easily from within <i>Mathematica</i>.</p>
 		</div>
 		<div class="span4">
@@ -145,9 +145,9 @@ _gaq.push(['_trackPageview']);
 				</ul>
 
 
-				<p>MATLink has been extensively tested with <i>Mathematica</i> versions 8.0.4 and 9.0.1, MATLAB 2012b, 2013a and 2013b on OS X 10.8.2 and 10.8.3, and moderately tested on Windows 8 and Ubuntu 13.04. If you encounter any issues with a relatively modern operating system or a supported <i>Mathematica</i>/MATLAB version, please open a new <a href="https://github.com/rsmenon/MATLink/issues/new">issue</a> at GitHub.</p>
+				<p>MATLink has been extensively tested with <i>Mathematica</i> versions 8.0.4, 9.0.1 and 10.0.0, MATLAB 2012b, 2013a and 2013b on OS X 10.8 and 10.9, and moderately tested on Windows 8 and Ubuntu 13.04. If you encounter any issues with a relatively modern operating system or a supported <i>Mathematica</i>/MATLAB version, please open a new <a href="https://github.com/rsmenon/MATLink/issues/new">issue</a> at GitHub.</p>
 
-        <p><b>Warning: </b>On OS X MATLAB R2014a contains a bug that breaks MATLinks.  Please use an older version of MATLAB with MATLink until the issue is fixed.</p>
+        <p><b style="color: red;">Warning: </b>On OS X and Linux, MATLAB R2014a contains a bug that breaks MATLink.  Please use an older version of MATLAB with MATLink on these systems.  MATLAB R2014b, due to be released September 2014, has fixed this bug.  The Windows version of MATLAB R2014a is not affected by this problem and works well with MATLink.</p>
 
 				<p class="alert alert-info"><b>Next:</b> Choose your preferred download option and install MATLink</p>
 			</div>
@@ -232,6 +232,7 @@ If you reset your <i>Mathematica</i> settings or remove MATLink's <code>init.m</
 				<ol>
 					<li>To run the MATLink engine, you must have the C shell <code>csh</code> installed at <code>/bin/csh</code> (<a href="http://www.mathworks.com/help/matlab/matlab_external/using-matlab-engine.html">more info</a>).</li>
 					<li>A C++ compiler is needed to compile the MATLink binary. Very old versions of <code>gcc</code> cannot be used to compile MATLink.</li>
+					<li>Development libraries for <code>libuuid</code> must be installed.</li>
 					<li>Both <i>Mathematica</i> and MATLAB must be on the system <code>PATH</code> (i.e., <code>which matlab</code> and <code>which math</code> return the correct locations).</li>
 				</ol>
 				<p class="alert alert-success">You should now be all set to use MATLink! If for some reason it fails, please open a <a href="https://github.com/rsmenon/MATLink/issues/new">new issue</a> on GitHub.</p>

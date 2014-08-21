@@ -59,7 +59,8 @@ _gaq.push(['_trackPageview']);
 	<div class="container">
 <h1 class="main-header">Troubleshooting</h1>
 
-<p>Before beginning the troubleshooting, check that MATLink has been set up according to the <a href="http://matlink.org/#installation">installation instructions</a>  and that your system meets the necessary requirements. Please also see the list of <a href="http://matlink.org/documentation/#known-issues">known issues</a>.  Once you've done that, read the following and see if your specific issue is covered. If your issue is not resolved by the links below, please send an email to <a href="mailto:matlink.m@gmail.com">matlink.m@gmail.com</a> or join <a href="https://www.hipchat.com/g4IEgAsJa">the support chatroom</a>.</p>
+<p>Before beginning the troubleshooting, check that MATLink has been set up according to the <a href="http://matlink.org/#installation">installation instructions</a>, that you are using the latest MATLink version, and that your system meets the necessary requirements. Please also see the list of <a href="http://matlink.org/documentation/#known-issues">known issues</a>.  Once you've done that, read the following and see if your specific issue is covered.</p>
+<p>If your issue is not resolved by the links below, please send an email to <a href="mailto:matlink.m@gmail.com">matlink.m@gmail.com</a> or join <a href="https://www.hipchat.com/g4IEgAsJa">the support chatroom</a>.  Please include the output of the command <code>MATLink`Developer`GetInfo[]</code> in your email.</p>
 
 <h2>Common issues</h2>
 <div class="accordion" id="common">
@@ -81,8 +82,8 @@ _gaq.push(['_trackPageview']);
 <h3>Windows</h3>
 <h4>Necessary steps</h4>
 <ul>
-	<li>MATLAB must have been registered as a COM server by running it as administrator and evaluating <code>!regmatlabserver</code>.</li>
-	<li>The <code>bin\win64</code> directory (or <code>bin\win32</code> for 32-bit versions) must be on the <code>PATH</code>.</li>
+	<li>MATLAB must have been registered as a COM server by running it as administrator and evaluating <code>regmatlabserver</code>.</li>
+	<li>The <code>bin\win64</code> directory (or <code>bin\win32</code> for 32-bit versions) must be on the <code>PATH</code>.  Mathematica (including its graphical interface) must be restarted after changing the system PATH. (<a href="https://www.google.com/webhp?q=windows+how+to+change+system+path#q=windows+how+to+change+system+path">How to change the system PATH on Windows?</a>)</li>
 </ul>
 <h4>FAQ</h4>
 <div class="accordion" id="windows">
@@ -95,10 +96,10 @@ _gaq.push(['_trackPageview']);
 		<div id="libmxdll" class="accordion-body collapse in">
 			<div class="accordion-inner">
 				<p>Make sure you have followed the installation instructions and added MATLAB's <code>bin\win64</code> (<code>bin\win32</code> directory if MATLAB is 32-bit) to the <code>PATH</code> environment variable. These directories are located within MATLAB's installation directory. A typical location would be</p>
-
 <pre>
 C:\Program Files\MATLAB\R2013a\bin\win64
 </pre>
+        <p>After editing the system path, restart Mathematica (including the Front End).</p>
 			</div>
 		</div>
 	</div>
@@ -152,6 +153,7 @@ SetOptions[MATLink, "Force32BitEngine" -> True]
 <ul>
 <li>Ensure that both <code>matlab</code> and <code>math</code> are in the <code>PATH</code>.  Also ensure that <code>matlab</code> can be launched <em>from within Mathematica</em> by evaluating <code>Import["!matlab -nodesktop -nojvm -r quit", "Text"]</code> in Mathematica.  Unfortunately Mathematica may sometimes change <code>PATH</code>.</li>
 <li>Ensure that you have a recent version of <code>g++</code> installed.  Recent versions of MATLAB require gcc version 4.4 or later.  If <code>g++</code> is not installed, on Ubuntu, use <code>apt-get install g++</code>.   <b>Note: </b> On Ubuntu <code>gcc</code> is installed by default, but <code>g++</code> is not.</li>
+<li>Ensure that development libraries for <code>libuuid</code> are installed.  On Ubuntu, use <code>apt-get install uuid-dev</code>.</li>
 <li>Ensure that <code>/bin/csh</code> is installed and it works.  On Ubuntu, use <code>apt-get install csh</code>.</li>
 </ul>
 <h4>FAQ</h4>
@@ -183,12 +185,16 @@ SetOptions[MATLink, "Force32BitEngine" -> True]
 	<div class="accordion-group">
 		<div class="accordion-heading">
 			<a class="accordion-toggle" data-toggle="collapse" data-parent="linux" href="#lin-openmatlab-failed">
-				Executing OpenMATLAB simply hangs
+				Executing <code>OpenMATLAB[]</code> simply hangs
 			</a>
 		</div>
 		<div id="lin-openmatlab-failed" class="accordion-body collapse in">
 			<div class="accordion-inner">
-				<p>This typically indicates that the <code>mengine.sh</code> script failed to launch the binary executable <code>mengine</code>. The most common cause for this is that it cannot find the shared libraries it needs from either <i>Mathematica</i> or MATLAB. Try launching <code>mengine.sh</code> manually from the terminal and see if it complains about missing libraries. If it is working correctly, you should see a prompt <code>Create link:</code>.  At this prompt press enter twice to exit.</p>
+        <p>There are two distinct problems that can cause this symptom:</p>
+        <p><strong>1. csh is not installed:</strong></p>
+        <p>Make sure <code>csh</code> is installed, as it is required by MATLAB's Engine interface.  On Ubuntu, it can be installed using <code>sudo apt-get install csh</code>.</p>
+        <p><strong>2. mengine failed to launch:</strong></p>
+				<p><code>OpenMATLAB[]</code> will hang if the <code>mengine.sh</code> script fails to launch the binary executable <code>mengine</code>. The most common cause for this is that it cannot find the shared libraries it needs from either <i>Mathematica</i> or MATLAB. Try launching <code>mengine.sh</code> manually from the terminal and see if it complains about missing libraries. If it is working correctly, you should see a prompt <code>Create link:</code>.  At this prompt press enter twice to exit.</p>
 
 				<p>If MATLAB has been upgraded to a newer version, it may be necessary to recompile <code>mengine</code>. Do this by evaluating the following in a fresh <i>Mathematica</i> kernel:</p>
 
@@ -199,19 +205,6 @@ MATLink`Developer`CompileMEngine[]
 			</div>
 		</div>
 	</div>
-
-  <div class="accordion-group">
-    <div class="accordion-heading">
-      <a class="accordion-toggle" data-toggle="collapse" data-parent="linux" href="#openmatlab-hangs">
-      <code>OpenMATLAB[]</code> hangs indefinitely
-      </a>
-    </div>
-    <div id="openmatlab-hangs" class="accordion-body collapse in">
-      <div class="accordion-inner">
-        <p>Make sure <code>csh</code> is installed, as it is required by MATLAB's Engine interface.  On Ubuntu, it can be installed using <code>sudo apt-get install csh</code>.</p>
-      </div>
-    </div>
-  </div>
 
 </div>
 
@@ -226,7 +219,7 @@ MATLink`Developer`CompileMEngine[]
 	<div class="accordion-group">
 		<div class="accordion-heading">
 			<a class="accordion-toggle" data-toggle="collapse" data-parent="osx" href="#osx-openmatlab-failed">
-				Executing OpenMATLAB simply hangs
+				Executing <code>OpenMATLAB[]</code> simply hangs
 			</a>
 		</div>
 		<div id="osx-openmatlab-failed" class="accordion-body collapse in">
