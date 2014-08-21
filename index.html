@@ -65,7 +65,7 @@ _gaq.push(['_trackPageview']);
 					<div class="container">
 						<div class="row">
 							<div class="span6 text-center">
-								<img src="http://matlink.org/assets/img/logo.png" width=400px>
+								<img src="http://matlink.org/assets/img/logo.png" width="400">
 							</div>
 							<div class="span5 center-all">
 								<h1>MATLink</h1>
@@ -98,7 +98,7 @@ _gaq.push(['_trackPageview']);
 		<div class="span4">
 			<h4>Flexible plotting options</h4>
 			<p>Like the data processing capabilities of one system, but the plotting features of the other? No problem! Using MATLink, you can get the best of both worlds.
-		</p>    </div>
+		</p>		</div>
 	</div>
 
 	<div class="row">
@@ -147,7 +147,7 @@ _gaq.push(['_trackPageview']);
 
 				<p>MATLink has been extensively tested with <i>Mathematica</i> versions 8.0.4, 9.0.1 and 10.0.0, MATLAB 2012b, 2013a and 2013b on OS X 10.8 and 10.9, and moderately tested on Windows 8 and Ubuntu 13.04. If you encounter any issues with a relatively modern operating system or a supported <i>Mathematica</i>/MATLAB version, please open a new <a href="https://github.com/rsmenon/MATLink/issues/new">issue</a> at GitHub.</p>
 
-        <p><b style="color: red;">Warning: </b>On OS X and Linux, MATLAB R2014a contains a bug that breaks MATLink.  Please use an older version of MATLAB with MATLink on these systems.  MATLAB R2014b, due to be released September 2014, has fixed this bug.  The Windows version of MATLAB R2014a is not affected by this problem and works well with MATLink.</p>
+				<p><b style="color: red;">Warning: </b>On OS X and Linux, MATLAB R2014a contains a bug that breaks MATLink.	Please use an older version of MATLAB with MATLink on these systems.	MATLAB R2014b, due to be released September 2014, has fixed this bug.	The Windows version of MATLAB R2014a is not affected by this problem and works well with MATLink.</p>
 
 				<p class="alert alert-info"><b>Next:</b> Choose your preferred download option and install MATLink</p>
 			</div>
@@ -166,7 +166,7 @@ _gaq.push(['_trackPageview']);
 <pre class="prettyprint lang-mma">
 SystemOpen@FileNameJoin[{$UserBaseDirectory, "Applications"}]
 </pre>
-						</ul>
+
 					</div>
 				</div>
 				<!--<div class="row">-->
@@ -216,12 +216,12 @@ SystemOpen@FileNameJoin[{$UserBaseDirectory, "Applications"}]
 				<ol>
 					<li>Add MATLAB's <code>bin\win64</code> directory (<code>bin\win32</code> for 32-bit versions) to the system <code>PATH</code>.</li>
 					<li>Register the default MATLAB version by running <code>regmatlabserver</code> in MATLAB. On most Windows systems, you will need administrator rights to do this.</li>
-					<li>If you're using a 32 bit MATLAB (such as a student version) with a 64 bit <i>Mathematica</i>, then evaluate the following before using <code>OpenMATLAB[]</code> for the first time (needs to be done only once)</li>
+					<li><p>If you're using a 32 bit MATLAB (such as a student version) with a 64 bit <i>Mathematica</i>, then evaluate the following before using <code>OpenMATLAB[]</code> for the first time (needs to be done only once)</p>
 <pre class="prettyprint lang-mma">
 Needs["MATLink`"]
 SetOptions[MATLink, "Force32BitEngine" -> True]
 </pre>
-If you reset your <i>Mathematica</i> settings or remove MATLink's <code>init.m</code> in <code>$UserBaseDirectory/ApplicationData/MATLink</code>, then the above option will need to be set again.
+<p>If you reset your <i>Mathematica</i> settings or remove MATLink's <code>init.m</code> in <code>$UserBaseDirectory/ApplicationData/MATLink</code>, then the above option will need to be set again.</p></li>
 				</ol>
 				<p class="alert alert-success">You should now be all set to use MATLink! If for some reason it fails, please open a <a href="https://github.com/rsmenon/MATLink/issues/new">new issue</a> on GitHub.</p>
 			</div>
@@ -256,93 +256,89 @@ If you reset your <i>Mathematica</i> settings or remove MATLink's <code>init.m</
 	<div class="container">
 		<div class="row">
 			<subsection id="connecting">
-			<div class="span12">
-				<h3>Connecting to MATLink</h3>
-				<p>To launch MATLink and begin communicating with MATLAB, execute the following in a notebook:
+				<div class="span12">
+					<h3>Connecting to MATLink</h3>
+					<p>To launch MATLink and begin communicating with MATLAB, execute the following in a notebook:
 <pre class="prettyprint lang-mma">
 Needs["MATLink`"]
 OpenMATLAB[]
 </pre>
 
-				<p>Throughout the rest of this guide, it is assumed that you're connected to MATLink and the MATLAB workspace is open.</p>
-			</div>
-			</subsection>
+						<p>Throughout the rest of this guide, it is assumed that you're connected to MATLink and the MATLAB workspace is open.</p>
+					</div>
+				</subsection>
 
-			<subsection id="executing-matlab">
-			<div class="span12">
-				<h3>Executing MATLAB commands</h3>
-				<p>You can execute arbitrary MATLAB code using the <code>MEvaluate</code> command. Any output that would normally be displayed in MATLAB's command window will be displayed in the output cell. For example, evaluating</p>
+				<subsection id="executing-matlab">
+					<div class="span12">
+						<h3>Executing MATLAB commands</h3>
+						<p>You can execute arbitrary MATLAB code using the <code>MEvaluate</code> command. Any output that would normally be displayed in MATLAB's command window will be displayed in the output cell. For example, evaluating</p>
 <pre class="prettyprint lang-mma">
 MEvaluate["mat = magic(4)"]
 </pre>
-<p>will output a magic square of size 3 and make an assignment to a variable named <code>mat</code> in the MATLAB workspace. Think of <code>MEvaluate</code> as a portal to the MATLAB workspace, allowing you to run commands in it and assign values to variables.</p>
-				<p><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window. It cannot be used to transfer data to <i>Mathematica</i>. Use <code>MGet</code> and <code>MSet</code> as explained in the next section.</p>
-			</div>
-			</subsection>
+						<p>will output a magic square of size 3 and make an assignment to a variable named <code>mat</code> in the MATLAB workspace. Think of <code>MEvaluate</code> as a portal to the MATLAB workspace, allowing you to run commands in it and assign values to variables.</p>
+						<p><code>MEvaluate</code>, when successful, will always return a string containing the output from MATLAB's command window. It cannot be used to transfer data to <i>Mathematica</i>. Use <code>MGet</code> and <code>MSet</code> as explained in the next section.</p>
+					</div>
+				</subsection>
 
-			<subsection id="transferring-data">
-				<div class="span12">
-<h3>Transferring data between <i>Mathematica</i> and MATLAB</h3>
-<p>The functions <code>MSet</code> and <code>MGet</code> allow the user to transfer variables to and from the MATLAB workspace. The variable name is always passed as a string. For example, to transfer the data stored in the variable <code>mat</code> in the MATLAB workspace to <i>Mathematica</i>, evaluate </p>
+				<subsection id="transferring-data">
+					<div class="span12">
+						<h3>Transferring data between <i>Mathematica</i> and MATLAB</h3>
+						<p>The functions <code>MSet</code> and <code>MGet</code> allow the user to transfer variables to and from the MATLAB workspace. The variable name is always passed as a string. For example, to transfer the data stored in the variable <code>mat</code> in the MATLAB workspace to <i>Mathematica</i>, evaluate </p>
 <pre class="prettyprint lang-mma">
 mat = MGet["mat"];
 </pre>
 
-					<p>Now let's transform this variable in <i>Mathematica</i> and send it back to MATLAB:
+						<p>Now let's transform this variable in <i>Mathematica</i> and send it back to MATLAB:
 <pre class="prettyprint lang-mma">
 MSet["mat_tr", Transpose[mat]];
 </pre>
 
-					<p>You can verify that a new variable <code>mat_tr</code> was created in the MATLAB workspace and has the correct value:</p>
+							<p>You can verify that a new variable <code>mat_tr</code> was created in the MATLAB workspace and has the correct value:</p>
 <pre class="prettyprint lang-mma">
 MEvaluate["
-	exist('mat_tr','var')
-	isequal(mat', mat_tr)
+exist('mat_tr','var')
+isequal(mat', mat_tr)
 "]
 </pre>
 
-					<p>Since MATLAB is white space insensitive, you can freely use newlines and indentations for clarity in <code>MEvaluate</code>'s argument. Lines not terminated by a semicolon will display the output in <i>Mathematica</i>. </p>
-				</div>
-			</div>
-		</div>
-		</subsection>
+							<p>Since MATLAB is white space insensitive, you can freely use newlines and indentations for clarity in <code>MEvaluate</code>'s argument. Lines not terminated by a semicolon will display the output in <i>Mathematica</i>. </p>
+						</div>
+					</subsection>
 
-		<subsection id="scripts-functions">
-		<h3>Working with scripts and functions</h3>
-		<div class="row">
-			<div class="span12">
-				<p>Often one wishes to reuse code found online, either on the <a href="http://www.mathworks.com/matlabcentral/fileexchange/">MathWorks File Exchange</a> or elsewhere and execute it as a script (i.e., in the base workspace and not as a function). The function <code>MScript</code> makes it easy to do this. As a simple example, we'll define a script called <code>timing.m</code> that does some computations using the two variables <code>mat</code> and <code>mat_tr</code> defined earlier and displays the timing for 1000 trials:</p>
+					<subsection id="scripts-functions">
+						<div class="span12">
+							<h3>Working with scripts and functions</h3>
+							<p>Often one wishes to reuse code found online, either on the <a href="http://www.mathworks.com/matlabcentral/fileexchange/">MathWorks File Exchange</a> or elsewhere and execute it as a script (i.e., in the base workspace and not as a function). The function <code>MScript</code> makes it easy to do this. As a simple example, we'll define a script called <code>timing.m</code> that does some computations using the two variables <code>mat</code> and <code>mat_tr</code> defined earlier and displays the timing for 1000 trials:</p>
 <pre class="prettyprint lang-mma">
 t = MScript["timing",
-	"tic;
-	for i=1:1000
-		eig(mat*mat_tr);
-	end
-	toc"
+"tic;
+for i=1:1000
+eig(mat*mat_tr);
+end
+toc"
 ]
 </pre>
 
-				<p>You can now run the above script anytime, several times within the current session, by evaluating <code>MEvaluate[t]</code> (assuming the value for <code>t</code> has not been cleared) or <code>MEvaluate[MScript["timing"]]</code> (this will work even if <code>t</code> is cleared).</p>
+							<p>You can now run the above script anytime, several times within the current session, by evaluating <code>MEvaluate[t]</code> (assuming the value for <code>t</code> has not been cleared) or <code>MEvaluate[MScript["timing"]]</code> (this will work even if <code>t</code> is cleared).</p>
 
-				<p>Trying to define an <code>MScript</code> with the same filename twice in the same MATLink session will throw an error. This is to avoid accidental overwrites. You can force an overwrite of the existing file with the option <code>"Overwrite" -> True</code> for <code>MScript</code></p>
-			</div>
-		</div>
+							<p>Trying to define an <code>MScript</code> with the same filename twice in the same MATLink session will throw an error. This is to avoid accidental overwrites. You can force an overwrite of the existing file with the option <code>"Overwrite" -> True</code> for <code>MScript</code></p>
 
-		<div class="row">
-			<div class="span12">
-				<p>You can also natively call MATLAB functions already on its path using the <code>MFunction</code> command. As an example, we'll define and use the <code>magic</code> function from MATLAB, which is not available in <i>Mathematica</i>:</p>
+							<p>You can also natively call MATLAB functions already on its path using the <code>MFunction</code> command. As an example, we'll define and use the <code>magic</code> function from MATLAB, which is not available in <i>Mathematica</i>:</p>
 
 <pre class="prettyprint lang-mma">
 magic = MFunction["magic"];
 magic[4] // MatrixForm
 </pre>
 
-				<p>To define a custom function for the current session and use it, use <code>MScript</code> to save it to a file (remember to use the same filename as the function) and then use <code>MFunction["function_name"]</code>, where <code>function_name</code> is the name of your function file.</p>
+							<p>To define a custom function for the current session and use it, use <code>MScript</code> to save it to a file (remember to use the same filename as the function) and then use <code>MFunction["function_name"]</code>, where <code>function_name</code> is the name of your function file.</p>
+						</div>
+
+					</subsection>
+				</div>
 			</div>
-		</div>
-		</subsection>
-		<p>For some practical real world examples of using MATLink, head over to our <a href="/examples/">examples gallery</a> and also check out the <a href="/documentation/">documentation</a>.</p>
-	</section>
+
+			<p>For some practical real world examples of using MATLink, head over to our <a href="/examples/">examples gallery</a> and also check out the <a href="/documentation/">documentation</a>.</p>
+		</section>
 
 	<div id="thanks">
 		<h2 class="page-header">Help us improve MATLink!</h2>
