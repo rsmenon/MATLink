@@ -145,6 +145,20 @@ SetOptions[MATLink, "Force32BitEngine" -> True]
   </div>
 </div>
 
+<div class="accordion-group">
+  <div class="accordion-heading">
+    <a class="accordion-toggle" data-toggle="collapse" data-parent="windows" href="#win-dll">
+      The procedure entry point ... could not be located in the dynamic link library tbb.dll
+    </a>
+  </div>
+  <div id="win-dll" class="accordion-body collapse in">
+    <div class="accordion-inner">
+      <p>LabView is known to install <code>tbb.dll</code> in the <code>C:\Windows\System32</code> directory.  When starting MATLAB though MATLink, MATLAB tries to load this incompatible version of <code>tbb.dll</code>, which causes the following error:</p><br/>
+        <blockquote>The procedure entry point ?throw_exception_v4@internal@tbb@@YAXW4exception_id@12@@Z could not be located in the dynamic link library tbb.dll</blockquote>
+      <p>Removing <code>tbb.dll</code> from <code>C:\Windows\System32</code> solves this problem, but the effects on LabView are not clear.  Do keep a backup of <code>tbb.dll</code>.</p>
+    </div>
+  </div>
+</div>
 
 </div>
 
