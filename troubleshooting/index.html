@@ -180,9 +180,10 @@ SetOptions[MATLink, "Force32BitEngine" -> True]
 <h4>Necessary steps</h4>
 <ul>
 <li>Ensure that both <code>matlab</code> and <code>math</code> are in the <code>PATH</code>.  Also ensure that <code>matlab</code> can be launched <em>from within Mathematica</em> by evaluating <code>Import["!matlab -nodesktop -nojvm -r quit", "Text"]</code> in Mathematica.  Unfortunately Mathematica may sometimes change <code>PATH</code>.</li>
-<li>Ensure that you have a recent version of <code>g++</code> installed.  Recent versions of MATLAB require gcc version 4.7 or later.  If <code>g++</code> is not installed, on Ubuntu, use <code>apt-get install g++</code>.   <b>Note: </b> On Ubuntu <code>gcc</code> is installed by default, but <code>g++</code> is not.</li>
+<li>Ensure that you have a recent version of <code>g++</code> installed.  If <code>g++</code> is not installed, on Ubuntu, use <code>apt-get install g++</code>.   <b>Note: </b> On Ubuntu <code>gcc</code> is installed by default, but <code>g++</code> is not.</li>
 <li>Ensure that development libraries for <code>libuuid</code> are installed.  On Ubuntu, use <code>apt-get install uuid-dev</code>.</li>
 <li>Ensure that <code>/bin/csh</code> is installed and it works.  On Ubuntu, use <code>apt-get install csh</code>.</li>
+<li>Make sure that you are using a version of gcc which is compatible with your MATLAB version.  The compiler requirements are documented <a href="https://www.mathworks.com/support/compilers/">on this MathWorks support page</a>.  Edit the URL to get the corresponding page for your version of MATLAB.</li>
 </ul>
 <h4>FAQ</h4>
 <div class="accordion" id="linux">
@@ -196,7 +197,7 @@ SetOptions[MATLink, "Force32BitEngine" -> True]
 			<div class="accordion-inner">
 				<p>Linux binaries of <code>mengine</code> are not included in the download package, and MATLink relies on automatic compilation instead. The error indicates that this has failed.</p>
 
-				<p>First, make sure that you have a recent version of <code>g++</code> installed (gcc 4.7 is required for MATLAB R2013b). To see what is going wrong during compilation, try compiling <code>mengine</code> manually:</p>
+				<p>First, make sure that you have a recent version of <code>g++</code> installed, <a href="https://www.mathworks.com/support/compilers/">which is compatible with your version of MATLAB</a>. To see what is going wrong during compilation, try compiling <code>mengine</code> manually:</p>
 
 				<ul>
 					<li>Open a terminal and navigate to the directory <code>MATLink/Engine/src</code>.</li>
