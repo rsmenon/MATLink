@@ -1,4 +1,4 @@
-#_MATLink_
+# _MATLink_
 
 ![](http://rsmenon.github.io/MATLink/assets/img/logo.png)
 
