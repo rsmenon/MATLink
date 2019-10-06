@@ -4,7 +4,7 @@
 	R. Menon (rsmenon@icloud.com)
 	Sz. Horvát (szhorvat@gmail.com)
 *)
-(* :Copyright: 2014 R. Menon and Sz. Horvát
+(* :Copyright: 2019 R. Menon and Sz. Horvát
     See the file LICENSE.txt for copying permission. *)
 
 BeginPackage["MATLink`"]
@@ -50,10 +50,10 @@ MCell::usage = "MCell[list] forces list to be interpreted as a MATLAB cell in MS
 MATLABCell::usage = "MATLABCell[] creates a code cell that is evaluated using MATLAB."
 
 Begin["`Information`"]
-`$VersionNumber = 1.
-`$ReleaseNumber = 1
-`$CreationDate = "Fri 15 Aug 2014"
-`$Version = ToString@StringForm["MATLink `1``2` for `3` (`4`)", `$VersionNumber, `$ReleaseNumber, $OperatingSystem, `$CreationDate]
+`$VersionNumber = 1.1 (* Real number, shown as x.y with two digits. Example: 1.0 *)
+`$ReleaseNumber = 1   (* Integer *)
+`$CreationDate = "Sun 6 Oct 2019"
+`$Version = ToString@StringForm["MATLink `1`.`2` for `3` (`4`)", NumberForm[`$VersionNumber, {Infinity, 1}], `$ReleaseNumber, $OperatingSystem, `$CreationDate]
 `$HomePage := SystemOpen["http://matlink.org"]
 End[]
 
