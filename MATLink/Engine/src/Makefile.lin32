@@ -11,7 +11,7 @@ LIBDIRS = -L$(MATHLINKDIR) -L$(MATLABDIR)/bin/glnxa32
 
 MPREP = $(MATHLINKDIR)/mprep
 
-CFLAGS = -Wall
+CFLAGS = -Wall -DMX_COMPAT_32
 
 
 all: mengine
