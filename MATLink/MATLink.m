@@ -441,7 +441,7 @@ MGet[_, x__] := message[MGet::argx, "MGet", Length@{x} + 1]["error"]
 (* MSet *)
 MSet::sparse = "Unsupported sparse array; sparse arrays must be one or two dimensional, and must have either only numerical or only logical (True|False) elements."
 MSet::spdef = "Unsupported sparse array; the default element in numerical sparse arrays must be 0."
-MSet::flddup = "Duplicate field names not alowed in struct. The following duplicates were found: ``."
+MSet::flddup = "Duplicate field names not allowed in struct. The following duplicates were found: ``."
 MSet::fldnm = "Struct field names must start with a letter and contain only letters, numbers or the _ character. The following struct field names are not valid: ``."
 MSet::fldstr = "Struct field names must be strings. The following invalid field names were found: ``."
 MSet::unsupp = "Unsupported data type. The expression \"``\" can't be converted."
@@ -475,7 +475,7 @@ iMEvaluate[cmd_String, script_ : Automatic] :=
 			Switch[script,
 				Automatic, file = iMScript[randomString[], cmd],
 				"NoScript", file = {cmd},
-				_, Message[MEvaluate::unkw, script];Throw[$Failed,$error]
+				_, Message[MEvaluate::unkw, script]; Throw[$Failed, $error]
 			];
 
 			result = eval@StringJoin["
@@ -911,6 +911,6 @@ MATLABCell[] :=
 
 End[] (* MATLink`Experimental` *)
 
-SetAttributes[#, {Protected,ReadProtected}]& /@ Names["`*"];
+SetAttributes[#, {Protected, ReadProtected}]& /@ Names["`*"];
 
 EndPackage[] (* MATLink` *)
